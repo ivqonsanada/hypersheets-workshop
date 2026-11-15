@@ -1,0 +1,9 @@
+Use the motion-kit skill to make a short video that explains how to center a box with CSS flexbox. The three steps: make the parent a flex container with display: flex; center along the row with justify-content: center; center across the row with align-items: center. Show this code:
+
+.parent {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+End by sending people to learnhypersheets.com. Add a voice-over in English with the light voice that runs on this laptop. Work until the video is rendered.

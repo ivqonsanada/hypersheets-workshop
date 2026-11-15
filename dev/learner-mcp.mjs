@@ -1,8 +1,9 @@
 // A stand-in for the learner at the permission prompt, for headless trial runs only.
 // Claude Code calls it (--permission-prompt-tool mcp__learner__approve) whenever a
 // command would ask the person. It answers the way the track's guide tells a learner to:
-// yes to copying the skill's template into ./video (and to listing that template),
-// no to everything else. Every prompt and answer is appended to $LEARNER_LOG.
+// yes to copying the skill's template into ./video (and to listing that template), yes to
+// motion-kit's own scripts (build, stills, sound, device), no to everything else, a voice
+// download included. Every prompt and answer is appended to $LEARNER_LOG.
 //
 // MCP over stdio: newline-delimited JSON-RPC 2.0. No packages.
 import { appendFileSync } from "node:fs";
@@ -34,6 +35,16 @@ function partOk(part) {
   if (m && !m[1].startsWith("-")) return inVideo(m[2]);
   m = p.match(new RegExp(`^mkdir\\s+(-p\\s+)?${ARG}$`));
   if (m) return inVideo(m[2]);
+  // motion-kit: the kit's own scripts, as its skill writes them. install.mjs downloads, and
+  // this stand-in never said yes to a download, so anything but its list is refused and logged.
+  m = p.match(new RegExp(`^node\\s+${ARG}(\\s+.*)?$`));
+  if (m) {
+    const script = unquote(m[1]);
+    if (/\/skills\/motion-kit\/kit\/(build|stills|sound)\.mjs$/.test(script)) return true;
+    if (/\/skills\/motion-kit\/kit\/sound\/device\.mjs$/.test(script)) return true;
+    if (/\/skills\/motion-kit\/kit\/sound\/install\.mjs$/.test(script)) return /^\s*list\s*$/.test(m[2] || "");
+    return false;
+  }
   // looking around is harmless
   if (/^(ls|find|grep|cat|pwd|head|tail|wc|sort|echo|file|du)\b/.test(p)) return true;
   return false;

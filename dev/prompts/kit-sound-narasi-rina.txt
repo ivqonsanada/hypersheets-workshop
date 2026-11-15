@@ -1,0 +1,1 @@
+Pakai skill motion-kit untuk membuat video promo dari halamanku di index.html. Alamat halamanku https://rina-lestari.pages.dev. Tambahkan narasi suara, ya. Kerjakan sampai videonya selesai dirender.
