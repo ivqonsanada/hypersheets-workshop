@@ -193,7 +193,7 @@ if (sb.music != null) {
   });
   const sets = new Map();
   for (const [h, where] of at) if (where.length >= 3) sets.set(where.join(), { where, said: [...((sets.get(where.join()) || {}).said || []), h] });
-  for (const { where, said } of sets.values()) say(`Scenes ${where.slice(0, -1).join(", ")} and ${where[where.length - 1]} all show the same fact (${said.slice(0, 3).map((x) => `"${x}"`).join(", ")}). A viewer needs it once, or twice when the second place is the end card. Keep it where it reads best and take it out of the other scenes. Do not put a new fact in its place: a scene left with nothing of its own is removed.`);
+  for (const { where, said } of sets.values()) say(`Scenes ${where.slice(0, -1).join(", ")} and ${where[where.length - 1]} all show the same fact (${[...said].sort((x, y) => y.length - x.length).slice(0, 3).map((x) => `"${x}"`).join(", ")}). A viewer needs it once, or twice when the second place is the end card. Keep it where it reads best and take it out of the other scenes. Do not put a new fact in its place: a scene left with nothing of its own is removed.`);
 }
 // A day name beside a full date ("Sabtu, 13 Desember 2026") that the calendar does not agree with. The builder cannot
 // know which of the two the user meant, so it builds with the words as written and says so at the end.
