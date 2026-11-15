@@ -163,6 +163,26 @@ html.look-panggung .mk-info .lb { display: inline-flex; padding: 8px 20px 10px; 
 html.look-panggung .mk-info .lb i { display: none; }
 html.look-panggung .mk-info .tx2 { font-family: var(--fd), sans-serif; font-weight: 900; letter-spacing: var(--trk); }
 
+/* ---------- qa: questions and their answers ---------- */
+.mk-qa .head { margin-bottom: 68px; }
+.mk-qa .pairs { width: 100%; display: flex; flex-direction: column; gap: 84px; }
+.mk-qa .pair { position: relative; display: flex; align-items: flex-start; gap: 34px; }
+.mk-qa .hr { position: absolute; left: 0; right: 0; top: -42px; height: 6px; margin-top: -3px; display: block; background: var(--line); transform-origin: 0 50%; }
+.mk-qa .chip { flex: none; width: 88px; height: 88px; display: flex; align-items: center; justify-content: center; background: var(--mk-accent); color: var(--mk-on-accent); font: 700 60px/1 var(--fd), sans-serif; box-shadow: 8px 8px 0 var(--deep); }
+.mk-qa .bd3 { flex: 1 1 auto; min-width: 0; }
+.mk-qa .qq { font-weight: 700; color: var(--ink); }
+.mk-qa .aa { margin-top: 18px; font-weight: 500; color: var(--ink); }
+html.look-warnet .mk-qa .aa { color: var(--muted); }
+html.look-kertas .mk-qa .pairs { gap: 92px; }
+html.look-kertas .mk-qa .pair { gap: 26px; }
+html.look-kertas .mk-qa .hr { top: -46px; height: 3px; margin-top: -1px; background: var(--ink); }
+html.look-kertas .mk-qa .chip { width: 84px; height: auto; align-items: flex-start; justify-content: flex-start; background: none; box-shadow: none; color: var(--mk-accent-ink); font: 600 italic 104px/0.86 var(--fd), serif; }
+html.look-kertas .mk-qa .qq { font-family: var(--fd), serif; font-weight: 600; letter-spacing: -0.01em; }
+html.look-panggung .mk-qa .hr { height: 8px; margin-top: -4px; background: var(--ink); }
+html.look-panggung .mk-qa .chip { background: var(--ink); color: var(--g); box-shadow: none; font: 900 68px/1 var(--fd), sans-serif; }
+html.look-panggung .mk-qa .qq { font-family: var(--fd), sans-serif; font-weight: 900; letter-spacing: var(--trk); }
+html.look-panggung .mk-qa .aa { font-weight: 600; }
+
 /* ---------- when: a date on a calendar leaf ---------- */
 .mk-when .kick { display: flex; align-items: center; gap: 22px; font-size: 54px; line-height: 1.2; font-weight: 600; color: var(--muted); margin-bottom: 40px; transform-origin: 0 50%; }
 .mk-when .kick i { flex: none; display: block; width: 22px; height: 22px; background: var(--mark); }

@@ -55,6 +55,7 @@ Work in the user's folder (for a page, the one with its `index.html`).
 | a person, a page, a shop, a product, a service | `promo` | title, then page or image when there is one, then one or two of list, prices, info, when, steps, stat, numbers, quote, then end |
 | something new: a feature, an opening, an event, a sale, a vacancy | `announce` | title, then one to three of when, info, image, page, stat, prices, list, steps, compare, then end |
 | a menu, a price list, packages with prices | `menu` | title, prices, then optionally image, info, list or quote, then end |
+| questions people ask, with their answers | `faq` | title, qa, then optionally info, list, prices or steps, then end |
 | a year, an event or a project in numbers | `recap` | title, numbers (or stat for one number), then optionally list, quote, image or compare, then end |
 | how something works | `explainer` | title, steps, then optionally code, fix, image, compare or list, then end |
 | tips or reasons | `tips` | title, list, then optionally stat, quote or image, then end |
@@ -75,6 +76,7 @@ Then pick each scene by what its facts are:
 | one number that matters most | `stat` |
 | things done in order: first, then, last | `steps` |
 | separate points with no order: reasons, features, what is included | `list` |
+| a question and its answer | `qa` |
 | before and after, wrong and right | `compare` |
 | a named person's own words | `quote` |
 | code that runs | `code` |

@@ -28,13 +28,14 @@ export const NARRATORS = ["ringan", "kokoro", "bagus", "sendiri", "draft"];
 
 // Which scenes a recipe needs and may hold. Every video opens on `title` and closes on `end`.
 export const RECIPES = {
-  promo: { need: [], may: ["page", "image", "list", "steps", "stat", "quote", "prices", "info", "numbers", "when"], about: "a person, page, shop or product" },
-  announce: { need: [], may: ["image", "page", "stat", "list", "steps", "compare", "prices", "info", "numbers", "when"], about: "something new: a feature, an opening, a date" },
-  menu: { need: [["prices"]], may: ["prices", "image", "page", "list", "info", "quote", "when"], about: "a menu, a price list, packages with prices" },
+  promo: { need: [], may: ["page", "image", "list", "steps", "stat", "quote", "prices", "info", "numbers", "when", "qa"], about: "a person, page, shop or product" },
+  announce: { need: [], may: ["image", "page", "stat", "list", "steps", "compare", "prices", "info", "numbers", "when", "qa"], about: "something new: a feature, an opening, a date" },
+  faq: { need: [["qa"]], may: ["qa", "info", "list", "prices", "steps", "image", "page"], about: "questions people ask, with their answers" },
+  menu: { need: [["prices"]], may: ["prices", "image", "page", "list", "info", "quote", "when", "qa"], about: "a menu, a price list, packages with prices" },
   recap: { need: [["numbers", "stat"]], may: ["numbers", "stat", "list", "quote", "image", "compare"], about: "a year, an event or a project in numbers" },
-  explainer: { need: [["steps"]], may: ["steps", "code", "fix", "image", "compare", "list", "info"], about: "how something works, in steps" },
-  tips: { need: [["list"]], may: ["list", "stat", "quote", "image", "info", "numbers"], about: "a short list of tips or reasons" },
-  coding: { need: [["code", "fix"]], may: ["code", "fix", "compare", "steps", "list"], about: "a piece of code and what it does, or a mistake and its fix" },
+  explainer: { need: [["steps"]], may: ["steps", "code", "fix", "image", "compare", "list", "info", "qa"], about: "how something works, in steps" },
+  tips: { need: [["list"]], may: ["list", "stat", "quote", "image", "info", "numbers", "qa"], about: "a short list of tips or reasons" },
+  coding: { need: [["code", "fix"]], may: ["code", "fix", "compare", "steps", "list", "qa"], about: "a piece of code and what it does, or a mistake and its fix" },
   testimonial: { need: [["quote"]], may: ["quote", "stat", "page", "image", "list", "numbers"], about: "what a real person said" },
   "before-after": { need: [["compare", "fix"]], may: ["compare", "fix", "list", "stat", "image", "numbers", "prices"], about: "a change: before and after, wrong and right" },
 };
@@ -64,6 +65,10 @@ export const FIELDS = {
   info: {
     heading: text(30, true),
     rows: { kind: "objects", min: 2, most: 4, req: true, of: { label: text(14, true), text: text(48, true) } },
+  },
+  qa: {
+    heading: text(30),
+    pairs: { kind: "objects", min: 1, most: 3, req: true, of: { q: text(64, true), a: text(96, true) } },
   },
   when: {
     label: text(24),
@@ -195,6 +200,22 @@ export const PLAN = {
       T: { head: r2(a), rows },
       cues: [{ t: r2(a), type: "land", weight: 1 }, ...rows.map((t) => ({ t, type: "land", weight: 2 }))],
       stills: [{ t: r2(last + 1.2), expect: `the heading ${q(s.heading)} and ${s.rows.length} facts, each a small label over its own large line, whole: ${s.rows.map((x) => `${x.label}: ${q(x.text, 32)}`).join(", ")}` }],
+    };
+  },
+  qa(s, a) {
+    // A question is read before its answer arrives, and an answer before the next question.
+    let t = a + (s.heading ? 0.5 : 0.1);
+    const pairs = s.pairs.map((p) => {
+      const at = { q: r2(t), a: r2(t + 0.8 + Math.min(0.6, p.q.length * 0.01)) };
+      t = at.a + 0.9 + Math.min(1.0, p.a.length * 0.012);
+      return at;
+    });
+    const need = pairs[pairs.length - 1].a + 2.2 + Math.min(1.2, s.pairs[s.pairs.length - 1].a.length * 0.012);
+    return {
+      need,
+      T: { head: r2(a), pairs },
+      cues: [...(s.heading ? [{ t: r2(a), type: "land", weight: 1 }] : []), ...pairs.flatMap((x) => [{ t: x.q, type: "land", weight: 2 }, { t: x.a, type: "land", weight: 1 }])],
+      stills: [{ t: r2(need - 0.9), expect: `${s.heading ? `the heading ${q(s.heading)} and ` : ""}${s.pairs.length} ${s.pairs.length === 1 ? "question, marked with a question mark, with its answer" : "questions, each marked with a question mark, with its answer"} under it, every line whole: ${s.pairs.map((x) => `${q(x.q, 40)} then ${q(x.a, 40)}`).join("; ")}` }],
     };
   },
   when(s, a) {

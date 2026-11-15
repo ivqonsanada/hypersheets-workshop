@@ -200,6 +200,37 @@
     });
   });
 
+  // ---------- qa: one to three questions, each answered under itself ----------
+  MK.define("qa", (c) => {
+    const s = c.s, n = s.pairs.length;
+    const hd = s.heading ? head(c, s.heading) : null;
+    const chip = K ? 84 : 88, room = c.W - chip - (K ? 26 : 34);
+    const tall = c.H - (hd ? Number(hd.dataset.h) + 68 : 0);
+    const role = K || P ? "display" : "body", qlh = P ? 1.04 : 1.16;
+    // One size for every question and one for every answer: of the pairs at which everything
+    // fits, the one that wraps the fewest lines. A single question is set larger.
+    const pick = fewest(n < 2 ? [[92, 64], [84, 60], [76, 56], [68, 52], [60, 48], [54, 44], [48, 40]] : n < 3 ? [[76, 56], [68, 52], [62, 48], [56, 44], [50, 42], [46, 38]] : [[64, 50], [58, 46], [54, 44], [50, 42], [46, 38], [42, 36]], n < 2 ? 68 : n < 3 ? 56 : 50, ([a, b]) => {
+      const qs = s.pairs.map((p) => MK.fit(p.q, role, [a], room, 3));
+      const as = s.pairs.map((p) => MK.fit(p.a, "body", [b], room, 4));
+      const total = qs.reduce((sum, f, i) => sum + Math.max(chip, f.lines.length * a * qlh) + 18 + as[i].lines.length * b * 1.28, 0) + (n - 1) * (K ? 92 : 84);
+      return { a, b, qs, as, ok: qs.concat(as).every((f) => f.ok) && total <= tall, lines: qs.concat(as).reduce((sum, f) => sum + f.lines.length, 0) };
+    });
+    const rows = s.pairs.map((p, i) => {
+      const qq = MK.text("p", "qq", flag(c, pick.qs[i], "question " + (i + 1)), qlh);
+      const aa = MK.text("p", "aa", flag(c, pick.as[i], "the answer to question " + (i + 1)), 1.28);
+      return h("div", "pair", [i ? h("i", "hr") : null, h("b", "chip", "?"), h("div", "bd3", [qq, aa])]);
+    });
+    safe(c, [hd, h("div", "pairs", rows)]);
+    if (hd) M.lines(c.tl, lines(hd), c.T.head);
+    rows.forEach((row, i) => {
+      const t = c.T.pairs[i];
+      if (row.querySelector(".hr")) M.grow(c.tl, row.querySelector(".hr"), t.q - 0.1, 0.45);
+      M.pop(c.tl, row.querySelector(".chip"), t.q);
+      M.lines(c.tl, lines(row.querySelector(".qq")), t.q + 0.08);
+      M.lines(c.tl, lines(row.querySelector(".aa")), t.a);
+    });
+  });
+
   // ---------- when: one date, loud, on a calendar leaf ----------
   MK.define("when", (c) => {
     const s = c.s, T = c.T;

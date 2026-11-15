@@ -99,6 +99,23 @@ The facts someone needs to come or to get in touch, each under its own small lab
   { "label": "Tempat", "text": "Jalan Kenari 12, Bandung" } ] }
 ```
 
+## qa
+
+One to three questions people really ask, each with its answer under it. Use it for an FAQ, for the one question a customer always asks, or for a quiz whose answer comes a moment after the question. The answers are facts: take them from the brief, never write one yourself.
+
+| Field | Limit | |
+|---|---|---|
+| `pairs` | 1 to 3 items | needed. Each item is `{ "q": …, "a": … }` |
+| `q` in a pair | 64 | needed. The question as people ask it, ending with a question mark |
+| `a` in a pair | 96 | needed. The answer, in one or two short sentences |
+| `heading` | 30 | "Yang sering ditanya", "Sebelum pesan" |
+
+```json
+{ "type": "qa", "heading": "Yang sering ditanya", "pairs": [
+  { "q": "Bisa pesan untuk hari yang sama?", "a": "Bisa, selama pesan masuk sebelum pukul sepuluh pagi." },
+  { "q": "Rotinya tahan berapa lama?", "a": "Tiga hari di suhu ruang, seminggu di kulkas." } ] }
+```
+
 ## when
 
 One date, set very large on a calendar leaf: the day's name, the number, the month. Use it when one date is what the video is for: an event, an opening, a deadline, the last day of a sale. The hour and the place go in `lines`. Several facts of the same weight (hours, a place, a fee) are an `info` scene; a video uses one of the two for a date, not both.

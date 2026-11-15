@@ -1,0 +1,11 @@
+{
+  "recipe": "faq",
+  "look": "kertas",
+  "lang": "id",
+  "scenes": [
+    {"type": "title", "kicker": "Jahit Bu Hartini", "headline": "Tiga hal yang sering ditanya", "sub": "Sebelum mengantar kain ke rumah jahit kami"},
+    {"type": "qa", "heading": "Sebelum pesan", "pairs": [{"q": "Berapa lama jahit satu kebaya?", "a": "Sepuluh hari kerja sejak kain kami terima."}, {"q": "Bisa bawa kain sendiri?", "a": "Bisa. Kami juga menyediakan furing dan kancing."}, {"q": "Kalau kurang pas, bagaimana?", "a": "Permak pertama gratis dalam dua minggu."}]},
+    {"type": "info", "heading": "Antar kainnya", "rows": [{"label": "Buka", "text": "Senin sampai Sabtu, 09.00-17.00"}, {"label": "Tempat", "text": "Jalan Cempaka 21, Klaten"}]},
+    {"type": "end", "line": "Tanya dulu juga boleh", "name": "Jahit Bu Hartini", "address": "@jahitbuhartini", "button": "Kirim pesan"}
+  ]
+}

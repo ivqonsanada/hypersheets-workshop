@@ -260,6 +260,22 @@ test("when: one loud date, checked against the calendar and counted as one fact"
   clean(r, wrong, span);
 });
 
+test("qa: each question lands, then its answer, and the recipe faq needs one", () => {
+  const pairs = [{ q: "Bisa pesan untuk hari yang sama?", a: "Bisa, selama pesan masuk sebelum pukul 10.00." }, { q: "Ada antar ke rumah?", a: "Ada, gratis untuk Salatiga kota." }];
+  const r = ok(build(sb({ type: "qa", heading: "Yang sering ditanya", pairs }, { recipe: "faq" })));
+  const T = r.scene(2).T;
+  assert.ok(T.pairs[0].q < T.pairs[0].a && T.pairs[0].a < T.pairs[1].q && T.pairs[1].q < T.pairs[1].a, "question, answer, question, answer");
+  assert.ok(T.pairs[0].a - T.pairs[0].q >= 0.8, "a question is on screen a moment before its answer");
+  assert.equal(of(r.cues, 2, "land").length, 1 + 2 * pairs.length);
+  assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /the heading "Yang sering ditanya" and 2 questions, each marked with a question mark, with its answer under it, every line whole: "Bisa pesan untuk hari yang sama\?" then "Bisa, selama pesan masuk sebelum pukul…"; "Ada antar ke rumah\?" then "Ada, gratis untuk Salatiga kota\."/);
+  const one = ok(build(sb({ type: "qa", pairs: [pairs[0]] })));
+  assert.equal(of(one.cues, 2, "land").length, 2, "no heading, one pair");
+  refused(build(sb({ type: "qa", pairs: [{ q: "Ada antar ke rumah?" }] })), /"pairs" item 1 needs "a"\./);
+  refused(build(sb({ type: "qa", pairs: [...pairs, ...pairs] })), /"pairs" has 4 items; it holds 1 to 3\./);
+  refused(build(sb(LIST, { recipe: "faq" })), /The recipe "faq" needs a qa scene\./);
+  clean(r, one);
+});
+
 test("a code card holds one line", () => {
   const code = (lines) => ({ recipe: "coding", look: "warnet", lang: "en", scenes: [{ type: "title", headline: "True or false?" }, { type: "code", caption: "What does this print?", lang: "js", lines }, { type: "end", line: "Answer in the comments", address: "@kelassore", button: "Follow for more" }] });
   const one = ok(build(code(["console.log(0.1 + 0.2 === 0.3);"])));
