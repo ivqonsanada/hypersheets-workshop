@@ -195,6 +195,36 @@ if (sb.music != null) {
   for (const [h, where] of at) if (where.length >= 3) sets.set(where.join(), { where, said: [...((sets.get(where.join()) || {}).said || []), h] });
   for (const { where, said } of sets.values()) say(`Scenes ${where.slice(0, -1).join(", ")} and ${where[where.length - 1]} all show the same fact (${said.slice(0, 3).map((x) => `"${x}"`).join(", ")}). A viewer needs it once, or twice when the second place is the end card. Keep it where it reads best and take it out of the other scenes. Do not put a new fact in its place: a scene left with nothing of its own is removed.`);
 }
+// A day name beside a full date ("Sabtu, 13 Desember 2026") that the calendar does not agree with. The builder cannot
+// know which of the two the user meant, so it builds with the words as written and says so at the end.
+const notes = [];
+{
+  const DAYS = { id: ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"], en: ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] };
+  const MONTHS = { id: ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"], en: ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"] };
+  const strings = (o, got = []) => {
+    if (typeof o === "string") got.push(o);
+    else if (o && typeof o === "object") for (const [k, v] of Object.entries(o)) if (!["type", "scene", "file", "lines", "voice"].includes(k)) strings(v, got);
+    return got;
+  };
+  const told = new Set();
+  scenes.forEach((sc, i) => {
+    for (const t of strings(sc)) {
+      for (const L of ["id", "en"]) {
+        const day = `(${DAYS[L].join("|")}|jum'at|ahad)`, month = `(${MONTHS[L].join("|")})`;
+        const found = [...t.matchAll(new RegExp(`\\b${day},?\\s+(\\d{1,2})\\s+${month}\\s+(\\d{4})\\b`, "gi"))].map((m) => ({ said: m[0], day: m[1], d: +m[2], month: m[3], y: +m[4] }));
+        if (L === "en") found.push(...[...t.matchAll(new RegExp(`\\b${day},?\\s+${month}\\s+(\\d{1,2}),?\\s+(\\d{4})\\b`, "gi"))].map((m) => ({ said: m[0], day: m[1], d: +m[3], month: m[2], y: +m[4] })));
+        for (const f of found) {
+          const name = f.day.toLowerCase().replace("jum'at", "jumat").replace("ahad", "minggu");
+          const date = new Date(Date.UTC(f.y, MONTHS[L].indexOf(f.month.toLowerCase()), f.d));
+          if (date.getUTCDate() !== f.d) { if (!told.has(f.said)) notes.push(`scene ${i + 1} says "${f.said}", and that month has no day ${f.d}.`); told.add(f.said); continue; }
+          const real = DAYS[L][date.getUTCDay()];
+          if (real !== name && !told.has(f.said)) notes.push(`scene ${i + 1} says "${f.said}", and on the calendar that date is a ${real[0].toUpperCase() + real.slice(1)}.`);
+          told.add(f.said);
+        }
+      }
+    }
+  });
+}
 if (fs.existsSync(out) && !fs.existsSync(path.join(out, "mk-plan.json"))) say(`A folder named video is already here and the kit did not make it. Ask the user before anything in it is replaced.`);
 
 // Sound: effects by the kit's own choice, spoken lines where a scene has "voice", music if given.
@@ -403,3 +433,4 @@ else {
 if (takes.waiting.length) console.log(`\nThe "voice" ${takes.waiting.length === 1 ? "line" : "lines"} of ${nums(takes.waiting)} ${takes.waiting.length === 1 ? "is" : "are"} not spoken yet. After the sheet and REVIEW.md, and before the render, run:\n  node "${path.join(KIT, "sound.mjs")}"`);
 if (sheetStays) console.log(`\nWrote the project to video/. The pictures did not change, so video/sheet.png still shows them.`);
 else console.log(`\nWrote the project to video/. Next, make the contact sheet:\n  node "${path.join(KIT, "stills.mjs")}"`);
+if (notes.length) console.log(`\nCHECK WITH THE USER. The video is built with the words as the storyboard has them, and one thing in them cannot be right:\n${notes.map((x) => `  - ${x}`).join("\n")}\nDo not change the day or the date yourself: you cannot know which one the user meant. In your last message, tell the user what the calendar says and ask which is right.`);
