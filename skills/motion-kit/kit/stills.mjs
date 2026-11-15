@@ -12,6 +12,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 const HF = "hyperframes@0.9.51";
 const dir = path.resolve(process.argv[2] || ".");
@@ -99,3 +100,5 @@ fs.rmSync(sheet, { recursive: true, force: true });
 console.log(`\nWrote video/sheet.png: ${n} frames. Open it with Read and compare each frame with its sentence:\n`);
 for (const s of plan.stills) console.log(`FRAME ${s.n} (${s.t} s, scene ${s.scene}, ${s.type}): ${s.expect}`);
 console.log(`\nIn every frame: each word whole, nothing cut at an edge, nothing on top of other words, no red strip that says DOES NOT FIT.`);
+const waiting = (plan.sound && plan.sound.voiceWaiting) || [];
+if (waiting.length) console.log(`\nThis video has "voice" lines that are not spoken yet. After REVIEW.md and before the render, run:\n  node "${path.join(path.dirname(fileURLToPath(import.meta.url)), "sound.mjs")}"`);

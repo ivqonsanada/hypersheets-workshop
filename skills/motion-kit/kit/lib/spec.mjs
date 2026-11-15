@@ -8,6 +8,14 @@ export const LANGS = ["id", "en"];
 export const IN = 0.34; // a scene's cover lifts over its first third of a second
 export const OUT = 0.4; // and closes over its last 0.4 s
 
+// Sound. With "on", every video gets sound effects from its look's own palette unless its
+// storyboard says "sound": "off". Change this one word to "off" and a video is silent unless
+// its storyboard says "sound": "on" (spoken lines and music are laid either way).
+export const SOUND_DEFAULT = "on";
+// What "narrator" may be: who speaks the scenes' "voice" lines. A voice's own name from
+// sound/engines.json also works, for the voices this list leaves out.
+export const NARRATORS = ["ringan", "kokoro", "bagus", "sendiri", "draft"];
+
 // Which scenes a recipe needs and may hold. Every video opens on `title` and closes on `end`.
 export const RECIPES = {
   promo: { need: [["page", "image"]], may: ["page", "image", "list", "steps", "stat", "quote"], about: "a person, page, shop or product" },

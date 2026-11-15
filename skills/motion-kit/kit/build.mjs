@@ -5,12 +5,20 @@
 //
 // It reads the storyboard, checks every scene against the kit's rules (lib/spec.mjs), and
 // either prints what to fix, one sentence per problem, or writes `video/` next to the
-// storyboard: a HyperFrames 0.9.51 project made of the kit's own scenes. It reads and writes
-// files only in the storyboard's folder, runs no other program and uses no network.
+// storyboard: a HyperFrames 0.9.51 project made of the kit's own scenes, with its sound laid
+// (sound/mix.mjs: effects on the builder's own cues, the spoken lines that are already made,
+// the storyboard's music). It reads and writes files only in the storyboard's folder and uses
+// no network; the only program it starts is ffmpeg, when there is one, to read an MP3 and to
+// measure the mix.
 import fs from "node:fs";
 import path from "node:path";
+import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { LOOKS, LANGS, RECIPES, FIELDS, VARIANTS, PLAN, IN, OUT, voiceRoom } from "./lib/spec.mjs";
+import { LOOKS, LANGS, RECIPES, FIELDS, VARIANTS, PLAN, IN, OUT, voiceRoom, SOUND_DEFAULT, NARRATORS } from "./lib/spec.mjs";
+import { mixVideo } from "./sound/mix.mjs";
+import { voiceTakes } from "./sound/lib/project.mjs";
+import { lint } from "./sound/lib/text.mjs";
+import { registry } from "./sound/lib/engines.mjs";
 
 const KIT = path.dirname(fileURLToPath(import.meta.url));
 const file = path.resolve(process.argv[2] || "storyboard.json");
@@ -34,7 +42,7 @@ try { sb = JSON.parse(fs.readFileSync(file, "utf8")); } catch (e) { say(`${path.
 if (!sb || typeof sb !== "object" || Array.isArray(sb)) { say("The storyboard must be one JSON object: { \"recipe\": …, \"look\": …, \"lang\": …, \"scenes\": [ … ] }."); stop(); }
 
 // ---------- check ----------
-const TOP = ["recipe", "look", "lang", "accent", "music", "scenes"];
+const TOP = ["recipe", "look", "lang", "accent", "sound", "narrator", "music", "scenes"];
 for (const k of Object.keys(sb)) if (!TOP.includes(k)) say(`"${k}" is not a setting of the kit. Remove it. The settings are: ${list(TOP)}.`);
 if (!RECIPES[sb.recipe]) say(`"recipe" must be one of: ${list(Object.keys(RECIPES))}.`);
 if (!LOOKS.includes(sb.look)) say(`"look" must be one of: ${list(LOOKS)}.`);
@@ -140,12 +148,26 @@ if (sb.music != null) {
   if (!music || !fs.existsSync(music) || !/\.(mp3|wav|m4a)$/i.test(music)) say(`"music" must be an mp3, wav or m4a file in this folder. The kit never downloads or makes music.`);
 }
 if (fs.existsSync(out) && !fs.existsSync(path.join(out, "mk-plan.json"))) say(`A folder named video is already here and the kit did not make it. Ask the user before anything in it is replaced.`);
+
+// Sound: effects by the kit's own choice, spoken lines where a scene has "voice", music if given.
+const spoken = scenes.map((s, i) => ({ n: i + 1, text: s && typeof s.voice === "string" ? s.voice.trim() : "" })).filter((l) => l.text);
+const nums = (a) => (a.length === 1 ? `scene ${a[0]}` : `scenes ${a.slice(0, -1).join(", ")} and ${a[a.length - 1]}`);
+if (sb.sound != null && !["on", "off"].includes(sb.sound)) say(`"sound" must be "on" or "off". Leave it out and the video has ${SOUND_DEFAULT === "on" ? "sound effects" : "no sound effects"}.`);
+if (sb.sound === "off" && spoken.length) say(`"sound": "off" keeps the video silent, but ${nums(spoken.map((l) => l.n))} ${spoken.length === 1 ? "has" : "have"} a "voice" line. Remove "sound": "off", or remove the "voice" lines.`);
+if (sb.sound === "off" && sb.music != null) say(`"sound": "off" keeps the video silent, but "music" is set. Remove one of the two.`);
+if (LANGS.includes(sb.lang)) for (const l of spoken) for (const what of lint(l.text, sb.lang)) say(`scene ${l.n} "voice" ${what}`);
+if (sb.narrator != null) {
+  if (typeof sb.narrator !== "string" || !(NARRATORS.includes(sb.narrator) || registry().voices[sb.narrator])) say(`"narrator" says which voice speaks the "voice" lines. It must be one of: ${list(NARRATORS)}.`);
+  else if (!spoken.length) say(`"narrator" is set, but no scene has a "voice" line. Add "voice": "one spoken sentence" to the scenes that should speak, or remove "narrator".`);
+}
+const effectsOn = sb.sound ? sb.sound === "on" : SOUND_DEFAULT === "on";
+const soundOn = sb.sound !== "off" && (effectsOn || spoken.length > 0 || music != null);
 if (problems.length) stop();
 
 // ---------- plan: when every scene starts and what happens in it ----------
 const r2 = (v) => Math.round(v * 100) / 100;
-let voiced = {};
-try { voiced = JSON.parse(fs.readFileSync(path.join(out, "voice", "durations.json"), "utf8")); } catch (e) {}
+// The takes in video/voice/ that still say the storyboard's words, by scene number from 1.
+const takes = spoken.length ? voiceTakes(out, sb) : { ready: {}, waiting: [] };
 const hash = (s) => { let x = 2166136261; for (const ch of s) x = Math.imul(x ^ ch.codePointAt(0), 16777619) >>> 0; return x; };
 let at = 0;
 const cues = [], stills = [], plan = [];
@@ -159,7 +181,10 @@ scenes.forEach((s, i) => {
     if (typeof s.voice !== "string" || !s.voice.trim()) say(`scene ${i + 1} "voice" must be one spoken sentence, or left out.`);
     else if (words > voiceRoom(preset)) say(`scene ${i + 1} "voice" has ${words} words; this scene has room for about ${voiceRoom(preset)}. Say it shorter.`);
   }
-  const dur = r2(Math.max(preset, voiced[i] != null ? Number(voiced[i]) + 0.4 + (last ? 0 : OUT) : 0));
+  const take = takes.ready[i + 1];
+  // A line starts 0.3 s into its scene and ends before the cover closes; the last scene holds
+  // half a second after its line, so the video does not end on a word.
+  const dur = r2(Math.max(preset, take ? take.seconds + 0.4 + (last ? 0.5 : OUT) : 0));
   const id = "s" + (i + 1);
   const v = (hash(JSON.stringify(s)) + LOOKS.indexOf(sb.look)) % (VARIANTS[type] || 1);
   plan.push({ n: i + 1, id, type, start: r2(at), dur, v, T: p.T, first, last });
@@ -169,7 +194,7 @@ scenes.forEach((s, i) => {
   at += dur;
 });
 const total = r2(at);
-const anyVoice = Object.keys(voiced).length > 0;
+const anyVoice = Object.keys(takes.ready).length > 0;
 if (total > (anyVoice ? 45 : 32)) say(`The video would run ${total} seconds; the most is ${anyVoice ? 45 : 32}. Drop a scene, or shorten the longest texts.`);
 if (total < 8) say(`The video would run ${total} seconds; it needs at least 8. Add a scene the recipe allows.`);
 if (problems.length) stop();
@@ -178,7 +203,14 @@ if (problems.length) stop();
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/'/g, "&#39;");
 const write = (rel, text) => { const p = path.join(out, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, text); };
 const copy = (from, rel) => { const p = path.join(out, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.copyFileSync(from, p); };
-for (const old of ["compositions", "index.html", "assets/kit", "assets/page", "assets/img", "assets/custom", "frames", "sheet.png", ".sheet"]) fs.rmSync(path.join(out, old), { recursive: true, force: true });
+// The sheet shows the pictures. It stays when only the sound changed (a spoken line, a voice
+// that stretched a scene), so the frames a review was written from are still there.
+const sha = (buf) => createHash("sha256").update(buf).digest("hex").slice(0, 16);
+const pictures = sha(JSON.stringify({ look: sb.look, lang: sb.lang, accent: sb.accent || null, scenes: scenes.map((s) => { const c = { ...s }; delete c.voice; if (typeof c.file === "string" && inside(c.file)) c.fileIs = sha(fs.readFileSync(inside(c.file))); return c; }) }));
+let before = null;
+try { before = JSON.parse(fs.readFileSync(path.join(out, "mk-plan.json"), "utf8")); } catch (e) {}
+const sheetStays = !!(before && before.pictures === pictures && fs.existsSync(path.join(out, "sheet.png")));
+for (const old of ["compositions", "index.html", "assets/kit", "assets/page", "assets/img", "assets/custom", ".sheet", ...(sheetStays ? [] : ["frames", "sheet.png"])]) fs.rmSync(path.join(out, old), { recursive: true, force: true });
 fs.cpSync(path.join(KIT, "runtime"), path.join(out, "assets", "kit"), { recursive: true });
 
 // The page and the files it uses (its CSS, its pictures), kept at the same relative places.
@@ -232,10 +264,24 @@ plan.forEach((p, i) => {
 });
 write("compositions/bg.html", sub("bg", `<div class="mk-bg" id="bg-in"></div>`, `MK.ground("bg", ${total});`));
 
+// ---------- sound ----------
+// The mixer reads the cues and the plan, so they are written first. It lays the effects, the
+// spoken lines that are ready and the music into one file, which the video plays from 0.
+const planScenes = plan.map(({ n, id, type, start, dur }) => ({ n, id, type, start, dur }));
+write("cues.json", JSON.stringify({ look: sb.look, duration: total, cues: cues.sort((a, b) => a.t - b.t) }, null, 2) + "\n");
 const mix = path.join(out, "assets", "audio", "mix.wav");
-let audio = "";
-if (fs.existsSync(mix)) audio = `\n      <audio id="mk-mix" src="assets/audio/mix.wav" data-start="0" data-duration="${total}" data-track-index="2" data-volume="1"></audio>`;
-else if (music) { copy(music, "assets/audio/" + path.basename(music)); audio = `\n      <audio id="mk-music" src="assets/audio/${esc(path.basename(music))}" data-start="0" data-duration="${total}" data-track-index="2" data-volume="0.5"></audio>`; }
+let audio = "", heard = { on: false };
+if (soundOn) {
+  let m;
+  try { m = mixVideo(out, { storyboard: sb, plan: { scenes: planScenes }, "no-sfx": !effectsOn }); } catch (e) { m = { ok: false, problems: [e.message] }; }
+  if (!m.ok) { for (const p of m.problems) say(`The sound could not be laid. ${p}`); stop(); }
+  const rep = m.report;
+  heard = { on: true, effects: rep.cues.length, palette: rep.palette, voice: rep.voice.map((v) => v.scene), voiceWaiting: takes.waiting, voiceName: rep.voiceName || null, narrator: spoken.length ? sb.narrator || "ringan" : null, music: !!rep.music, lufs: rep.lufs, truePeakDb: rep.truePeakDb, warnings: rep.warnings };
+  audio = `\n      <audio id="mk-mix" src="assets/audio/mix.wav" data-start="0" data-duration="${total}" data-track-index="2" data-volume="1"></audio>`;
+} else {
+  fs.rmSync(mix, { force: true });
+  fs.rmSync(path.join(out, "mix-report.json"), { force: true });
+}
 const sample = [...new Set(JSON.stringify(scenes))].join("");
 const config = { look: sb.look, lang: sb.lang, accent: sb.accent || null, sample };
 const host = (id, start, dur, track) => `      <div id="${id}" data-composition-id="${id}" data-composition-src="compositions/${id}.html" data-start="${start}" data-duration="${dur}" data-track-index="${track}" data-track-kind="graphics" data-width="1080" data-height="1920"></div>`;
@@ -263,9 +309,19 @@ ${plan.map((p) => host(p.id, p.start, p.dur, 1)).join("\n")}${audio}
 </html>
 `);
 write("hyperframes.json", JSON.stringify({ $schema: "https://hyperframes.heygen.com/schema/hyperframes.json", paths: { blocks: "compositions", components: "compositions/components", assets: "assets" }, media: { autoProxy: true } }, null, 2) + "\n");
-write("cues.json", JSON.stringify({ look: sb.look, duration: total, cues: cues.sort((a, b) => a.t - b.t) }, null, 2) + "\n");
-write("mk-plan.json", JSON.stringify({ look: sb.look, lang: sb.lang, duration: total, sound: audio ? (fs.existsSync(mix) ? "mix" : "music") : "silent", scenes: plan.map(({ n, id, type, start, dur }) => ({ n, id, type, start, dur })), stills: stills.map((s, i) => ({ n: i + 1, ...s })) }, null, 2) + "\n");
+write("mk-plan.json", JSON.stringify({ look: sb.look, lang: sb.lang, duration: total, pictures, sound: heard, scenes: planScenes, stills: stills.map((s, i) => ({ n: i + 1, ...s })) }, null, 2) + "\n");
 
-console.log(`OK. ${plan.length} scenes, ${total} seconds, look "${sb.look}"${audio ? "" : ", silent"}.\n`);
+console.log(`OK. ${plan.length} scenes, ${total} seconds, look "${sb.look}".\n`);
 for (const p of plan) console.log(`  ${p.n}. ${p.type.padEnd(8)} ${String(p.start).padStart(5)} to ${r2(p.start + p.dur)} s`);
-console.log(`\nWrote the project to video/. Next, make the contact sheet:\n  node "${path.join(KIT, "stills.mjs")}"`);
+if (!heard.on) console.log(`\nSound: none${sb.sound === "off" ? ` (the storyboard says "sound": "off")` : ""}.`);
+else {
+  const parts = [];
+  if (heard.effects) parts.push(`${heard.effects} sound effects (palette "${heard.palette}")`);
+  if (heard.voice.length) parts.push(`${heard.voice.length} spoken ${heard.voice.length === 1 ? "line" : "lines"}${heard.voiceName ? ` (${heard.voiceName})` : ""}`);
+  if (heard.music) parts.push("music");
+  console.log(`\nSound: ${parts.join(", ")}; ${heard.lufs ?? "silent"} LUFS, peak ${heard.truePeakDb ?? "none"} dBTP.`);
+  for (const w of heard.warnings) console.log(`Sound check: ${w}`);
+}
+if (takes.waiting.length) console.log(`\nThe "voice" ${takes.waiting.length === 1 ? "line" : "lines"} of ${nums(takes.waiting)} ${takes.waiting.length === 1 ? "is" : "are"} not spoken yet. After the sheet and REVIEW.md, and before the render, run:\n  node "${path.join(KIT, "sound.mjs")}"`);
+if (sheetStays) console.log(`\nWrote the project to video/. The pictures did not change, so video/sheet.png still shows them.`);
+else console.log(`\nWrote the project to video/. Next, make the contact sheet:\n  node "${path.join(KIT, "stills.mjs")}"`);
