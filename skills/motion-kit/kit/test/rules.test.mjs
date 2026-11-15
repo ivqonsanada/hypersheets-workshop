@@ -201,6 +201,35 @@ test("fix: the wrong code, then the right code with the changed line marked", ()
   clean(r, en, all);
 });
 
+test("a scene keeps its layout through a revision, and \"variant\" picks one", () => {
+  const dir = mkdtempSync(join(tmpdir(), "mk-rules-"));
+  const write = (storyboard) => writeFileSync(join(dir, "storyboard.json"), JSON.stringify(storyboard));
+  const run = () => { const r = spawnSync(process.execPath, [join(KIT, "build.mjs"), "storyboard.json"], { cwd: dir, encoding: "utf8", env: { ...process.env, HS_SOUND_HOME: join(dir, ".no-voices") } }); assert.equal(r.status, 0, r.stdout); return json(join(dir, "video", "mk-plan.json")).scenes.map((s) => s.v); };
+  const first = sb(LIST);
+  write(first);
+  const layouts = run();
+  // Thirty rewrites of the same three scenes: without the memory about half would flip a layout.
+  for (let i = 0; i < 30; i++) {
+    write({ ...first, scenes: [{ ...TITLE, headline: `Sarapan mulai pukul ${i}` }, { ...LIST, items: [...LIST.items.slice(0, 2), `Teh poci nomor ${i + 100}`] }, { ...END, line: `Pesan ${i + 200} bungkus` }] });
+    assert.deepEqual(run(), layouts, `revision ${i} kept every layout`);
+  }
+  // A scene added before the others does not move their layouts.
+  write({ ...first, scenes: [TITLE, { type: "stat", value: "Rp11.000", label: "bubur ayam semangkuk" }, LIST, END] });
+  const more = run();
+  assert.deepEqual([more[0], more[2], more[3]], layouts);
+  // "variant" wins over the memory, and is remembered in turn.
+  const other = layouts[1] === 0 ? 2 : 1;
+  write({ ...first, scenes: [TITLE, { ...LIST, variant: other }, END] });
+  assert.equal(run()[1], other - 1);
+  write(first);
+  assert.equal(run()[1], other - 1, "the layout asked for stays after \"variant\" is taken out again");
+  assert.doesNotMatch(readFileSync(join(dir, "video", "compositions", "s2.html"), "utf8"), /variant/);
+  rmSync(dir, { recursive: true });
+
+  refused(build(sb({ ...LIST, variant: 3 })), /scene 2 \(list\) "variant" picks one of the scene's 2 layouts: write 1 or 2/);
+  refused(build(sb({ type: "info", heading: "Mampir", variant: 1, rows: [{ label: "Buka", text: "06.00 sampai 11.00" }, { label: "Tempat", text: "Jalan Pandan 4" }] })), /scene 2 \(info\) has "variant", and this scene has one layout\. Remove it\./);
+});
+
 test("a code card holds one line", () => {
   const code = (lines) => ({ recipe: "coding", look: "warnet", lang: "en", scenes: [{ type: "title", headline: "True or false?" }, { type: "code", caption: "What does this print?", lang: "js", lines }, { type: "end", line: "Answer in the comments", address: "@kelassore", button: "Follow for more" }] });
   const one = ok(build(code(["console.log(0.1 + 0.2 === 0.3);"])));

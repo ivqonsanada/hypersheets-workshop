@@ -81,7 +81,7 @@ const OWN_WORDS = {
 };
 function checkFields(n, type, s, fields) {
   const tag = `scene ${n} (${type})`;
-  for (const k of Object.keys(s)) if (!["type", "scene", "voice"].includes(k) && !fields[k]) say(`${tag} has "${k}", which this scene does not use. Remove it. It uses: ${list(Object.keys(fields))}.`);
+  for (const k of Object.keys(s)) if (!["type", "scene", "voice", "variant"].includes(k) && !fields[k]) say(`${tag} has "${k}", which this scene does not use. Remove it. It uses: ${list(Object.keys(fields))}.`);
   for (const [k, rule] of Object.entries(fields)) {
     const v = s[k], where = `${tag} "${k}"`;
     if (v == null || v === "") { if (rule.req) say(OWN_WORDS[k] ? `${tag} needs "${k}": ${OWN_WORDS[k]}. These are your own words, not a fact from the brief, so write them now in the video's language and do not ask the user for them.` : `${tag} needs "${k}". Take it from the brief; if the brief does not have it, ask the user or use another scene. Never make one up.`); continue; }
@@ -131,6 +131,11 @@ scenes.forEach((s, i) => {
   }
   if (!FIELDS[type]) return say(`scene ${n} has type "${type}", which the kit does not have. The scenes are: ${list(Object.keys(FIELDS))}.`);
   checkFields(n, type, s, FIELDS[type]);
+  if (s.variant != null) {
+    const count = VARIANTS[type] || 1;
+    if (count < 2) say(`scene ${n} (${type}) has "variant", and this scene has one layout. Remove it.`);
+    else if (!Number.isInteger(s.variant) || s.variant < 1 || s.variant > count) say(`scene ${n} (${type}) "variant" picks one of the scene's ${count} layouts: write 1 or 2, without quote marks. Leave it out and the kit keeps the layout the video already has.`);
+  }
   if (type === "prices" && Array.isArray(s.rows)) s.rows.forEach((row, k) => {
     for (const key of ["price", "was"]) if (row && typeof row[key] === "string" && row[key].trim() && !/\d/.test(row[key]) && !/^(gratis|free)$/i.test(row[key].trim())) say(`scene ${n} (prices) "rows" item ${k + 1} "${key}" must hold a price from the brief, such as "Rp15.000". A row without a price belongs in a list scene.`);
   });
@@ -254,6 +259,13 @@ const r2 = (v) => Math.round(v * 100) / 100;
 // The takes in video/voice/ that still say the storyboard's words, by scene number from 1.
 const takes = spoken.length ? voiceTakes(out, sb) : { ready: {}, waiting: [] };
 const hash = (s) => { let x = 2166136261; for (const ch of s) x = Math.imul(x ^ ch.codePointAt(0), 16777619) >>> 0; return x; };
+// What the last build of this folder wrote. A scene keeps the layout it had there, so changing a
+// word in a revision does not also change how the scene is laid out.
+let before = null;
+try { before = JSON.parse(fs.readFileSync(path.join(out, "mk-plan.json"), "utf8")); } catch (e) {}
+const had = {}; // type -> the layouts of that type's scenes in the last build, in order
+for (const x of (before && Array.isArray(before.scenes) ? before.scenes : [])) (had[x.type] = had[x.type] || []).push(x.v);
+const seen = {};
 let at = 0;
 const cues = [], stills = [], plan = [];
 scenes.forEach((s, i) => {
@@ -271,7 +283,12 @@ scenes.forEach((s, i) => {
   // half a second after its line, so the video does not end on a word.
   const dur = r2(Math.max(preset, take ? take.seconds + 0.4 + (last ? 0.5 : OUT) : 0));
   const id = "s" + (i + 1);
-  const v = (hash(JSON.stringify(s)) + LOOKS.indexOf(sb.look)) % (VARIANTS[type] || 1);
+  // The layout: the one the storyboard asks for, else the one this scene had in the last build
+  // (the first, second… scene of its type), else one picked from the scene's own words.
+  const layouts = VARIANTS[type] || 1, nth = (seen[type] = (seen[type] || 0) + 1) - 1;
+  const kept = had[type] ? had[type][nth] : null;
+  const { variant, ...rest } = s;
+  const v = Number.isInteger(variant) ? variant - 1 : Number.isInteger(kept) && kept >= 0 && kept < layouts ? kept : (hash(JSON.stringify(rest)) + LOOKS.indexOf(sb.look)) % layouts;
   plan.push({ n: i + 1, id, type, start: r2(at), dur, v, T: p.T, first, last });
   for (const q of p.cues) cues.push({ ...q, t: r2(at + q.t), ...(q.until != null ? { until: r2(at + q.until) } : {}), scene: i + 1 });
   if (!last) cues.push({ t: r2(at + dur - OUT), type: "whoosh", weight: 1, scene: i + 1 }, { t: r2(at + dur), type: "cut", weight: 2, scene: i + 2 });
@@ -291,9 +308,7 @@ const copy = (from, rel) => { const p = path.join(out, rel); fs.mkdirSync(path.d
 // The sheet shows the pictures. It stays when only the sound changed (a spoken line, a voice
 // that stretched a scene), so the frames a review was written from are still there.
 const sha = (buf) => createHash("sha256").update(buf).digest("hex").slice(0, 16);
-const pictures = sha(JSON.stringify({ look: sb.look, lang: sb.lang, accent: sb.accent || null, scenes: scenes.map((s) => { const c = { ...s }; delete c.voice; if (typeof c.file === "string" && inside(c.file)) c.fileIs = sha(fs.readFileSync(inside(c.file))); return c; }) }));
-let before = null;
-try { before = JSON.parse(fs.readFileSync(path.join(out, "mk-plan.json"), "utf8")); } catch (e) {}
+const pictures = sha(JSON.stringify({ look: sb.look, lang: sb.lang, accent: sb.accent || null, layouts: plan.map((p) => p.v), scenes: scenes.map((s) => { const c = { ...s }; delete c.voice; if (typeof c.file === "string" && inside(c.file)) c.fileIs = sha(fs.readFileSync(inside(c.file))); return c; }) }));
 const sheetStays = !!(before && before.pictures === pictures && fs.existsSync(path.join(out, "sheet.png")));
 for (const old of ["compositions", "index.html", "assets/kit", "assets/page", "assets/img", "assets/custom", ".sheet", ...(sheetStays ? [] : ["frames", "sheet.png"])]) fs.rmSync(path.join(out, old), { recursive: true, force: true });
 fs.cpSync(path.join(KIT, "runtime"), path.join(out, "assets", "kit"), { recursive: true });
@@ -361,6 +376,7 @@ const scripts = ["assets/kit/mk.js", "assets/kit/scenes.js"], links = ["assets/k
 plan.forEach((p, i) => {
   const s = { ...scenes[i] };
   delete s.voice;
+  delete s.variant;
   if (p.type === "page") { s.src = copyPage(s.file); if (!scripts.includes("assets/kit/page.js")) scripts.push("assets/kit/page.js"); }
   if ((p.type === "code" || p.type === "fix") && !scripts.includes("assets/kit/wrap.js")) scripts.splice(1, 0, "assets/kit/wrap.js");
   if (p.type === "image") {
@@ -383,7 +399,7 @@ write("compositions/bg.html", sub("bg", `<div class="mk-bg" id="bg-in"></div>`, 
 // ---------- sound ----------
 // The mixer reads the cues and the plan, so they are written first. It lays the effects, the
 // spoken lines that are ready and the music into one file, which the video plays from 0.
-const planScenes = plan.map(({ n, id, type, start, dur }) => ({ n, id, type, start, dur }));
+const planScenes = plan.map(({ n, id, type, start, dur, v }) => ({ n, id, type, start, dur, v }));
 write("cues.json", JSON.stringify({ look: sb.look, duration: total, cues: cues.sort((a, b) => a.t - b.t) }, null, 2) + "\n");
 const mix = path.join(out, "assets", "audio", "mix.wav");
 let audio = "", heard = { on: false };

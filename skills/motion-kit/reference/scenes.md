@@ -2,7 +2,7 @@
 
 Each scene is one `{ … }` in the storyboard's `"scenes"` list. `type` says which scene it is. Limits are in characters, spaces included; the builder counts them for you and says what to shorten. A field marked "needed" must be there; the others may be left out. Leave a field out rather than fill it with something you are not sure of.
 
-The kit lays every scene out by itself, picks one of its layouts from the scene's own words, and sets how long it stays on screen. You never set a size, a colour, a position or a time.
+The kit lays every scene out by itself and sets how long it stays on screen. You never set a size, a colour, a position or a time. The title, list, stat, quote and end scenes each have two layouts: the kit picks one and keeps it when you build again, so a revision changes only what was asked. Only when the user asks for the other layout, add `"variant": 1` or `"variant": 2` to that scene.
 
 ## title (always the first scene)
 
