@@ -54,8 +54,8 @@ A before and an after picture in one frame: the before picture shows first, the 
 |---|---|---|
 | `before` | | needed. The picture file of how it was |
 | `after` | | needed. The picture file of how it is now. The frame takes this picture's shape |
-| `title` | 26 | a heading above the frame |
-| `caption` | 64 | one line under it: what was done, or how long it took |
+| `title` | 26 | what is in the picture: "Sneakers pelanggan", "Teras Bu Ratna". Not "Sebelum dan sesudah": the labels say that |
+| `caption` | 64 | one line under it, from the brief: what was done, or how long it took |
 | `beforeLabel`, `afterLabel` | 14 each | only when the brief has better words than before and after: "Kusam", "Bersih" |
 
 ```json
@@ -232,12 +232,12 @@ Two panels: the first is dimmed when the second arrives. Use it for before and a
 
 ## code
 
-Real code, typed line by line in a code card. Only for code that runs as written.
+Real code, typed line by line in a code card. Only for code that runs as written. When the user's code is longer than the card holds, show the lines that carry the point, in their order and letter for letter, and tell the user which lines you left out. A video about a piece of code always shows that code: never swap the code scene for steps or a list because the code is long.
 
 | Field | Limit | |
 |---|---|---|
 | `caption` | 44 | needed. What the code does |
-| `lines` | 72 each, 1 to 9 lines | needed. One string per line of code, copied as the user wrote it; keep the spaces at the start of a line. Never break a line yourself: a line longer than 40 characters continues on a second row in the card, set in a little. Short lines are set larger, so show only the lines the point needs |
+| `lines` | 110 each, 1 to 9 lines | needed. One string per line of code, copied as the user wrote it; keep the spaces at the start of a line. Never break or shorten a line yourself: a line longer than 40 characters continues on a second row in the card, set in a little. Short lines are set larger, so show only the lines the point needs |
 | `highlight` | | the number of the line to mark, counted from 1 |
 | `lang` | 12 | "CSS", "HTML", "JavaScript" |
 
@@ -252,8 +252,8 @@ A mistake and its fix: the wrong code is typed in a card and steps back, then th
 | Field | Limit | |
 |---|---|---|
 | `caption` | 44 | needed. What goes wrong, or the rule that fixes it |
-| `wrong` | 72 each, 1 to 4 lines | needed. The code as it was, copied letter for letter, mistake included |
-| `right` | 72 each, 1 to 4 lines | needed. The same code, put right. Keep the lines that did not change exactly as they are in `wrong`, so the kit marks only the line that did |
+| `wrong` | 110 each, 1 to 4 lines | needed. The code as it was, copied letter for letter, mistake included |
+| `right` | 110 each, 1 to 4 lines | needed. The same code, put right. Keep the lines that did not change exactly as they are in `wrong`, so the kit marks only the line that did |
 | `highlight` | | the number of the line in `right` to mark, counted from 1. Leave it out and the kit marks the lines that changed |
 | `lang` | 12 | "CSS", "HTML", "JavaScript" |
 

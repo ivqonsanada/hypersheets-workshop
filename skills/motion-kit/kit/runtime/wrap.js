@@ -8,7 +8,7 @@
   // ends at a space, by choice after a comma or an opening bracket, or before && or ||. Without
   // a space it ends before a dot that starts a name or after a bracket, and in the middle of a
   // word only when nothing else is left.
-  function wrap(line, cols, choosy) {
+  function wrap(line, cols, care) {
     const text = String(line);
     const indent = /^\s*/.exec(text)[0].length;
     const hang = Math.min(indent + 2, Math.max(0, cols - 14)); // deep indentation still leaves 14 columns
@@ -22,13 +22,13 @@
       for (let i = end; i >= low; i--) {
         if (text[i] !== " ") continue;
         if (cut < 0) cut = i;
-        if (!choosy || i < good) break;
+        if (care < 2 || i < good) break;
         if (/[,;([{]/.test(text[i - 1]) || /^(&&|\|\||[?:+] )/.test(text.slice(i + 1))) { cut = i; break; }
       }
       // No space to break at: before a dot that starts a name (a chain of calls), or after a bracket or a comma.
       let soft = -1;
-      if (cut < 0) for (let i = end; i > low; i--) {
-        if ((text[i] === "." && /[A-Za-z_$]/.test(text[i + 1] || "") && !/\d/.test(text[i - 1])) || /[,([{]/.test(text[i - 1])) { soft = i; break; }
+      if (cut < 0 && care > 0) for (let i = end; i > low; i--) {
+        if ((text[i] === "." && /[A-Za-z_$]/.test(text[i + 1] || "") && !/\d/.test(text[i - 1])) || (/[,([{]/.test(text[i - 1]) && text.slice(i - 2, i) !== "${")) { soft = i; break; }
       }
       if (cut >= 0) { rows.push({ from, to: cut, pad }); from = cut + 1; }
       else if (soft >= 0) { rows.push({ from, to: soft, pad }); from = soft; }
@@ -38,10 +38,16 @@
     rows.push({ from, to: text.length, pad });
     return rows;
   }
-  // The choosier breaks are used only when they cost no extra row.
+  // Three degrees of care: 0 breaks at the last space that fits, or mid-word; 1 also breaks before a
+  // dot or after a bracket when there is no space; 2 also prefers the better spaces. The most
+  // careful one that costs no extra row is used.
   function wrapCode(line, cols) {
-    const plain = wrap(line, cols, false), choosy = wrap(line, cols, true);
-    return choosy.length <= plain.length ? choosy : plain;
+    const plain = wrap(line, cols, 0);
+    for (const care of [2, 1]) {
+      const rows = wrap(line, cols, care);
+      if (rows.length <= plain.length) return rows;
+    }
+    return plain;
   }
   if (typeof module !== "undefined" && module.exports) module.exports = { wrapCode };
   else root.MKWrap = wrapCode;

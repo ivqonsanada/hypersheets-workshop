@@ -37,7 +37,7 @@ Work in the user's folder (for a page, the one with its `index.html`).
 2. **Pick the recipe and the look** from the two tables below.
 3. **Write `storyboard.json`.** Open `reference/scenes.md` for the fields and limits of the scenes you use, and `reference/writing.md` for how the lines should read. The example below shows the shape. Say each fact once: a price, a date or a place belongs to one scene (the address also goes on the end card). A scene with two true lines is better than one filled up with lines that repeat another scene. If the user asks for a voice or for a silent video, open `reference/sound.md` too.
 4. **Build:** `node "<Base directory>/kit/build.mjs" storyboard.json`
-   (`<Base directory>` is the path shown at the top of this skill.) If it lists problems, fix each one in `storyboard.json` and build again, until it prints `OK`.
+   (`<Base directory>` is the path shown at the top of this skill.) If it lists problems, fix each one in `storyboard.json` and build again, until it prints `OK`. If its last lines say `CHECK WITH THE USER`, do what they say.
 5. **Tell the user in one sentence** what comes next: the kit runs HyperFrames 0.9.51 through `npx`, turns HyperFrames' usage data off first, and writes only inside `video/`.
 6. **Stills:** `node "<Base directory>/kit/stills.mjs"`
    Then open `video/sheet.png` with Read. Each frame has a number, a time and a sentence that says what it should show. Compare every frame with its own sentence.
@@ -46,7 +46,14 @@ Work in the user's folder (for a page, the one with its `index.html`).
 9. **Only if the storyboard has `voice` lines, make the voice:** `node "<Base directory>/kit/sound.mjs"`
    Do what it prints. If it says to ask the user or to give the user a list, do that and stop: no render yet.
 10. **Render:** `npx hyperframes@0.9.51 render video --quality standard --workers 1 -o video/video.mp4`
-11. **Tell the user**, in their language and in everyday words: where `video/video.mp4` is, how many seconds it runs, what sound it has (sound effects, and the voice if you made one), and to watch it once on a phone with the sound on. If the sound command printed a sentence to tell the user word for word, say it here. If you left out something they gave or asked for (a second photo, a fifth list line, a part of the code), say which and why, in one sentence each. Then offer, in one line, what they can ask you to change: the colour, the order, any line's words. Keep it to a few short lines, name no file but `video/video.mp4`, and use no kit word (rule 10).
+11. **Tell the user**, in their language, in six short lines or fewer:
+    - where the video is (`video/video.mp4`) and how many seconds it runs;
+    - what sound it has (sound effects, and the voice if you made one), and to watch it once on a phone with the sound on;
+    - the sentence the sound command told you to say word for word, if it printed one;
+    - anything they gave or asked for that is not in the video (a second photo, a fifth list line, a part of the code), and why, one sentence each;
+    - one line on what they can ask you to change: the colour, the order, any line's words.
+
+    Say nothing else. No list of what each part shows, no recipe, look or scene by name, no `REVIEW.md`, nothing about the build, the sheet or the render's warnings.
 
 ## Pick the recipe
 

@@ -150,7 +150,7 @@ scenes.forEach((s, i) => {
   if (type === "code" || type === "fix") {
     const lines = (type === "code" ? [s.lines] : [s.wrong, s.right]).flatMap((x) => (Array.isArray(x) ? x.filter((l) => typeof l === "string") : []));
     const rows = lines.map((line) => wrapCode(line, CODE.cols).length), total = rows.reduce((sum, x) => sum + x, 0), most = type === "code" ? CODE.rows : CODE.fixRows;
-    if (rows.some((x) => x > 3)) say(`scene ${n} (${type}) has a line of code that is indented too deep to fit the card. Remove some of its leading spaces.`);
+    if (rows.some((x) => x > 3)) say(`scene ${n} (${type}) has a line of code that takes more than three rows in the card. Leave that line out, or remove some of its leading spaces if it is indented deep.`);
     else if (total > most) say(`scene ${n} (${type}) takes ${total} rows on screen (a line longer than ${CODE.cols} characters wraps onto a second row), and ${type === "code" ? "a code card holds" : "its two cards hold"} ${most}. Take out the lines the point does not need, or break a long line where the language allows.`);
   }
   if (type === "when" && typeof s.date === "string" && s.date.trim() && !/^\d/.test(s.date)) say(`scene ${n} (when) "date" must be the day of the month as a number, such as "13". The day's name goes in "day", the month and the year in "month".`);
@@ -476,4 +476,4 @@ else {
 if (takes.waiting.length) console.log(`\nThe "voice" ${takes.waiting.length === 1 ? "line" : "lines"} of ${nums(takes.waiting)} ${takes.waiting.length === 1 ? "is" : "are"} not spoken yet. After the sheet and REVIEW.md, and before the render, run:\n  node "${path.join(KIT, "sound.mjs")}"`);
 if (sheetStays) console.log(`\nWrote the project to video/. The pictures did not change, so video/sheet.png still shows them.`);
 else console.log(`\nWrote the project to video/. Next, make the contact sheet:\n  node "${path.join(KIT, "stills.mjs")}"`);
-if (notes.length) console.log(`\nCHECK WITH THE USER. The video is built with the words as the storyboard has them, and one thing in them cannot be right:\n${notes.map((x) => `  - ${x}`).join("\n")}\nDo not change the day or the date yourself: you cannot know which one the user meant. In your last message, tell the user what the calendar says and ask which is right.`);
+if (notes.length) console.log(`\nCHECK WITH THE USER before the render. The project is built with the words as the storyboard has them, and one thing in them cannot be right:\n${notes.map((x) => `  - ${x}`).join("\n")}\nDo not change the day or the date yourself: you cannot know which one the user meant. Make the sheet and write REVIEW.md as usual, then stop: tell the user what the calendar says, ask which is right, and render after they answer.`);

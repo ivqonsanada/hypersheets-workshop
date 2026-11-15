@@ -146,9 +146,9 @@ test("the same fact in three scenes is refused, and the scenes are named", () =>
 test("a day that does not match its date still builds, and the builder says to ask the user", () => {
   // 13 December 2026 is a Sunday.
   const wrong = ok(build(sb({ type: "info", heading: "Catat harinya", rows: [{ label: "Hari", text: "Sabtu, 13 Desember 2026" }, { label: "Jam", text: "09.00 sampai selesai" }] })));
-  assert.match(wrong.out, /CHECK WITH THE USER\./);
+  assert.match(wrong.out, /CHECK WITH THE USER before the render\./);
   assert.match(wrong.out, /scene 2 says "Sabtu, 13 Desember 2026", and on the calendar that date is a Minggu\./);
-  assert.match(wrong.out, /Do not change the day or the date yourself/);
+  assert.match(wrong.out, /Do not change the day or the date yourself.*then stop: tell the user what the calendar says, ask which is right, and render after they answer\./);
   const right = ok(build(sb({ type: "info", heading: "Catat harinya", rows: [{ label: "Hari", text: "Minggu, 13 Desember 2026" }, { label: "Jam", text: "09.00 sampai selesai" }] })));
   assert.doesNotMatch(right.out, /CHECK WITH THE USER/);
   const en = ok(build(sb({ type: "info", heading: "Save the date", rows: [{ label: "When", text: "Friday, December 13, 2026" }, { label: "Time", text: "9 am to noon" }] }, { lang: "en" })));
@@ -166,14 +166,16 @@ test("a long line of code wraps in its card, and the builder counts the rows the
   assert.deepEqual(show("    document.querySelector(\".tombol\").addEventListener(\"click\", kirim);", 41), ["    document.querySelector(\".tombol\")", "      .addEventListener(\"click\", kirim);"]);
   assert.deepEqual(show("  if (umur >= 17 && punyaKtp || didampingiOrangTua) {", 36), ["  if (umur >= 17 && punyaKtp", "    || didampingiOrangTua) {"]);
   for (const line of ["const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);", "x".repeat(72)]) for (const row of show(line, 40)) assert.ok(row.length <= 40, row);
-  assert.deepEqual([CODE.max, CODE.cols], [72, 40]);
+  assert.deepEqual([CODE.max, CODE.cols], [110, 40]);
+  assert.equal(show("  const url = `https://api.tokocontoh.test/produk?kategori=${kategori}&halaman=${halaman}&per=${perHalaman}`;", 40).length, 3, "a line of 109 characters takes three rows");
 
   const code = (lines, more = {}) => ({ recipe: "coding", look: "warnet", lang: "en", scenes: [{ type: "title", headline: "Columns that follow the screen" }, { type: "code", caption: "One line does it", lang: "css", lines, ...more }, { type: "end", line: "Try it in your editor", address: "@kelassore", button: "Follow the class" }] });
   const long = "  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));";
   const r = ok(build(code([".galeri {", "  display: grid;", long, "}"], { highlight: 3 })));
   assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /none cut off at the card's edge \(a long line continues on a second row, set in a little\); line 3 is marked/);
   assert.match(readFileSync(join(r.dir, "video", "index.html"), "utf8"), /assets\/kit\/mk\.js"><\/script>\n\s+<script src="assets\/kit\/wrap\.js"><\/script>\n\s+<script src="assets\/kit\/scenes\.js">/);
-  refused(build(code(["x".repeat(73)])), /"lines" line 1 is 73 characters; a line of code holds 72\./);
+  refused(build(code(["x".repeat(111)])), /"lines" line 1 is 111 characters; a line of code holds 110\./);
+  refused(build(code([" ".repeat(30) + "const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);"])), /scene 2 \(code\) has a line of code that takes more than three rows in the card\./);
   const two = ok(build(code(Array(9).fill("const a = [" + "1, ".repeat(19) + "2];"))));
   refused(build(code(Array(9).fill(long))), /scene 2 \(code\) takes 27 rows on screen \(a line longer than 40 characters wraps onto a second row\), and a code card holds 18\./);
   clean(r, two);
@@ -246,7 +248,7 @@ test("when: one loud date, checked against the calendar and counted as one fact"
   assert.doesNotMatch(r.out, /CHECK WITH THE USER/);
 
   const wrong = ok(build(when({ day: "Minggu" })));
-  assert.match(wrong.out, /CHECK WITH THE USER\.[\s\S]*scene 2 says "Minggu, 12 Desember 2026", and on the calendar that date is a Sabtu\./);
+  assert.match(wrong.out, /CHECK WITH THE USER before the render\.[\s\S]*scene 2 says "Minggu, 12 Desember 2026", and on the calendar that date is a Sabtu\./);
   const span = ok(build(when({ date: "12-13", day: undefined, end: "sampai Minggu, 13 Desember 2026", lines: undefined })));
   assert.equal(span.scene(2).T.roll, false, "a span of days does not roll");
   assert.equal(of(span.cues, 2, "count").length, 0);

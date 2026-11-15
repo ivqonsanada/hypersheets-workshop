@@ -9,9 +9,9 @@ import * as wrapFile from "../runtime/wrap.js";
 // builder counts the rows the browser will lay.
 export const wrapCode = (wrapFile.default && wrapFile.default.wrapCode) || wrapFile.wrapCode || globalThis.MKWrap;
 // A line of code holds `max` characters. At the smallest size a row holds `cols`, so a longer line
-// wraps onto a second row; a code card has room for `rows` rows, the two cards of a fix scene for
-// `fixRows` between them.
-export const CODE = { max: 72, cols: 40, rows: 18, fixRows: 14 };
+// wraps onto a second row and a very long one onto a third; a code card has room for `rows` rows,
+// the two cards of a fix scene for `fixRows` between them.
+export const CODE = { max: 110, cols: 40, rows: 18, fixRows: 14 };
 
 export const LOOKS = ["warnet", "kertas", "panggung"];
 export const LANGS = ["id", "en"];
