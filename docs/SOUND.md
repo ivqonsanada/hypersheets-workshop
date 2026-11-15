@@ -233,7 +233,7 @@ A learner can run these by hand. Claude runs an install only after it has asked 
 6. Whether typing ticks are pleasant or irritating over 3 seconds of code.
 7. Whether the whoosh into a cut lands where the eye expects.
 8. Whether a list line's sound should come a little later. Its sound starts with its bullet; the words follow about 0.1 s after (measured in "Sound" of `docs/MOTION-KIT.md`).
-9. Whether the paper palette feels late. Its recordings fade in, so their loudest moment comes 30 to 60 ms after the cue.
+9. Whether the paper palette feels late. Its recordings fade in, so their steepest rise comes 27 to 64 ms after the cue.
 
 ## Still to decide
 

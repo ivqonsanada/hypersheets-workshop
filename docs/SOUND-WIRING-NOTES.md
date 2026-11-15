@@ -16,8 +16,8 @@ Last updated: 2026-11-15, after the Haiku trial.
 
 ## Next, in order
 
-1. Check the last figures quoted in `docs/MOTION-KIT.md` against the run data (which runs opened `reference/sound.md`, the paper palette's onset on an effects-only video, picture timing per cue type).
-2. `plugin.json` to 0.4.0, `claude plugin validate .`, `node --test`, commit, tag `v0.4.0` on the final commit.
+1. Done: the figures in `docs/MOTION-KIT.md` were checked against the run data, and `plugin.json` is at 0.4.0.
+2. `claude plugin validate .`, `node --test`, commit, tag `v0.4.0` on the final commit.
 3. API repo: branch `workshop-guides-voice` off `workshop-release` in the worktree `../.wt/api-workshop-voice`; one sentence in `resources/workshop/suara-untuk-halaman/02-buat-suara.{id,en}.md` about ElevenLabs' free plan; run the content check; commit there only.
 4. Copy four Haiku-made videos to `belajarwebdev/docs/motion-kit-samples/with-sound/`: effects only in two looks (s06 warnet, s07 panggung), Indonesian narrated (s12), English narrated (s02).
 
