@@ -1,0 +1,1 @@
+Use the video-promo skill to make a 20-second promo video from my page in index.html. My page is at https://dimas-pratama.pages.dev. Keep going until promo.mp4 is rendered.

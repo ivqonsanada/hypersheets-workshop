@@ -1,0 +1,1 @@
+Pakai skill video-promo untuk membuat video promo 20 detik dari halamanku di index.html. Alamat halamanku https://rina-lestari.pages.dev. Kerjakan sampai promo.mp4 selesai dirender.
