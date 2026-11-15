@@ -28,9 +28,9 @@ export const NARRATORS = ["ringan", "kokoro", "bagus", "sendiri", "draft"];
 
 // Which scenes a recipe needs and may hold. Every video opens on `title` and closes on `end`.
 export const RECIPES = {
-  promo: { need: [], may: ["page", "image", "list", "steps", "stat", "quote", "prices", "info", "numbers"], about: "a person, page, shop or product" },
-  announce: { need: [], may: ["image", "page", "stat", "list", "steps", "compare", "prices", "info", "numbers"], about: "something new: a feature, an opening, a date" },
-  menu: { need: [["prices"]], may: ["prices", "image", "page", "list", "info", "quote"], about: "a menu, a price list, packages with prices" },
+  promo: { need: [], may: ["page", "image", "list", "steps", "stat", "quote", "prices", "info", "numbers", "when"], about: "a person, page, shop or product" },
+  announce: { need: [], may: ["image", "page", "stat", "list", "steps", "compare", "prices", "info", "numbers", "when"], about: "something new: a feature, an opening, a date" },
+  menu: { need: [["prices"]], may: ["prices", "image", "page", "list", "info", "quote", "when"], about: "a menu, a price list, packages with prices" },
   recap: { need: [["numbers", "stat"]], may: ["numbers", "stat", "list", "quote", "image", "compare"], about: "a year, an event or a project in numbers" },
   explainer: { need: [["steps"]], may: ["steps", "code", "fix", "image", "compare", "list", "info"], about: "how something works, in steps" },
   tips: { need: [["list"]], may: ["list", "stat", "quote", "image", "info", "numbers"], about: "a short list of tips or reasons" },
@@ -64,6 +64,14 @@ export const FIELDS = {
   info: {
     heading: text(30, true),
     rows: { kind: "objects", min: 2, most: 4, req: true, of: { label: text(14, true), text: text(48, true) } },
+  },
+  when: {
+    label: text(24),
+    day: text(12),
+    date: { ...text(5, true), how: "keep only the day of the month here (\"13\"); the month and the year go in \"month\"" },
+    month: { ...text(20, true), how: "keep only the month and the year here (\"Desember 2026\"); the hour and the place go in \"lines\"" },
+    end: text(34),
+    lines: { kind: "texts", min: 1, most: 2, max: 44 },
   },
   numbers: {
     heading: text(30, true),
@@ -187,6 +195,32 @@ export const PLAN = {
       T: { head: r2(a), rows },
       cues: [{ t: r2(a), type: "land", weight: 1 }, ...rows.map((t) => ({ t, type: "land", weight: 2 }))],
       stills: [{ t: r2(last + 1.2), expect: `the heading ${q(s.heading)} and ${s.rows.length} facts, each a small label over its own large line, whole: ${s.rows.map((x) => `${x.label}: ${q(x.text, 32)}`).join(", ")}` }],
+    };
+  },
+  when(s, a) {
+    // A plain day of the month rolls into place like the leaves of a calendar; anything else ("13-14") just lands.
+    const roll = /^\d{1,2}$/.test(s.date);
+    const num0 = r2(a + 0.3), num1 = r2(num0 + (roll ? 0.8 : 0.3));
+    const month = r2(num1 - 0.1), end = s.end ? r2(month + 0.4) : null;
+    const from = r2((end ?? month) + 0.55);
+    const lines = (s.lines || []).map((_, i) => r2(from + i * 0.55));
+    const lastAt = lines.length ? lines[lines.length - 1] : end ?? month;
+    const need = lastAt + 2.3;
+    const parts = [`a date set very large on a calendar leaf: ${s.day ? `${q(s.day)} on the band at its top, ` : ""}the number ${q(s.date)} and under it ${q(s.month)}, all whole`];
+    if (s.label) parts.push(`${q(s.label)} is above the leaf`);
+    if (s.end) parts.push(`the line ${q(s.end)} is under the leaf`);
+    if (lines.length) parts.push(`then ${lines.length === 1 ? "the line" : "the two lines"} ${s.lines.map((x) => q(x, 44)).join(" and ")}`);
+    return {
+      need,
+      T: { top: r2(a), roll, num0, num1, month, end, rule: lines.length ? r2(from - 0.2) : null, lines },
+      cues: [
+        { t: r2(a + 0.05), type: "land", weight: 1 },
+        ...(roll ? [{ t: num0, until: num1, type: "count", weight: 2 }] : []),
+        { t: num1, type: "land", weight: 3 },
+        ...(end != null ? [{ t: end, type: "land", weight: 1 }] : []),
+        ...lines.map((t) => ({ t, type: "land", weight: 2 })),
+      ],
+      stills: [{ t: r2(need - 0.9), expect: parts.join("; ") }],
     };
   },
   steps(s, a) {

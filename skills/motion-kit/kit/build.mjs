@@ -150,6 +150,8 @@ scenes.forEach((s, i) => {
     if (rows.some((x) => x > 3)) say(`scene ${n} (${type}) has a line of code that is indented too deep to fit the card. Remove some of its leading spaces.`);
     else if (total > most) say(`scene ${n} (${type}) takes ${total} rows on screen (a line longer than ${CODE.cols} characters wraps onto a second row), and ${type === "code" ? "a code card holds" : "its two cards hold"} ${most}. Take out the lines the point does not need, or break a long line where the language allows.`);
   }
+  if (type === "when" && typeof s.date === "string" && s.date.trim() && !/^\d/.test(s.date)) say(`scene ${n} (when) "date" must be the day of the month as a number, such as "13". The day's name goes in "day", the month and the year in "month".`);
+  if (type === "when" && typeof s.month === "string" && /^\d{1,2}\s/.test(s.month)) say(`scene ${n} (when) "month" starts with a day of the month. Put that number in "date" and keep only the month and the year here.`);
   if (type === "stat" && typeof s.value === "string" && !/\d/.test(s.value)) say(`scene ${n} (stat) "value" must hold a number from the brief, such as "87%" or "Rp15.000".`);
   // A page address or a handle has no spaces; a street address or a phone number, given by a shop with no page, may.
   for (const k of ["address"]) if (typeof s[k] === "string") {
@@ -181,14 +183,20 @@ if (sb.music != null) {
   music = inside(sb.music);
   if (!music || !fs.existsSync(music) || !/\.(mp3|wav|m4a)$/i.test(music)) say(`"music" must be an mp3, wav or m4a file in this folder. The kit never downloads or makes music.`);
 }
+// Every text a scene shows (code and file names apart). A when scene keeps its date in three fields: it is
+// read as the one date it shows ("Sabtu, 13 Desember 2026"), so the two checks below see it whole.
+const strings = (o, got = [], top = true) => {
+  if (typeof o === "string") got.push(o);
+  else if (o && typeof o === "object") {
+    const code = ["code", "fix"].includes(typeOf(o));
+    for (const [k, v] of Object.entries(o)) if (!["type", "scene", "file", "before", "after", "voice", "variant"].includes(k) && !(code && ["lines", "wrong", "right"].includes(k))) strings(v, got, false);
+    if (top && typeOf(o) === "when" && typeof o.date === "string" && typeof o.month === "string") got.push(`${typeof o.day === "string" ? o.day + ", " : ""}${o.date} ${o.month}`);
+  }
+  return got;
+};
 // A number, a date or an address that three scenes show: the viewer has read it twice already, and the third place is a scene with nothing new.
 {
   const words = (t) => t.toLowerCase().split(/[^\p{L}\p{N}@.%-]+/u).map((w) => w.replace(/^[.-]+|[.-]+$/g, "")).filter(Boolean);
-  const strings = (o, got = []) => {
-    if (typeof o === "string") got.push(o);
-    else if (o && typeof o === "object") for (const [k, v] of Object.entries(o)) if (!["type", "scene", "file", "lines", "wrong", "right", "voice"].includes(k)) strings(v, got);
-    return got;
-  };
   const number = (w) => /\d/.test(w) && (w.replace(/\D/g, "").length >= 2 || /%|^rp/.test(w)) && !/^(19|20)\d\d$/.test(w);
   const at = new Map();
   scenes.forEach((sc, i) => {
@@ -213,11 +221,6 @@ const notes = [];
 {
   const DAYS = { id: ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"], en: ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] };
   const MONTHS = { id: ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"], en: ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"] };
-  const strings = (o, got = []) => {
-    if (typeof o === "string") got.push(o);
-    else if (o && typeof o === "object") for (const [k, v] of Object.entries(o)) if (!["type", "scene", "file", "lines", "wrong", "right", "voice"].includes(k)) strings(v, got);
-    return got;
-  };
   const told = new Set();
   scenes.forEach((sc, i) => {
     for (const t of strings(sc)) {

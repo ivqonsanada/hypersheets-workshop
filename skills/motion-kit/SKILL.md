@@ -52,8 +52,8 @@ Work in the user's folder (for a page, the one with its `index.html`).
 
 | The brief is about | `recipe` | Scenes, in this order |
 |---|---|---|
-| a person, a page, a shop, a product, a service | `promo` | title, then page or image when there is one, then one or two of list, prices, info, steps, stat, numbers, quote, then end |
-| something new: a feature, an opening, an event, a sale, a vacancy | `announce` | title, then one to three of info, image, page, stat, prices, list, steps, compare, then end |
+| a person, a page, a shop, a product, a service | `promo` | title, then page or image when there is one, then one or two of list, prices, info, when, steps, stat, numbers, quote, then end |
+| something new: a feature, an opening, an event, a sale, a vacancy | `announce` | title, then one to three of when, info, image, page, stat, prices, list, steps, compare, then end |
 | a menu, a price list, packages with prices | `menu` | title, prices, then optionally image, info, list or quote, then end |
 | a year, an event or a project in numbers | `recap` | title, numbers (or stat for one number), then optionally list, quote, image or compare, then end |
 | how something works | `explainer` | title, steps, then optionally code, fix, image, compare or list, then end |
@@ -69,7 +69,8 @@ Then pick each scene by what its facts are:
 | The facts are | Scene |
 |---|---|
 | things with prices: a menu, a price list, packages, an old and a new price | `prices` |
-| a date, hours, a place, a deadline, a number to call or chat | `info` |
+| one date the video is for: an event day, an opening, a deadline | `when` |
+| hours, a place, a fee, a number to call or chat, several dates | `info` |
 | two to four numbers | `numbers` |
 | one number that matters most | `stat` |
 | things done in order: first, then, last | `steps` |

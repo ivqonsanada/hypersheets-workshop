@@ -230,6 +230,36 @@ test("a scene keeps its layout through a revision, and \"variant\" picks one", (
   refused(build(sb({ type: "info", heading: "Mampir", variant: 1, rows: [{ label: "Buka", text: "06.00 sampai 11.00" }, { label: "Tempat", text: "Jalan Pandan 4" }] })), /scene 2 \(info\) has "variant", and this scene has one layout\. Remove it\./);
 });
 
+test("when: one loud date, checked against the calendar and counted as one fact", () => {
+  // 12 December 2026 is a Saturday.
+  const when = (more = {}, top = {}) => sb({ type: "when", label: "Buka perdana", day: "Sabtu", date: "12", month: "Desember 2026", lines: ["Pukul 06.00 sampai habis", "Jalan Pandan 4, Salatiga"], ...more }, { recipe: "announce", ...top });
+  const r = ok(build(when()));
+  const T = r.scene(2).T;
+  assert.equal(T.roll, true);
+  assert.ok(T.num0 < T.num1 && T.month < T.lines[0] && T.lines[0] < T.lines[1]);
+  assert.equal(of(r.cues, 2, "count").length, 1, "the number rolls");
+  assert.equal(of(r.cues, 2, "land").length, 4, "the leaf, the number and two lines land");
+  assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /a date set very large on a calendar leaf: "Sabtu" on the band at its top, the number "12" and under it "Desember 2026", all whole; "Buka perdana" is above the leaf; then the two lines "Pukul 06\.00 sampai habis" and "Jalan Pandan 4, Salatiga"/);
+  assert.doesNotMatch(r.out, /CHECK WITH THE USER/);
+
+  const wrong = ok(build(when({ day: "Minggu" })));
+  assert.match(wrong.out, /CHECK WITH THE USER\.[\s\S]*scene 2 says "Minggu, 12 Desember 2026", and on the calendar that date is a Sabtu\./);
+  const span = ok(build(when({ date: "12-13", day: undefined, end: "sampai Minggu, 13 Desember 2026", lines: undefined })));
+  assert.equal(span.scene(2).T.roll, false, "a span of days does not roll");
+  assert.equal(of(span.cues, 2, "count").length, 0);
+
+  refused(build(when({ date: "Sabtu" })), /scene 2 \(when\) "date" must be the day of the month as a number, such as "13"\./);
+  refused(build(when({ month: "12 Desember 2026" })), /scene 2 \(when\) "month" starts with a day of the month\./);
+  refused(build(when({ date: "12 Des" })), /"date" is 6 characters; the limit is 5\. Shorten it by 1 or more: keep only the day of the month here/);
+  refused(build(when({ lines: ["a", "b", "c"] })), /"lines" has 3 lines; it holds 1 to 2\./);
+  // The date is one fact: said in the title and in a list as well, it is in three scenes.
+  const title = { ...TITLE, sub: "Buka 12 Desember 2026 di Jalan Pandan" };
+  const list = { type: "list", heading: "Hari pertama", items: ["Gratis teh poci 12 Desember 2026", "Bubur ayam hangat"] };
+  refused(build({ ...when(), scenes: [title, when().scenes[1], list, END] }), /Scenes 1, 2 and 3 all show the same fact \("desember 2026", "12 desember", "12"\)/);
+  refused(build(when({}, { recipe: "tips" })), /scene 2 is a when scene, which the recipe "tips" does not hold\./);
+  clean(r, wrong, span);
+});
+
 test("a code card holds one line", () => {
   const code = (lines) => ({ recipe: "coding", look: "warnet", lang: "en", scenes: [{ type: "title", headline: "True or false?" }, { type: "code", caption: "What does this print?", lang: "js", lines }, { type: "end", line: "Answer in the comments", address: "@kelassore", button: "Follow for more" }] });
   const one = ok(build(code(["console.log(0.1 + 0.2 === 0.3);"])));

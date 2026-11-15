@@ -200,6 +200,49 @@
     });
   });
 
+  // ---------- when: one date, loud, on a calendar leaf ----------
+  MK.define("when", (c) => {
+    const s = c.s, T = c.T;
+    const label = s.label ? h("p", "kick", [h("i"), MK.plain("span", null, s.label)]) : null;
+    const end = s.end ? MK.text("p", "to", flag(c, MK.fit(s.end, "body", [54, 50, 46], c.W, 2), "the line under the leaf"), 1.26) : null;
+    const notes = (s.lines || []).map((x, i) => MK.text("p", "nt", flag(c, MK.fit(x, "body", [58, 54, 50, 46], c.W, 2), "line " + (i + 1) + " under the date"), 1.24));
+    const pad = P ? 44 : 48, inner = c.W - 2 * pad - 2 * (P ? 0 : K ? 3 : 6);
+    const band = s.day ? h("div", "band", [h("b"), MK.plain("span", null, s.day)]) : null;
+    const mo = MK.text("p", "mo", flag(c, MK.fit(s.month, "display", P ? [150, 132, 116, 100, 88, 76] : [120, 108, 96, 84, 72, 64], inner, 1), "the month"), 1.05);
+    // The leaves the number rolls through: the three days before it, or after it early in a month.
+    const day = parseInt(s.date, 10);
+    const seq = T.roll ? [3, 2, 1, 0].map((k) => String(day > 3 ? day - k : day + k).padStart(s.date.length, "0")) : [s.date];
+    seq[seq.length - 1] = s.date;
+    // The number takes the height the other lines leave, and never more than the leaf is wide.
+    const rest = (label ? 54 * 1.2 + 40 : 0) + (band ? 112 : 0) + Number(mo.dataset.h) + 2 * pad + 12 + (end ? Number(end.dataset.h) + 36 : 0) + (notes.length ? 44 + 46 + notes.reduce((sum, n) => sum + Number(n.dataset.h) + 14, 0) : 0);
+    let size = 220;
+    for (const sz of P ? [620, 560, 500, 440, 380, 320, 270, 220] : [520, 470, 420, 370, 320, 270, 220]) {
+      size = sz;
+      if (Math.max(...seq.map((x) => MK.width(x, "display", sz))) <= inner && rest + sz * 0.86 <= c.H) break;
+    }
+    const high = Math.round(size * 0.86);
+    const strip = h("div", "strip", seq.map((x) => { const d = MK.plain("div", "dn", x); d.style.height = high + "px"; d.style.lineHeight = high + "px"; return d; }));
+    const num = h("div", "num", strip);
+    num.style.fontSize = size + "px";
+    num.style.height = high + "px";
+    num.setAttribute("data-layout-allow-overflow", "");
+    const leaf = h("div", "leaf", [band, h("div", "in", [num, mo])]);
+    const rule = notes.length ? h("i", "rule") : null;
+    safe(c, [label, leaf, end, rule].concat(notes));
+    if (label) M.pop(c.tl, label, T.top);
+    M.block(c.tl, leaf, T.top + 0.05);
+    if (band) {
+      M.grow(c.tl, band.firstChild, T.top + 0.15, P ? 0.3 : 0.5);
+      c.tl.fromTo(band.lastChild, { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "none" }, T.top + 0.3);
+    }
+    if (T.roll) c.tl.fromTo(strip, { y: 0 }, { y: -high * (seq.length - 1), duration: T.num1 - T.num0, ease: P ? "power4.out" : K ? "power3.inOut" : "steps(" + (seq.length - 1) + ")" }, T.num0);
+    else M.block(c.tl, num, T.num0);
+    M.lines(c.tl, lines(mo), T.month);
+    if (end) M.lines(c.tl, lines(end), T.end);
+    if (rule) M.grow(c.tl, rule, T.rule, P ? 0.3 : 0.5);
+    notes.forEach((n, i) => M.lines(c.tl, lines(n), T.lines[i]));
+  });
+
   // ---------- steps: numbered steps on a line, lit one after another ----------
   MK.define("steps", (c) => {
     const s = c.s, n = s.steps.length;

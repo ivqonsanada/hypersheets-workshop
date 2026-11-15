@@ -99,6 +99,23 @@ The facts someone needs to come or to get in touch, each under its own small lab
   { "label": "Tempat", "text": "Jalan Kenari 12, Bandung" } ] }
 ```
 
+## when
+
+One date, set very large on a calendar leaf: the day's name, the number, the month. Use it when one date is what the video is for: an event, an opening, a deadline, the last day of a sale. The hour and the place go in `lines`. Several facts of the same weight (hours, a place, a fee) are an `info` scene; a video uses one of the two for a date, not both.
+
+| Field | Limit | |
+|---|---|---|
+| `date` | 5 | needed. The day of the month alone: "13". For two days in a row, "13-14" |
+| `month` | 20 | needed. The month and the year, as the brief writes them: "Desember 2026" |
+| `day` | 12 | the day's name, when the brief gives it: "Sabtu". The builder checks it against the calendar |
+| `label` | 24 | what the date is, above the leaf: "Paling lambat", "Mulai", "Buka perdana" |
+| `end` | 34 | when it lasts longer, one line under the leaf: "sampai Minggu, 20 Desember 2026" |
+| `lines` | 44 each, 1 or 2 lines | the hour and the place: "Pukul 09.00 sampai selesai", "Aula Kampus 2, Semarang" |
+
+```json
+{ "type": "when", "label": "Buka perdana", "day": "Sabtu", "date": "6", "month": "Desember 2026", "lines": ["Pukul 07.00 sampai 15.00", "Jalan Kenari 12, Bandung"] }
+```
+
 ## numbers
 
 Two to four numbers, each counted up over its label. Use it for a recap or a result with several real numbers. One number alone is a `stat`.

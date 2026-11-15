@@ -163,6 +163,39 @@ html.look-panggung .mk-info .lb { display: inline-flex; padding: 8px 20px 10px; 
 html.look-panggung .mk-info .lb i { display: none; }
 html.look-panggung .mk-info .tx2 { font-family: var(--fd), sans-serif; font-weight: 900; letter-spacing: var(--trk); }
 
+/* ---------- when: a date on a calendar leaf ---------- */
+.mk-when .kick { display: flex; align-items: center; gap: 22px; font-size: 54px; line-height: 1.2; font-weight: 600; color: var(--muted); margin-bottom: 40px; transform-origin: 0 50%; }
+.mk-when .kick i { flex: none; display: block; width: 22px; height: 22px; background: var(--mark); }
+.mk-when .leaf { width: 100%; background: var(--panel); border: var(--bw) solid var(--line); box-shadow: var(--sh) var(--sh) 0 var(--deep); }
+.mk-when .band { position: relative; height: 112px; display: flex; align-items: center; padding: 0 48px; }
+.mk-when .band b { position: absolute; inset: 0; display: block; background: var(--mk-accent); transform-origin: 0 50%; }
+.mk-when .band span { position: relative; font: 700 60px/1 var(--fb), sans-serif; color: var(--mk-on-accent); }
+.mk-when .in { padding: 48px 48px 44px; }
+.mk-when .num { overflow: hidden; font-family: var(--fd), sans-serif; font-weight: var(--wd); letter-spacing: -0.03em; color: var(--ink); white-space: nowrap; }
+.mk-when .dn { display: block; }
+.mk-when .mo { margin-top: 12px; font-family: var(--fd), sans-serif; font-weight: var(--wd); letter-spacing: var(--trk); color: var(--mk-accent-ink); }
+.mk-when .to { margin-top: 36px; font-weight: 600; color: var(--muted); }
+.mk-when .rule { display: block; width: 100%; height: 6px; margin: 44px 0 32px; background: var(--line); transform-origin: 0 50%; }
+.mk-when .nt { margin-bottom: 14px; font-weight: 700; color: var(--ink); }
+html.look-kertas .mk-when .kick { color: var(--ink); font-size: 50px; }
+html.look-kertas .mk-when .leaf { border-color: var(--ink); }
+html.look-kertas .mk-when .band b { background: var(--ink); }
+html.look-kertas .mk-when .band span { color: var(--g); font-family: var(--fd), serif; font-weight: 600; font-style: italic; letter-spacing: -0.01em; }
+html.look-kertas .mk-when .num { color: var(--mk-accent-ink); }
+html.look-kertas .mk-when .mo { color: var(--ink); }
+html.look-kertas .mk-when .rule { height: 3px; background: var(--ink); }
+html.look-kertas .mk-when .nt { font-family: var(--fd), serif; font-weight: 600; letter-spacing: -0.01em; }
+html.look-panggung .mk-when .kick { display: inline-flex; background: var(--ink); color: var(--g); padding: 10px 26px 12px; font-weight: 700; font-size: 48px; }
+html.look-panggung .mk-when .kick i { display: none; }
+html.look-panggung .mk-when .leaf { background: var(--ink); border: 0; box-shadow: none; }
+html.look-panggung .mk-when .band { border-bottom: 8px solid var(--g); }
+html.look-panggung .mk-when .band b { background: var(--ink); }
+html.look-panggung .mk-when .band span { color: var(--g); font: 900 76px/1 var(--fd), sans-serif; }
+html.look-panggung .mk-when .in { padding: 44px 44px 40px; }
+html.look-panggung .mk-when .num, html.look-panggung .mk-when .mo { color: var(--g); }
+html.look-panggung .mk-when .to { color: var(--ink); }
+html.look-panggung .mk-when .rule { height: 8px; background: var(--ink); }
+
 /* ---------- steps ---------- */
 .mk-steps .rail { position: relative; width: 100%; display: flex; flex-direction: column; gap: 64px; }
 .mk-steps .st { position: relative; display: flex; align-items: flex-start; gap: 36px; }
