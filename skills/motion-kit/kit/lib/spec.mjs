@@ -319,16 +319,17 @@ export const PLAN = {
       stills: [{ t: r2(T.right + 1.3), expect: `two panels: ${q(s.left.label)} above, dimmed, with ${q(s.left.text, 40)}; ${q(s.right.label)} below, marked with the video's colour, with ${q(s.right.text, 40)}; both texts whole` }],
     };
   },
-  code(s, a) {
+  // `from`: how many lines the code card before this one holds, when this card carries the same code on.
+  code(s, a, lang, from = 0) {
     const { at: lines, end } = typed(s.lines, a + 0.5);
     const hl = s.highlight ? r2(end + 0.35) : null;
     const need = (hl || end) + 2.3;
     const long = s.lines.some((line) => line.length > CODE.cols);
     return {
       need,
-      T: { cap: r2(a), lines, end, hl },
+      T: { cap: r2(a), lines, end, hl, from },
       cues: [{ t: lines[0].t, until: end, type: "type", weight: 1 }, ...(hl ? [{ t: hl, type: "marker", weight: 2 }] : [])],
-      stills: [{ t: r2(need - 0.9), expect: `a code card with ${s.lines.length} numbered ${s.lines.length === 1 ? "line" : "lines"}, all typed out and none cut off at the card's edge${long ? " (a long line continues on a second row, set in a little)" : ""}${s.highlight ? `; line ${s.highlight} is marked` : ""}; ${q(s.caption)} is above the card` }],
+      stills: [{ t: r2(need - 0.9), expect: `a code card with ${s.lines.length} numbered ${s.lines.length === 1 ? "line" : "lines"}${from ? ` (${from + 1} to ${from + s.lines.length}, carrying on from the card before)` : ""}, all typed out and none cut off at the card's edge${long ? " (a long line continues on a second row, set in a little)" : ""}${s.highlight ? `; line ${s.highlight + from} is marked` : ""}; ${q(s.caption)} is above the card` }],
     };
   },
   fix(s, a, lang) {

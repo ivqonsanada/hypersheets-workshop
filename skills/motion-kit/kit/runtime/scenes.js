@@ -472,9 +472,10 @@
   // (wrap.js). Of the sizes that fit, the one that wraps the fewest rows wins, then the one with
   // the fewest breaks that are not at a space, then the largest; wrapped code is set at 44 px at
   // most, so a wrap never comes from setting the code too large.
-  const codeFit = (all, room, tall) => {
+  const codeFit = (all, room, tall, most) => {
     let best = null, last = null;
     for (const size of [60, 54, 50, 46, 42, 38, 36, 34, 32]) {
+      if (most && size > most) continue;
       const cols = Math.floor((room * 10) / MK.width("0000000000", "mono", size));
       const rows = all.map((line) => window.MKWrap(line, cols));
       const extra = rows.reduce((sum, r) => sum + r.length - 1, 0);
@@ -486,9 +487,10 @@
     return best || last;
   };
   // A card of numbered code. `fit.rows[from + i]` says how line i is laid; `marks` are the lines
-  // that get a band (counted from 0). Returns the card, its lines, and `type(i, k)`, which shows
-  // the first k characters of line i.
-  const codeCard = (codeLines, fit, from, top, marks) => {
+  // that get a band (counted from 0); `first` is how many lines came on a card before this one,
+  // so the numbers carry on. Returns the card, its lines, and `type(i, k)`, which shows the first
+  // k characters of line i.
+  const codeCard = (codeLines, fit, from, top, marks, first) => {
     const lis = codeLines.map((line, i) => {
       const code = h("code", null, fit.rows[from + i].map((r) => {
         const row = h("span", "row");
@@ -496,7 +498,7 @@
         return row;
       }));
       const hl = marks.includes(i);
-      return h("li", null, [hl ? h("u") : null, hl ? h("em") : null, h("b", null, String(i + 1)), code]);
+      return h("li", null, [hl ? h("u") : null, hl ? h("em") : null, h("b", null, String(i + 1 + (first || 0))), code]);
     });
     const ol = h("ol", null, lis);
     ol.style.fontSize = fit.size + "px";
@@ -526,9 +528,12 @@
     const s = c.s;
     const cap = MK.text("p", "cap" + (K || P ? " d" : ""), flag(c, MK.fit(s.caption, K || P ? "display" : "body", P ? [112, 100, 88, 76, 64] : K ? [84, 76, 68, 60, 52] : [72, 66, 60, 54, 48], c.W, 2), "the caption"), P ? 1.02 : 1.14);
     // A short snippet is set large enough to read on a phone; forty characters on a row still get 32 px.
-    const fit = codeFit(s.lines, CODE_ROOM, c.H - Number(cap.dataset.h) - 52 - 78 - 72 - 16);
+    // A card that carries the code of the card before on numbers its lines from where that one stopped;
+    // a two-digit number has room up to 42 px.
+    const from = c.T.from || 0;
+    const fit = codeFit(s.lines, CODE_ROOM, c.H - Number(cap.dataset.h) - 52 - 78 - 72 - 16, from + s.lines.length > 9 ? 42 : 0);
     if (!fit.ok) MK.problem(c, "the code (take lines out, or shorten the longest)");
-    const card = codeCard(s.lines, fit, 0, [h("i"), h("i"), h("i"), s.lang ? MK.plain("span", null, s.lang) : null], s.highlight ? [s.highlight - 1] : []);
+    const card = codeCard(s.lines, fit, 0, [h("i"), h("i"), h("i"), s.lang ? MK.plain("span", null, s.lang) : null], s.highlight ? [s.highlight - 1] : [], from);
     safe(c, [cap, card.card]);
     M.lines(c.tl, lines(cap), c.T.cap);
     M.block(c.tl, card.card, c.T.cap + 0.1);

@@ -232,13 +232,13 @@ Two panels: the first is dimmed when the second arrives. Use it for before and a
 
 ## code
 
-Real code, typed line by line in a code card. Only for code that runs as written. When the user's code is longer than the card holds, show the lines that carry the point, in their order and letter for letter, and tell the user which lines you left out. A video about a piece of code always shows that code: never swap the code scene for steps or a list because the code is long.
+Real code, typed line by line in a code card. Only for code that runs as written. When the user's code is longer than the card holds, show the lines that carry the point, in their order and letter for letter, and tell the user which lines you left out. When the user asks for the whole code, split it over two code scenes in a row, at the end of a block: the second card's line numbers carry on from the first, and each card has its own caption. A video holds two code scenes at most, and only side by side. A video about a piece of code always shows that code: never swap the code scene for steps or a list because the code is long.
 
 | Field | Limit | |
 |---|---|---|
 | `caption` | 44 | needed. What the code does |
 | `lines` | 110 each, 1 to 9 lines | needed. One string per line of code, copied as the user wrote it; keep the spaces at the start of a line. Never break or shorten a line yourself: a line longer than 40 characters continues on a second row in the card, set in a little. Short lines are set larger, so show only the lines the point needs |
-| `highlight` | | the number of the line to mark, counted from 1 |
+| `highlight` | | the number of the line to mark, counted from 1 in this scene's own `lines` |
 | `lang` | 12 | "CSS", "HTML", "JavaScript" |
 
 ```json

@@ -350,3 +350,54 @@ test("a code card holds one line", () => {
   refused(build(code([])), /"lines" has 0 lines; it holds 1 to 9\./);
   clean(one);
 });
+
+test("code longer than one card goes on two cards side by side, and the numbers carry on", () => {
+  const whole = [
+    "async function ambilProduk(kategori, halaman = 1, perHalaman = 20) {",
+    "  const url = `https://api.tokocontoh.test/produk?kategori=${kategori}&halaman=${halaman}&per=${perHalaman}`;",
+    "  try {",
+    "    const res = await fetch(url, { headers: { Accept: \"application/json\" } });",
+    "    if (!res.ok) {",
+    "      throw new Error(`Gagal ambil produk: ${res.status}`);",
+    "    }",
+    "    const data = await res.json();",
+    "    return data.items.map((item) => ({ id: item.id, nama: item.nama, harga: item.harga }));",
+    "  } catch (err) {",
+    "    console.error(err);",
+    "    return [];",
+    "  }",
+    "}",
+  ];
+  const title = { type: "title", headline: "Ambil daftar produk dari internet" };
+  const end = { type: "end", line: "Belajar lagi di sini", address: "learnhypersheets.com", button: "Buka halamannya" };
+  const card = (lines, more = {}) => ({ type: "code", caption: "Minta data, lalu cek jawabannya", lang: "JavaScript", lines, ...more });
+  const video = (middle, last = end) => ({ recipe: "coding", look: "warnet", lang: "id", scenes: [title, ...middle, last] });
+  const steps = { type: "steps", heading: "Yang dilakukan fungsi ini", steps: [{ title: "Bangun alamatnya" }, { title: "Ambil datanya" }] };
+
+  // One card cannot hold it, and the builder says how to show it whole.
+  refused(build(video([card(whole)])), /"lines" has 14 lines; a code card holds 1 to 9\. Show only the lines the point needs\. When the user wants the whole code, split it over two code scenes in a row, at the end of a block: the second card's line numbers carry on from the first\./);
+
+  const r = ok(build(video([card(whole.slice(0, 7), { highlight: 4 }), card(whole.slice(7), { caption: "Kalau gagal, hasilnya kosong", highlight: 5 })])));
+  assert.deepEqual(r.plan.scenes.map((s) => s.type), ["title", "code", "code", "end"]);
+  assert.deepEqual([r.scene(2).T.from, r.scene(3).T.from], [0, 7]);
+  assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /a code card with 7 numbered lines, all typed out .*; line 4 is marked/);
+  // "highlight" counts the card's own lines; the sheet names the number the card shows.
+  assert.match(r.plan.stills.find((s) => s.scene === 3).expect, /a code card with 7 numbered lines \(8 to 14, carrying on from the card before\), all typed out .*; line 12 is marked/);
+  assert.equal(of(r.cues, 3, "type").length, 1);
+  assert.doesNotMatch(r.out, /CHECK THE ADDRESS/);
+
+  // Two code scenes are two parts of one piece of code: never apart, never three.
+  refused(build(video([card(whole.slice(0, 7)), steps, card(whole.slice(7))])), /The two code scenes are not side by side\. Two code scenes are one piece of code in two parts, so put the second right after the first/);
+  refused(build(video([card(whole.slice(0, 5)), card(whole.slice(5, 9)), card(whole.slice(9))])), /There are 3 code scenes; a video holds two at most, side by side/);
+  clean(r);
+});
+
+test("an end card address taken out of the code builds, and the builder says to look at the brief again", () => {
+  const code = { type: "code", caption: "Minta data produk", lang: "JavaScript", lines: ["const res = await fetch(\"https://api.tokocontoh.test/produk?halaman=1\");", "const data = await res.json();"] };
+  const video = (address) => ({ recipe: "coding", look: "warnet", lang: "id", scenes: [{ type: "title", headline: "Ambil daftar produk dari internet" }, code, { type: "end", line: "Alamat sumber datanya", address, button: "Lihat alamatnya" }] });
+  const lifted = ok(build(video("api.tokocontoh.test/produk")));
+  assert.match(lifted.out, /CHECK THE ADDRESS before the sheet\. Scene 3 sends the viewer to "api\.tokocontoh\.test\/produk", and that address is inside the code\. An address the code calls is not where a viewer goes\. Read the brief again: if it gives an address outside the code \(often on a line of its own, at the end\), that one goes on the end card; if it gives none, ask the user which address, handle or number the end card should show\./);
+  const own = ok(build(video("learnhypersheets.com")));
+  assert.doesNotMatch(own.out, /CHECK THE ADDRESS/);
+  clean(lifted, own);
+});

@@ -79,6 +79,8 @@ const OWN_WORDS = {
   line: "one short line that gives the reason to act or the deadline",
   button: "two or three words that start with a verb (\"Buka halamannya\", \"Chat lewat WA\", \"Open the page\")",
 };
+// What the builder says when some code is too long for one card.
+const TWO_CARDS = `When the user wants the whole code, split it over two code scenes in a row, at the end of a block: the second card's line numbers carry on from the first.`;
 function checkFields(n, type, s, fields) {
   const tag = `scene ${n} (${type})`;
   for (const k of Object.keys(s)) if (!["type", "scene", "voice", "variant"].includes(k) && !fields[k]) say(`${tag} has "${k}", which this scene does not use. Remove it. It uses: ${list(Object.keys(fields))}.`);
@@ -88,7 +90,7 @@ function checkFields(n, type, s, fields) {
     if (rule.kind === "text") checkText(where, v, rule);
     else if (rule.kind === "texts") {
       if (!Array.isArray(v)) { say(`${where} must be a list: ["…", "…"].`); continue; }
-      if (v.length < rule.min || v.length > rule.most) say(`${where} has ${v.length} ${v.length === 1 ? "line" : "lines"}; it holds ${rule.min} to ${rule.most}. Keep the ones that matter most.`);
+      if (v.length < rule.min || v.length > rule.most) say(type === "code" && k === "lines" && v.length > rule.most ? `${where} has ${v.length} lines; a code card holds ${rule.min} to ${rule.most}. Show only the lines the point needs. ${TWO_CARDS}` : `${where} has ${v.length} ${v.length === 1 ? "line" : "lines"}; it holds ${rule.min} to ${rule.most}. Keep the ones that matter most.`);
       v.forEach((t, i) => checkText(`${tag} "${k}" line ${i + 1}`, t, rule));
     } else if (rule.kind === "object" || rule.kind === "objects") {
       const many = rule.kind === "objects";
@@ -151,7 +153,7 @@ scenes.forEach((s, i) => {
     const lines = (type === "code" ? [s.lines] : [s.wrong, s.right]).flatMap((x) => (Array.isArray(x) ? x.filter((l) => typeof l === "string") : []));
     const rows = lines.map((line) => wrapCode(line, CODE.cols).length), total = rows.reduce((sum, x) => sum + x, 0), most = type === "code" ? CODE.rows : CODE.fixRows;
     if (rows.some((x) => x > 3)) say(`scene ${n} (${type}) has a line of code that takes more than three rows in the card. Leave that line out, or remove some of its leading spaces if it is indented deep.`);
-    else if (total > most) say(`scene ${n} (${type}) takes ${total} rows on screen (a line longer than ${CODE.cols} characters wraps onto a second row), and ${type === "code" ? "a code card holds" : "its two cards hold"} ${most}. Take out the lines the point does not need, or break a long line where the language allows.`);
+    else if (total > most) say(`scene ${n} (${type}) takes ${total} rows on screen (a line longer than ${CODE.cols} characters wraps onto a second row), and ${type === "code" ? "a code card holds" : "its two cards hold"} ${most}. Take out the lines the point does not need, or break a long line where the language allows.${type === "code" ? " " + TWO_CARDS : ""}`);
   }
   if (type === "when" && typeof s.date === "string" && s.date.trim() && !/^\d/.test(s.date)) say(`scene ${n} (when) "date" must be the day of the month as a number, such as "13". The day's name goes in "day", the month and the year in "month".`);
   if (type === "when" && typeof s.month === "string" && /^\d{1,2}\s/.test(s.month)) say(`scene ${n} (when) "month" starts with a day of the month. Put that number in "date" and keep only the month and the year here.`);
@@ -175,7 +177,11 @@ if (scenes.length < 3 || scenes.length > 6) say(`The video has ${scenes.length} 
 for (const t of new Set(types)) {
   const count = types.filter((x) => x === t).length;
   if (t === "image") { if (count > 3) say(`There are ${count} image scenes; a video holds three pictures at most. Keep the three that show the most.`); }
-  else if (count > 1 && FIELDS[t]) say(`There are ${count} ${t} scenes; a video holds one of each. Keep the stronger one, or join them.`);
+  else if (t === "code") {
+    const first = types.indexOf("code");
+    if (count > 2) say(`There are ${count} code scenes; a video holds two at most, side by side, as two parts of one piece of code.`);
+    else if (count === 2 && types[first + 1] !== "code") say(`The two code scenes are not side by side. Two code scenes are one piece of code in two parts, so put the second right after the first; its line numbers carry on. For a second, different piece of code, use a fix scene or keep the stronger one.`);
+  } else if (count > 1 && FIELDS[t]) say(`There are ${count} ${t} scenes; a video holds one of each. Keep the stronger one, or join them.`);
 }
 const recipe = RECIPES[sb.recipe];
 if (recipe) {
@@ -267,6 +273,16 @@ scenes.forEach((sc, i) => {
     }
   });
 }
+// An end card or page address that also stands inside the code. Often the writer took it from there (an address the
+// code calls is not where a viewer goes), but it may be the user's own, so the builder asks for a look instead of refusing.
+const lifted = [];
+{
+  const code = scenes.flatMap((sc) => (typeOf(sc) === "code" ? sc.lines : typeOf(sc) === "fix" ? [...(sc.wrong || []), ...(sc.right || [])] : [])).filter((l) => typeof l === "string").join("\n").toLowerCase();
+  scenes.forEach((sc, i) => {
+    const a = ["end", "page"].includes(typeOf(sc)) && typeof sc.address === "string" ? sc.address.trim().replace(/\/+$/, "").toLowerCase() : "";
+    if (a.length >= 4 && code.includes(a) && !lifted.some((x) => x.a === a)) lifted.push({ a, n: i + 1, said: sc.address });
+  });
+}
 if (fs.existsSync(out) && !fs.existsSync(path.join(out, "mk-plan.json"))) say(`A folder named video is already here and the kit did not make it. Ask the user before anything in it is replaced.`);
 
 // Sound: effects by the kit's own choice, spoken lines where a scene has "voice", music if given.
@@ -301,7 +317,7 @@ const cues = [], stills = [], plan = [];
 scenes.forEach((s, i) => {
   const type = typeOf(s), first = i === 0, last = i === scenes.length - 1, a = first ? 0 : IN;
   const c = custom[type];
-  const p = c ? { need: a + c.seconds, T: { a }, cues: (c.cues || []).map((q) => ({ ...q, t: a + q.t })), stills: [{ t: a + c.still, expect: c.expect }] } : PLAN[type](s, a, sb.lang);
+  const p = c ? { need: a + c.seconds, T: { a }, cues: (c.cues || []).map((q) => ({ ...q, t: a + q.t })), stills: [{ t: a + c.still, expect: c.expect }] } : PLAN[type](s, a, sb.lang, type === "code" && typeOf(scenes[i - 1]) === "code" ? scenes[i - 1].lines.length : 0);
   const words = typeof s.voice === "string" ? s.voice.trim().split(/\s+/).length : 0;
   const preset = r2(p.need + (last ? 0 : OUT));
   if (s.voice != null) {
@@ -497,4 +513,5 @@ else {
 if (takes.waiting.length) console.log(`\nThe "voice" ${takes.waiting.length === 1 ? "line" : "lines"} of ${nums(takes.waiting)} ${takes.waiting.length === 1 ? "is" : "are"} not spoken yet. After the sheet and REVIEW.md, and before the render, run:\n  node "${path.join(KIT, "sound.mjs")}"`);
 if (sheetStays) console.log(`\nWrote the project to video/. The pictures did not change, so video/sheet.png still shows them.`);
 else console.log(`\nWrote the project to video/. Next, make the contact sheet:\n  node "${path.join(KIT, "stills.mjs")}"`);
+if (lifted.length) console.log(`\nCHECK THE ADDRESS before the sheet. ${lifted.map((x) => `Scene ${x.n} sends the viewer to "${x.said}"`).join(", and ")}, and that address is inside the code. An address the code calls is not where a viewer goes. Read the brief again: if it gives an address outside the code (often on a line of its own, at the end), that one goes on the end card; if it gives none, ask the user which address, handle or number the end card should show. Then change the storyboard and build again. Keep this address only when the brief itself names it as the place to go.`);
 if (notes.length) console.log(`\nCHECK WITH THE USER before the render. The project is built with the words as the storyboard has them, and one thing in them cannot be right:\n${notes.map((x) => `  - ${x}`).join("\n")}\nDo not change the day or the date yourself: you cannot know which one the user meant. Make the sheet and write REVIEW.md as usual, then stop: tell the user what the calendar says, ask which is right, and render after they answer.`);
