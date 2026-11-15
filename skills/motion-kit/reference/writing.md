@@ -9,6 +9,15 @@ The video is read on a phone, in a few seconds per scene. Every line must be tru
 - If the address is not in the brief or the files, ask the user once. Never guess one, and never write `example.com`.
 - No number without a source in the brief. No quote unless the brief has the person's own words and their name. When in doubt, use a `list` instead of a `stat` or a `quote`.
 
+## The headline is the hook
+
+The first frame is the cover: its headline decides whether anyone watches the rest.
+
+- Say what the video is about in the fewest words: the offer ("Diskon 25% semua kemeja batik"), the news ("Kelas baru mulai 5 Januari 2027"), the question ("Ini true atau false?"), the result ("Sepatu putih kusam, bersih lagi").
+- A name alone is a headline only when the video introduces that person or shop and the brief gives nothing more pointed. Otherwise the name goes in the `kicker` and on the end card.
+- The `kicker` adds something the headline does not say: who, where or when ("Laundry Kinclong", "Sabtu, 13 Desember 2026"). Not a greeting ("Selamat datang di"). `Halo, aku` and `Hi, I am` go only above a person's name.
+- The `sub` adds one more fact. It is not a list of what the video will show.
+
 ## How a line should read
 
 - One idea per line. A line is a phrase, not a paragraph: "Roti hangat tiap Sabtu pagi", not "Kami menyediakan berbagai macam roti yang hangat".
@@ -18,6 +27,10 @@ The video is read on a phone, in a few seconds per scene. Every line must be tru
 - No emoji, no hashtag, no dash as punctuation. Use a comma, or two lines.
 - List lines start the same way: all with a noun ("Daftar harga", "Jam buka", "Peta lokasi") or all with a verb ("Pilih rotinya", "Kirim pesan", "Ambil Sabtu").
 - A button is two or three words that start with a verb: "Buka halamannya", "Pesan sekarang", "Open the page".
+- On the end card the `line` and the `button` say two different things: the line gives the reason or the deadline ("Pesan untuk Sabtu ini"), the button the action ("Chat lewat WA"). When the address is a phone number, one of them says what it is for ("Chat lewat WA", "Telepon kami").
+- Each fact once. If the title already gives the date, the list does not give it again.
+- A heading fits every line under it. Read the heading before each line: "Yang kami sediakan: berlaku sampai Minggu" is wrong, so that line belongs in another scene.
+- No filling. "Kirim pesan lewat WhatsApp" under "Chat WA ke 0811-0000-619" says nothing new: leave the `detail` out.
 
 ## The voice
 

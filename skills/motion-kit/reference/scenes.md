@@ -61,7 +61,7 @@ A heading and two to four lines that land one by one.
 
 ## steps
 
-Numbered steps on a line, lit one after another. Use it when the order matters.
+Numbered steps on a line, lit one after another. Only for things done in order (first this, then that). Opening hours, an address, ways to reach a shop or a set of choices are not steps: they have no order.
 
 | Field | Limit | |
 |---|---|---|
@@ -143,7 +143,7 @@ Where to go: the address types itself and the button is pressed once.
 | Field | Limit | |
 |---|---|---|
 | `line` | 30 | needed. "Mampir ke halamanku", "Pesan untuk Sabtu ini", "Try it today" |
-| `address` | 34 | needed. A page address without `https://`, or a handle like `@dapurmbaktini`. The same address as the page scene |
+| `address` | 34 | needed. A page address without `https://`, a handle like `@dapurmbaktini`, an email, or a phone or WhatsApp number written as the brief writes it (`0811-0000-142`). With a page scene, the same address as the page scene |
 | `button` | 20 | needed. "Buka halamannya", "Pesan sekarang", "Open the page" |
 | `name` | 26 | the name again |
 

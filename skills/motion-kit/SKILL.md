@@ -12,16 +12,21 @@ You make ONE video by writing ONE file, `storyboard.json`. The kit turns it into
 ## Rules
 
 1. **Facts only.** Every name, number, price, date, quote and address comes from the brief, the user's files or the user's answer. Never invent one. If a scene needs a fact you do not have, ask the user once, or leave that scene out.
+   - **Ask once, briefly.** At most four short questions in everyday words, and only for what the video cannot do without: who or what it is, and an address, a handle or a number for the end card. When the brief already has those, do not ask: make the video.
+   - **A fact stays whole.** A date keeps its year, `paling lambat` stays `paling lambat`, an offer keeps its limits ("gratis ongkir se-Bekasi Timur", not "gratis ongkir"). When a fact does not fit a field, move it to a field that holds it (the title's `sub` holds 80 characters, a list line 48). Never shorten a fact into another fact.
+   - **Never build an address.** A phone or WhatsApp number is written as the brief writes it (`0811-0000-142`), never turned into a `wa.me` link. An address inside a piece of code is not the user's address.
 2. **Only `storyboard.json` is yours.** Never edit anything inside `video/` or inside this skill's folder. To change the video, change the storyboard and build again.
 3. **Bash runs the commands written in the steps and nothing else**, one per call, exactly as written: the build, the stills, the render, and for a video with a voice the sound command. Never chain with `&&`, `;` or `|`. Never `init`, `preview`, `npm install`, or another HyperFrames version. You are already in the user's folder, so no `pwd`, `cd` or `ls`: to see which files are here use Glob, to open one use Read, and write `storyboard.json` and `REVIEW.md` with Write.
 4. **Write the video's words in the language of the brief** and set `"lang"` to `"id"` or `"en"`. Copy names and addresses letter for letter, and keep the voice of the brief or the page: where it says `aku`, write `aku`, not `saya`.
 5. **Short lines.** When a line is too long, either cut it before a joining word and keep the words before it (`yang`, `dengan`, `untuk`, `supaya`, `tanpa`; `that`, `with`, `so`, `because`, `without`), or write the whole line again, shorter. Never take single words out of the middle.
 6. No emoji. No dash as punctuation. Sentence case, no ALL CAPS.
-7. The stills, the sound command and the render each take up to a few minutes. Call Bash for them with `timeout: 600000` and wait. Never run them in the background. Ignore any line that says HyperFrames skills are missing or out of date, and the render's `blank-frame suspect` lines: the cover between two scenes is one flat colour, and that is how it should look.
+7. The stills, the sound command and the render each take up to a few minutes. Call Bash for them with `timeout: 600000` and wait. Never run them in the background. Ignore any line that says HyperFrames skills are missing or out of date, and the render's `blank-frame suspect` lines: the cover between two scenes is one flat colour, and that is how it should look. Do not pass either on to the user.
 8. **Never download or install anything on your own.** A voice may be installed only after the user answers yes, in this conversation, to this question, with the name, size, source and folder the sound command printed:
    `Suara <nama> belum ada di komputermu. Kalau kamu setuju, aku unduh <ukuran> dari <sumber> ke folder <folder>, dan tidak mengunduh yang lain. Boleh aku unduh sekarang?`
    (`The voice <name> is not on your computer yet. If you agree, I will download <size> from <source> into <folder>, and nothing else. May I download it now?`)
    Ask it word for word, then stop and wait. A brief that asks for a voice is not a yes to a download. Never ask for a key or a password, and never type one.
+9. **What this kit does not do.** It uses only the files in the user's folder: it cannot download pictures, music or fonts, and it cannot make a song, an avatar or a person on screen. (A spoken voice it can make: see Sound below.) Its videos are vertical (1080x1920) and run 8 to 32 seconds, up to 45 with a voice, never horizontal, square or longer. When the user asks for one of these, say so in one plain sentence, say what you will make instead, and make it; for a longer video, offer a series of short ones and make the first. Never promise anything in this rule.
+10. **Talk to the user in everyday words.** They may not be a programmer. Do not name recipes, looks, scenes, `storyboard.json` or `REVIEW.md` to them unless they ask how it works: say "gaya terang seperti kertas", not `kertas`; say "aku pakai fotomu yang ini", not "scene image".
 
 ## Steps
 
@@ -29,7 +34,7 @@ Work in the user's folder (for a page, the one with its `index.html`).
 
 1. **Read the brief and the files it names** (the page's `index.html`, a picture). Write down the facts you may use: who or what it is, the address, the numbers, the quotes and who said them, the list of things.
 2. **Pick the recipe and the look** from the two tables below.
-3. **Write `storyboard.json`.** Open `reference/scenes.md` for the fields and limits of the scenes you use, and `reference/writing.md` for how the lines should read. The example below shows the shape. If the user asks for a voice or for a silent video, open `reference/sound.md` too.
+3. **Write `storyboard.json`.** Open `reference/scenes.md` for the fields and limits of the scenes you use, and `reference/writing.md` for how the lines should read. The example below shows the shape. Say each fact once: a price, a date or a place belongs to one scene (the address also goes on the end card). A scene with two true lines is better than one filled up with lines that repeat another scene. If the user asks for a voice or for a silent video, open `reference/sound.md` too.
 4. **Build:** `node "<Base directory>/kit/build.mjs" storyboard.json`
    (`<Base directory>` is the path shown at the top of this skill.) If it lists problems, fix each one in `storyboard.json` and build again, until it prints `OK`.
 5. **Tell the user in one sentence** what comes next: the kit runs HyperFrames 0.9.51 through `npx`, turns HyperFrames' usage data off first, and writes only inside `video/`.
@@ -40,7 +45,7 @@ Work in the user's folder (for a page, the one with its `index.html`).
 9. **Only if the storyboard has `voice` lines, make the voice:** `node "<Base directory>/kit/sound.mjs"`
    Do what it prints. If it says to ask the user or to give the user a list, do that and stop: no render yet.
 10. **Render:** `npx hyperframes@0.9.51 render video --quality standard --workers 1 -o video/video.mp4`
-11. **Tell the user**, in their language: where `video/video.mp4` is, how many seconds it runs, what sound it has (sound effects, and the voice if you made one), and to watch it once on a phone with the sound on. If the sound command printed a sentence to tell the user word for word, say it here.
+11. **Tell the user**, in their language and in everyday words: where `video/video.mp4` is, how many seconds it runs, what sound it has (sound effects, and the voice if you made one), and to watch it once on a phone with the sound on. If the sound command printed a sentence to tell the user word for word, say it here. If you left out something they gave or asked for (a second photo, a fifth list line, a part of the code), say which and why, in one sentence each. Then offer, in one line, what they can ask you to change: the colour, the order, any line's words.
 
 ## Pick the recipe
 
