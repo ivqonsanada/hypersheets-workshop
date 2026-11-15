@@ -46,7 +46,7 @@ Work in the user's folder (for a page, the one with its `index.html`).
 9. **Only if the storyboard has `voice` lines, make the voice:** `node "<Base directory>/kit/sound.mjs"`
    Do what it prints. If it says to ask the user or to give the user a list, do that and stop: no render yet.
 10. **Render:** `npx hyperframes@0.9.51 render video --quality standard --workers 1 -o video/video.mp4`
-11. **Tell the user**, in their language and in everyday words: where `video/video.mp4` is, how many seconds it runs, what sound it has (sound effects, and the voice if you made one), and to watch it once on a phone with the sound on. If the sound command printed a sentence to tell the user word for word, say it here. If you left out something they gave or asked for (a second photo, a fifth list line, a part of the code), say which and why, in one sentence each. Then offer, in one line, what they can ask you to change: the colour, the order, any line's words.
+11. **Tell the user**, in their language and in everyday words: where `video/video.mp4` is, how many seconds it runs, what sound it has (sound effects, and the voice if you made one), and to watch it once on a phone with the sound on. If the sound command printed a sentence to tell the user word for word, say it here. If you left out something they gave or asked for (a second photo, a fifth list line, a part of the code), say which and why, in one sentence each. Then offer, in one line, what they can ask you to change: the colour, the order, any line's words. Keep it to a few short lines, name no file but `video/video.mp4`, and use no kit word (rule 10).
 
 ## Pick the recipe
 
