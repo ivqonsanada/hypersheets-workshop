@@ -1,0 +1,443 @@
+{
+  "version": 1,
+  "rate": 48000,
+  "default": "soft",
+  "aliases": {
+    "warnet": "pixel",
+    "kertas": "paper",
+    "panggung": "bold"
+  },
+  "palettes": {
+    "soft": {
+      "about": "Small rounded interface sounds: pops, plucks and light ticks. The default.",
+      "land": [
+        {
+          "file": "soft/land-1.wav",
+          "seconds": 0.097
+        },
+        {
+          "file": "soft/land-2.wav",
+          "seconds": 0.099
+        },
+        {
+          "file": "soft/land-3.wav",
+          "seconds": 0.129
+        }
+      ],
+      "press": [
+        {
+          "file": "soft/press-1.wav",
+          "seconds": 0.214
+        },
+        {
+          "file": "soft/press-2.wav",
+          "seconds": 0.212
+        },
+        {
+          "file": "soft/press-3.wav",
+          "seconds": 0.153
+        }
+      ],
+      "cut": [
+        {
+          "file": "soft/cut-1.wav",
+          "seconds": 0.119
+        },
+        {
+          "file": "soft/cut-2.wav",
+          "seconds": 0.117
+        },
+        {
+          "file": "soft/cut-3.wav",
+          "seconds": 0.063
+        }
+      ],
+      "marker": [
+        {
+          "file": "soft/marker-1.wav",
+          "seconds": 0.097
+        },
+        {
+          "file": "soft/marker-2.wav",
+          "seconds": 0.119
+        },
+        {
+          "file": "soft/marker-3.wav",
+          "seconds": 0.08
+        }
+      ],
+      "count": [
+        {
+          "file": "soft/count-1.wav",
+          "seconds": 0.02
+        },
+        {
+          "file": "soft/count-2.wav",
+          "seconds": 0.04
+        },
+        {
+          "file": "soft/count-3.wav",
+          "seconds": 0.04
+        }
+      ],
+      "type": [
+        {
+          "file": "soft/type-1.wav",
+          "seconds": 0.038
+        },
+        {
+          "file": "soft/type-2.wav",
+          "seconds": 0.035
+        },
+        {
+          "file": "soft/type-3.wav",
+          "seconds": 0.051
+        }
+      ],
+      "whoosh": [
+        {
+          "file": "soft/whoosh-1.wav",
+          "seconds": 0.34,
+          "peak": 0.205
+        },
+        {
+          "file": "soft/whoosh-2.wav",
+          "seconds": 0.62,
+          "peak": 0.37
+        },
+        {
+          "file": "soft/whoosh-3.wav",
+          "seconds": 1.25,
+          "peak": 0.67
+        }
+      ]
+    },
+    "paper": {
+      "about": "Recorded paper, card and book handling: placed books, sliding cards, pen scratches.",
+      "land": [
+        {
+          "file": "paper/land-1.wav",
+          "seconds": 0.221
+        },
+        {
+          "file": "paper/land-2.wav",
+          "seconds": 0.234
+        },
+        {
+          "file": "paper/land-3.wav",
+          "seconds": 0.206
+        }
+      ],
+      "press": [
+        {
+          "file": "paper/press-1.wav",
+          "seconds": 0.203
+        },
+        {
+          "file": "paper/press-2.wav",
+          "seconds": 0.207
+        },
+        {
+          "file": "paper/press-3.wav",
+          "seconds": 0.159
+        }
+      ],
+      "cut": [
+        {
+          "file": "paper/cut-1.wav",
+          "seconds": 0.201
+        },
+        {
+          "file": "paper/cut-2.wav",
+          "seconds": 0.224
+        },
+        {
+          "file": "paper/cut-3.wav",
+          "seconds": 0.3
+        }
+      ],
+      "marker": [
+        {
+          "file": "paper/marker-1.wav",
+          "seconds": 0.139
+        },
+        {
+          "file": "paper/marker-2.wav",
+          "seconds": 0.312
+        },
+        {
+          "file": "paper/marker-3.wav",
+          "seconds": 0.325
+        }
+      ],
+      "count": [
+        {
+          "file": "paper/count-1.wav",
+          "seconds": 0.11
+        },
+        {
+          "file": "paper/count-2.wav",
+          "seconds": 0.094
+        },
+        {
+          "file": "paper/count-3.wav",
+          "seconds": 0.029
+        }
+      ],
+      "type": [
+        {
+          "file": "paper/type-1.wav",
+          "seconds": 0.069
+        },
+        {
+          "file": "paper/type-2.wav",
+          "seconds": 0.073
+        },
+        {
+          "file": "paper/type-3.wav",
+          "seconds": 0.04
+        }
+      ],
+      "whoosh": [
+        {
+          "file": "paper/whoosh-1.wav",
+          "seconds": 0.256,
+          "peak": 0.13
+        },
+        {
+          "file": "paper/whoosh-2.wav",
+          "seconds": 0.25,
+          "peak": 0.155
+        },
+        {
+          "file": "paper/whoosh-3.wav",
+          "seconds": 0.402,
+          "peak": 0.045
+        },
+        {
+          "file": "paper/whoosh-4.wav",
+          "seconds": 0.396,
+          "peak": 0.115
+        },
+        {
+          "file": "paper/whoosh-5.wav",
+          "seconds": 0.721,
+          "peak": 0.485
+        },
+        {
+          "file": "paper/whoosh-6.wav",
+          "seconds": 0.767,
+          "peak": 0.215
+        }
+      ]
+    },
+    "bold": {
+      "about": "Recorded wood, tin and metal hits with weight, for a stage feel.",
+      "land": [
+        {
+          "file": "bold/land-1.wav",
+          "seconds": 0.184
+        },
+        {
+          "file": "bold/land-2.wav",
+          "seconds": 0.201
+        },
+        {
+          "file": "bold/land-3.wav",
+          "seconds": 0.201
+        }
+      ],
+      "press": [
+        {
+          "file": "bold/press-1.wav",
+          "seconds": 0.172
+        },
+        {
+          "file": "bold/press-2.wav",
+          "seconds": 0.248
+        },
+        {
+          "file": "bold/press-3.wav",
+          "seconds": 0.153
+        }
+      ],
+      "cut": [
+        {
+          "file": "bold/cut-1.wav",
+          "seconds": 0.082
+        },
+        {
+          "file": "bold/cut-2.wav",
+          "seconds": 0.093
+        },
+        {
+          "file": "bold/cut-3.wav",
+          "seconds": 0.093
+        }
+      ],
+      "marker": [
+        {
+          "file": "bold/marker-1.wav",
+          "seconds": 0.16
+        },
+        {
+          "file": "bold/marker-2.wav",
+          "seconds": 0.136
+        },
+        {
+          "file": "bold/marker-3.wav",
+          "seconds": 0.134
+        }
+      ],
+      "count": [
+        {
+          "file": "bold/count-1.wav",
+          "seconds": 0.094
+        },
+        {
+          "file": "bold/count-2.wav",
+          "seconds": 0.104
+        },
+        {
+          "file": "bold/count-3.wav",
+          "seconds": 0.092
+        }
+      ],
+      "type": [
+        {
+          "file": "bold/type-1.wav",
+          "seconds": 0.117
+        },
+        {
+          "file": "bold/type-2.wav",
+          "seconds": 0.118
+        },
+        {
+          "file": "bold/type-3.wav",
+          "seconds": 0.092
+        }
+      ],
+      "whoosh": [
+        {
+          "file": "bold/whoosh-1.wav",
+          "seconds": 0.3,
+          "peak": 0.2
+        },
+        {
+          "file": "bold/whoosh-2.wav",
+          "seconds": 0.55,
+          "peak": 0.375
+        },
+        {
+          "file": "bold/whoosh-3.wav",
+          "seconds": 1.2,
+          "peak": 0.655
+        }
+      ]
+    },
+    "pixel": {
+      "about": "Synthesised 8-bit blips, made by dev/synth.mjs. Nothing recorded.",
+      "land": [
+        {
+          "file": "pixel/land-1.wav",
+          "seconds": 0.12
+        },
+        {
+          "file": "pixel/land-2.wav",
+          "seconds": 0.12
+        },
+        {
+          "file": "pixel/land-3.wav",
+          "seconds": 0.12
+        }
+      ],
+      "press": [
+        {
+          "file": "pixel/press-1.wav",
+          "seconds": 0.11
+        },
+        {
+          "file": "pixel/press-2.wav",
+          "seconds": 0.11
+        },
+        {
+          "file": "pixel/press-3.wav",
+          "seconds": 0.11
+        }
+      ],
+      "cut": [
+        {
+          "file": "pixel/cut-1.wav",
+          "seconds": 0.053
+        },
+        {
+          "file": "pixel/cut-2.wav",
+          "seconds": 0.053
+        },
+        {
+          "file": "pixel/cut-3.wav",
+          "seconds": 0.053
+        }
+      ],
+      "marker": [
+        {
+          "file": "pixel/marker-1.wav",
+          "seconds": 0.14
+        },
+        {
+          "file": "pixel/marker-2.wav",
+          "seconds": 0.14
+        },
+        {
+          "file": "pixel/marker-3.wav",
+          "seconds": 0.14
+        }
+      ],
+      "count": [
+        {
+          "file": "pixel/count-1.wav",
+          "seconds": 0.042
+        },
+        {
+          "file": "pixel/count-2.wav",
+          "seconds": 0.042
+        },
+        {
+          "file": "pixel/count-3.wav",
+          "seconds": 0.042
+        }
+      ],
+      "type": [
+        {
+          "file": "pixel/type-1.wav",
+          "seconds": 0.018
+        },
+        {
+          "file": "pixel/type-2.wav",
+          "seconds": 0.018
+        },
+        {
+          "file": "pixel/type-3.wav",
+          "seconds": 0.018
+        }
+      ],
+      "whoosh": [
+        {
+          "file": "pixel/whoosh-1.wav",
+          "seconds": 0.32,
+          "peak": 0.215
+        },
+        {
+          "file": "pixel/whoosh-2.wav",
+          "seconds": 0.62,
+          "peak": 0.41
+        },
+        {
+          "file": "pixel/whoosh-3.wav",
+          "seconds": 1.23,
+          "peak": 0.745
+        }
+      ]
+    }
+  }
+}
