@@ -208,7 +208,8 @@
       if (fits.every((f) => f.ok)) break;
     }
     const pane = (side, cls, fitted) => {
-      const strike = cls === "a" ? h("s") : null;
+      // The old panel's label is struck through when it is a word. A sign ("=", "px") stays as it is: a line through it makes another sign.
+      const strike = cls === "a" && /\p{L}{2}/u.test(side.label) ? h("s") : null;
       const lb = h("p", "lb", [h("span", null, side.label), strike]);
       if (strike) lb.setAttribute("data-layout-allow-occlusion", "");
       const pt = MK.text("p", "pt", flag(c, fitted, `the ${cls === "a" ? "first" : "second"} panel's text`), 1.22);
@@ -222,7 +223,7 @@
     M.pop(c.tl, arrow.firstChild, c.T.right - 0.25);
     M.block(c.tl, b, c.T.right);
     c.tl.fromTo(a.querySelector(".pt"), { opacity: 1 }, { opacity: 0.55, duration: 0.25, ease: "none", immediateRender: false }, c.T.right);
-    M.grow(c.tl, a.querySelector("s"), c.T.right + 0.05, 0.3);
+    if (a.querySelector("s")) M.grow(c.tl, a.querySelector("s"), c.T.right + 0.05, 0.3);
   });
 
   // ---------- code: real code, typed line by line ----------

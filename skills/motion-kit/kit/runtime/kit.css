@@ -198,7 +198,8 @@ html.look-panggung .mk-compare .pt { font-weight: 700; }
 .mk-code .top { height: 78px; display: flex; align-items: center; gap: 14px; padding: 0 28px; border-bottom: var(--bw) solid var(--line); }
 .mk-code .top i { flex: none; display: block; width: 20px; height: 20px; background: var(--line); }
 .mk-code .top span { margin-left: auto; font: 600 34px/1 var(--fm), monospace; color: var(--muted); }
-.mk-code ol { list-style: none; padding: 34px 0 38px; font-family: var(--fm), monospace; font-weight: 500; }
+/* Code is shown letter for letter: no ligature turns === or != into one glyph. */
+.mk-code ol { list-style: none; padding: 34px 0 38px; font-family: var(--fm), monospace; font-weight: 500; font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
 .mk-code li { position: relative; display: flex; padding: 0 28px 0 0; white-space: pre; }
 .mk-code li b { flex: none; width: 76px; padding-right: 24px; text-align: right; font-weight: 400; color: var(--muted); opacity: 0.7; }
 .mk-code li code { font: inherit; color: var(--ink); position: relative; }
@@ -271,6 +272,7 @@ html.look-panggung .mk-page-s .caret { background: var(--g); }
 .mk-end .line { font-size: 58px; line-height: 1.2; font-weight: 600; margin-bottom: 30px; }
 .mk-end .nm { font-family: var(--fd), sans-serif; font-weight: var(--wd); letter-spacing: var(--trk); margin-bottom: 60px; }
 .mk-end .field { display: flex; align-items: center; max-width: 100%; height: 104px; padding: 0 30px; border: 6px solid var(--mk-on-accent); font: 600 40px/1 var(--fm), monospace; white-space: nowrap; }
+.mk-end .field, .mk-page-s .addr { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
 .mk-end .caret { flex: none; display: block; width: 18px; height: 48px; margin-left: 6px; background: var(--mk-on-accent); }
 .mk-end .btn { position: relative; margin-top: 56px; }
 .mk-end .btn s { position: absolute; inset: 0; display: block; background: var(--deep); transform: translate(12px, 12px); }
