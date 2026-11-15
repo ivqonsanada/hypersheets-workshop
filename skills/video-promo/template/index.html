@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=1080, height=1920" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
     <style>
-      /* LOCKED: this file only places the scenes. The text lives in compositions/. */
+      /* LOCKED: this file only places the scenes. The text lives in compositions/.
+         The page scene reads the learner's page and sets --hs-accent (the page's own colour),
+         --hs-ink (the text colour that reads on it) and --hs-page-bg. These are the fallbacks. */
       * { margin: 0; padding: 0; box-sizing: border-box; }
+      :root { --hs-accent: #e44d26; --hs-ink: #f4ede4; --hs-page-bg: #ffffff; }
       html, body { width: 1080px; height: 1920px; overflow: hidden; background: #171412; }
       #root { position: relative; width: 1080px; height: 1920px; background: #171412; }
     </style>
@@ -14,10 +17,10 @@
   <body>
     <div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1080" data-height="1920">
       <div id="backdrop" data-composition-id="backdrop" data-composition-src="compositions/backdrop.html" data-start="0" data-duration="20" data-track-index="0" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
-      <div id="hello" data-composition-id="hello" data-composition-src="compositions/hello.html" data-start="0" data-duration="4" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
-      <div id="page" data-composition-id="page" data-composition-src="compositions/page.html" data-start="4" data-duration="7" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
-      <div id="learning" data-composition-id="learning" data-composition-src="compositions/learning.html" data-start="11" data-duration="6" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
-      <div id="visit" data-composition-id="visit" data-composition-src="compositions/visit.html" data-start="17" data-duration="3" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="hello" data-composition-id="hello" data-composition-src="compositions/hello.html" data-start="0" data-duration="3.6" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="page" data-composition-id="page" data-composition-src="compositions/page.html" data-start="3.6" data-duration="7.4" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="learning" data-composition-id="learning" data-composition-src="compositions/learning.html" data-start="11" data-duration="5.6" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="visit" data-composition-id="visit" data-composition-src="compositions/visit.html" data-start="16.6" data-duration="3.4" data-track-index="1" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
     </div>
     <script>
       const tl = gsap.timeline({ paused: true });

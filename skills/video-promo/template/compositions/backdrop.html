@@ -6,25 +6,37 @@
   <body>
     <template>
       <style>
-        /* LOCKED: the warm dark ground and a few pixels that step slowly, so no moment is frozen. */
-        #root { position: absolute; inset: 0; background: #171412; }
-        #root .px { position: absolute; width: 24px; height: 24px; background: #4a4038; }
+        /* LOCKED: the warm dark ground with afternoon light falling through a window, drawn as two
+           stepped bands of flat colour (no gradient, no blur). It creeps one step a second. */
+        #root { position: absolute; inset: 0; background: #171412; overflow: hidden; }
+        #root .beam { position: absolute; left: -120px; top: -120px; width: 1320px; height: 2160px; }
+        #root .beam b { position: absolute; inset: 0; display: block; }
+        #root .beam .outer { background: rgba(244, 237, 228, 0.035); }
+        #root .beam .inner { background: rgba(244, 237, 228, 0.04); }
       </style>
       <div id="root" data-composition-id="backdrop" data-width="1080" data-height="1920">
-        <div class="px" id="bd-px1" style="left: 72px; top: 132px"></div>
-        <div class="px" id="bd-px2" style="left: 108px; top: 168px"></div>
-        <div class="px" id="bd-px3" style="left: 948px; top: 1716px"></div>
-        <div class="px" id="bd-px4" style="left: 984px; top: 1752px"></div>
-        <div class="px" id="bd-px5" style="left: 912px; top: 1752px"></div>
+        <div class="beam" id="bd-beam" data-layout-ignore><b class="outer" id="bd-outer"></b><b class="inner" id="bd-inner"></b></div>
       </div>
       <script>
         (() => {
+          // A staircase band from the top right down to the bottom left: `steps` stairs of
+          // `run` px across and `rise` px down, `thick` px tall. Coordinates are in the beam box,
+          // which starts 120 px above and left of the frame.
+          const stairs = (x0, y0, steps, run, rise, thick) => {
+            const top = [];
+            const bottom = [];
+            for (let i = 0; i <= steps; i++) {
+              const x = x0 - i * run;
+              const y = y0 + i * rise;
+              top.push(`${x}px ${y}px`, `${x - run}px ${y}px`);
+              bottom.push(`${x}px ${y + thick}px`, `${x - run}px ${y + thick}px`);
+            }
+            return `polygon(${top.join(",")},${bottom.reverse().join(",")})`;
+          };
+          document.getElementById("bd-outer").style.clipPath = stairs(1440, -40, 8, 192, 240, 520);
+          document.getElementById("bd-inner").style.clipPath = stairs(1440, 100, 8, 192, 240, 220);
           const tl = gsap.timeline({ paused: true });
-          tl.to("#bd-px1", { x: 36, duration: 20, ease: "steps(6)" }, 0);
-          tl.to("#bd-px2", { y: 36, duration: 20, ease: "steps(6)" }, 0);
-          tl.to("#bd-px3", { y: -36, duration: 20, ease: "steps(6)" }, 0);
-          tl.to("#bd-px4", { x: -36, duration: 20, ease: "steps(6)" }, 0);
-          tl.to("#bd-px5", { y: -72, duration: 20, ease: "steps(12)" }, 0);
+          tl.fromTo("#bd-beam", { x: 0, y: 0 }, { x: -60, y: 80, duration: 20, ease: "steps(20)" }, 0);
           window.__timelines["backdrop"] = tl;
         })();
       </script>

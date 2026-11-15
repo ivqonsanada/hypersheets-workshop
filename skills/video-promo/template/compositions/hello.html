@@ -10,30 +10,126 @@
         @font-face { font-family: "Finlandica"; src: url("assets/fonts/finlandica.woff2") format("woff2"); font-weight: 400 700; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212, U+FEFF, U+FFFD; }
         @font-face { font-family: "Finlandica"; src: url("assets/fonts/finlandica-ext.woff2") format("woff2"); font-weight: 400 700; unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+20A0-20AB, U+2C60-2C7F, U+A720-A7FF; }
         #root { position: absolute; inset: 0; font-family: "Finlandica", sans-serif; color: #f4ede4; }
-        #root .wrap { position: absolute; left: 120px; right: 140px; top: 240px; bottom: 270px; display: flex; flex-direction: column; justify-content: center; }
+        #root .wrap { position: absolute; left: 96px; right: 120px; top: 240px; bottom: 300px; display: flex; flex-direction: column; justify-content: center; }
         #root .hello { font-size: 64px; font-weight: 500; color: #c2b5a6; line-height: 1.2; }
-        #root .name { font-size: 120px; font-weight: 700; line-height: 1.04; margin-top: 12px; overflow-wrap: anywhere; }
-        #root .px-row b { display: block; width: 24px; height: 24px; background: #f4ede4; }
-        #root .role { font-size: 56px; font-weight: 400; color: #c2b5a6; line-height: 1.25; margin-top: 44px; }
-        #root .px-row { display: flex; gap: 12px; margin-top: 72px; }
-        #root .px-row i { display: block; width: 24px; height: 24px; background: #4a4038; }
+        #root .name-box { position: relative; margin-top: 40px; }
+        #root .name { font-size: 176px; font-weight: 700; line-height: 1.08; letter-spacing: -0.01em; overflow-wrap: normal; word-break: normal; }
+        #root .name[data-inked="1"] { color: var(--hs-ink, #f4ede4); }
+        #root .hl { position: absolute; inset: 0; pointer-events: none; }
+        #root .hl b, #root .hl s { position: absolute; display: block; }
+        #root .hl s { background: #0b0908; }
+        #root .hl b { background: var(--hs-accent, #e44d26); }
+        #root .hl .ink { position: absolute; left: 0; top: 0; width: 100%; color: var(--hs-ink, #f4ede4); }
+        #root .role { font-size: 56px; font-weight: 400; color: #c2b5a6; line-height: 1.25; margin-top: 64px; }
+        #root .wipe { position: absolute; inset: 0; display: flex; pointer-events: none; }
+        #root .wipe i { flex: 1 0 0; height: 100%; background: var(--hs-accent, #e44d26); transform-origin: 50% 100%; }
       </style>
       <div id="root" data-composition-id="hello" data-width="1080" data-height="1920">
         <div class="wrap" id="hello-in">
           <p class="hello" data-layout-allow-safe-zone data-slot="hello" data-max="24">Halo, aku</p>
-          <h1 class="name" data-layout-allow-safe-zone data-slot="name" data-max="20">TODO-name</h1>
+          <div class="name-box" id="hello-namebox">
+            <h1 class="name" id="hello-name" data-layout-allow-safe-zone data-slot="name" data-max="20">TODO-name</h1>
+            <div class="hl" id="hello-hl" aria-hidden="true" data-layout-allow-occlusion data-layout-allow-overlap data-layout-allow-overflow><div class="name ink" id="hello-ink" data-layout-allow-safe-zone></div></div>
+          </div>
           <p class="role" data-layout-allow-safe-zone data-slot="role" data-max="60">TODO-role</p>
-          <div class="px-row" id="hello-px"><i></i><i></i><i></i><i></i><i></i><i></i><b id="hello-cursor"></b></div>
         </div>
+        <div class="wipe" id="hello-wipe" data-layout-ignore><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
       </div>
       <script>
         (() => {
-          // LOCKED: the timing is already right. The words are whole from frame 0 (the cover).
+          // LOCKED: the words are whole from frame 0 (the cover). Within the first second a band
+          // in the page's own colour sweeps behind the name in pixel steps; at the end a curtain of
+          // the same colour rises and hands over to the page.
           const tl = gsap.timeline({ paused: true });
-          tl.from("#hello-px i", { opacity: 0, duration: 0.15, stagger: 0.15, ease: "none" }, 0.2);
-          tl.to("#hello-cursor", { opacity: 0, duration: 0.4, repeat: 5, yoyo: true, ease: "steps(1)" }, 1.2);
-          tl.to("#hello-in", { opacity: 0, duration: 0.3, ease: "power1.in" }, 3.65);
-          window.__timelines["hello"] = tl;
+          const name = document.getElementById("hello-name");
+          const hl = document.getElementById("hello-hl");
+          const ink = document.getElementById("hello-ink");
+          const LH = 1.08; // the name's line height, as in the style above
+
+          // The largest size (176 down to 104) at which no word is wider than the 864 px box and the
+          // name takes at most two lines; failing that, at most three. Measured on a canvas, which
+          // needs no layout.
+          function fit() {
+            const ctx = document.createElement("canvas").getContext("2d");
+            const words = name.textContent.trim().split(/\s+/);
+            const room = 864 * 0.98;
+            for (const most of [2, 3]) {
+              for (let fs = 176; fs >= 104; fs -= 8) {
+                ctx.font = `700 ${fs}px Finlandica`;
+                if ("letterSpacing" in ctx) ctx.letterSpacing = `${-0.01 * fs}px`;
+                const space = ctx.measureText(" ").width;
+                let lines = 1, line = 0, fits = true;
+                for (const w of words) {
+                  const ww = ctx.measureText(w).width;
+                  if (ww > room) { fits = false; break; }
+                  if (!line) line = ww;
+                  else if (line + space + ww <= room) line += space + ww;
+                  else { lines++; line = ww; }
+                }
+                if (fits && lines <= most) return fs;
+              }
+            }
+            return 104;
+          }
+
+          // One band per line of the name, hugging that line's words, with a hard shadow.
+          function bands(fs) {
+            ink.textContent = name.textContent;
+            ink.style.fontSize = fs + "px";
+            const box = name.getBoundingClientRect();
+            const k = box.width / name.offsetWidth || 1;
+            const lh = fs * LH;
+            const range = document.createRange();
+            range.selectNodeContents(name);
+            const rows = [];
+            for (const r of range.getClientRects()) {
+              if (r.width < 1) continue;
+              const i = Math.max(0, Math.floor(((r.top + r.bottom) / 2 - box.top) / k / lh));
+              const left = (r.left - box.left) / k;
+              const right = (r.right - box.left) / k;
+              rows[i] = rows[i] ? [Math.min(rows[i][0], left), Math.max(rows[i][1], right)] : [left, right];
+            }
+            const pad = Math.round(fs * 0.12);
+            const last = rows.length - 1;
+            const parts = [];
+            rows.forEach((row, i) => {
+              if (!row) return;
+              const x = Math.round(row[0] - pad);
+              const w = Math.round(row[1] - row[0] + 2 * pad);
+              const y = Math.round(i * lh - (i === 0 ? fs * 0.02 : 0));
+              const h = Math.round((i + 1) * lh + (i === last ? fs * 0.06 : 0)) - y;
+              parts.push({ x, y, w, h });
+            });
+            const shadow = parts.map((p) => `<s style="left:${p.x + 12}px;top:${p.y + 12}px;width:${p.w}px;height:${p.h}px"></s>`).join("");
+            const band = parts.map((p) => `<b style="left:${p.x}px;top:${p.y}px;width:${p.w}px;height:${p.h}px"></b>`).join("");
+            hl.insertAdjacentHTML("afterbegin", shadow + band);
+          }
+
+          // power3.out, landing in whole steps: arrives fast, settles in pixel stops.
+          const stepOut = (n) => {
+            const e = gsap.parseEase("power3.out");
+            return (p) => Math.round(e(p) * n) / n;
+          };
+
+          function build() {
+            const fs = fit();
+            name.style.fontSize = fs + "px";
+            try {
+              if (name.offsetWidth) bands(fs);
+              else hl.style.display = "none"; // not laid out yet: no band, the name still fits
+            } catch (e) {
+              hl.style.display = "none";
+            }
+            tl.fromTo(hl, { clipPath: "inset(-60px 1200px -60px -60px)" }, { clipPath: "inset(-60px -60px -60px -60px)", duration: 0.6, ease: stepOut(10) }, 0.2);
+            // Once the band has landed, the cream name under it is covered by the band and by the copy
+            // in the colour that reads on it; it takes that colour too, so it reads on the band as well.
+            if (hl.style.display !== "none") tl.fromTo(name, { attr: { "data-inked": "0" } }, { attr: { "data-inked": "1" }, duration: 0.01, ease: "none" }, 0.82);
+            tl.fromTo("#hello-wipe i", { scaleY: 0 }, { scaleY: 1, duration: 0.22, ease: "steps(4)", stagger: 0.0175 }, 3.22);
+            window.__timelines["hello"] = tl;
+          }
+
+          const ready = document.fonts && document.fonts.load ? document.fonts.load('700 100px "Finlandica"', name.textContent) : Promise.resolve();
+          ready.catch(() => {}).then(build);
         })();
       </script>
     </template>

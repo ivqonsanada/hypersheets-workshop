@@ -7,7 +7,9 @@
 set -euo pipefail
 mp4="$1"; out="$2"
 mkdir -p "$out"
-times=(0 1.5 5.5 9.5 12.2 14.8 17.8 19.6)
+# v0.2 beats: the cover, the band on the name, the marker on the name, the marker on the list,
+# the list landing, all three lines, the end card, its last frame.
+times=(0 1 6.2 9.6 11.4 14.4 17.8 19.6)
 i=0
 for t in "${times[@]}"; do
   ffmpeg -v error -y -ss "$t" -i "$mp4" -frames:v 1 -vf "scale=540:-2" "$out/f$i-${t}s.png"

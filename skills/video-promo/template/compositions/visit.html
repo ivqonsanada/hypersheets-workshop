@@ -9,30 +9,73 @@
         /* LOCKED: do not edit the style. Change only the text inside the tags marked data-slot. */
         @font-face { font-family: "Finlandica"; src: url("assets/fonts/finlandica.woff2") format("woff2"); font-weight: 400 700; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212, U+FEFF, U+FFFD; }
         @font-face { font-family: "Finlandica"; src: url("assets/fonts/finlandica-ext.woff2") format("woff2"); font-weight: 400 700; unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+20A0-20AB, U+2C60-2C7F, U+A720-A7FF; }
-        #root { position: absolute; inset: 0; font-family: "Finlandica", sans-serif; color: #f4ede4; }
-        #root .wrap { position: absolute; left: 120px; right: 140px; top: 240px; bottom: 270px; display: flex; flex-direction: column; justify-content: center; }
-        #root .line { font-size: 60px; font-weight: 500; color: #c2b5a6; line-height: 1.2; }
-        #root .name { font-size: 112px; font-weight: 700; line-height: 1.05; margin-top: 16px; overflow-wrap: anywhere; }
-        #root .url { font-family: "JetBrains Mono", monospace; font-size: 44px; color: hsl(217 91% 72%); margin-top: 56px; overflow-wrap: anywhere; line-height: 1.3; }
-        #root .btn-box { margin-top: 96px; height: 160px; }
-        #root .btn { display: inline-block; background: #e44d26; color: #ffffff; font-size: 56px; font-weight: 700; line-height: 1; padding: 36px 60px; box-shadow: 0 14px 0 #b5381b; }
+        #root { position: absolute; inset: 0; font-family: "Finlandica", sans-serif; color: var(--hs-ink, #f4ede4); background: var(--hs-accent, #e44d26); }
+        #root .wrap { position: absolute; left: 96px; right: 120px; top: 240px; bottom: 300px; display: flex; flex-direction: column; justify-content: center; }
+        #root .line { font-size: 60px; font-weight: 500; line-height: 1.2; }
+        #root .name { font-size: 144px; font-weight: 700; line-height: 1.04; letter-spacing: -0.01em; margin-top: 20px; overflow-wrap: normal; }
+        #root .bar { margin-top: 72px; display: flex; align-items: center; height: 112px; padding: 0 28px; border: 6px solid var(--hs-ink, #f4ede4); box-shadow: 12px 12px 0 color-mix(in srgb, var(--hs-accent, #e44d26) 45%, #000000); }
+        #root .url { font-family: "JetBrains Mono", monospace; font-size: 48px; white-space: nowrap; overflow: hidden; }
+        #root .caret { flex: none; display: block; width: 0.42em; height: 1.1em; margin-left: 6px; font-size: 48px; background: var(--hs-ink, #f4ede4); }
+        #root .btn-box { margin-top: 88px; height: 160px; }
+        #root .press { position: relative; display: inline-block; padding-bottom: 14px; }
+        #root .edge { position: absolute; left: 0; right: 0; top: 14px; bottom: 0; background: color-mix(in srgb, var(--hs-accent, #e44d26) 45%, #000000); }
+        #root .btn { position: relative; display: inline-block; background: var(--hs-ink, #f4ede4); color: var(--hs-accent, #e44d26); font-size: 56px; font-weight: 700; line-height: 1; padding: 36px 60px; }
       </style>
       <div id="root" data-composition-id="visit" data-width="1080" data-height="1920">
         <div class="wrap" id="visit-in">
-          <p class="line" data-layout-allow-safe-zone data-slot="visit-line" data-max="28">Mampir ke halamanku</p>
-          <p class="name" data-layout-allow-safe-zone data-slot="name-again" data-max="20">TODO-name</p>
-          <p class="url" data-layout-allow-safe-zone data-slot="address-again" data-max="34">TODO-address</p>
-          <div class="btn-box"><span class="btn" id="visit-btn" data-layout-allow-safe-zone data-slot="button" data-max="18">Buka halamannya</span></div>
+          <p class="line" id="visit-line" data-layout-allow-safe-zone data-slot="visit-line" data-max="28">Mampir ke halamanku</p>
+          <p class="name" id="visit-name" data-layout-allow-safe-zone data-slot="name-again" data-max="20">TODO-name</p>
+          <div class="bar" id="visit-bar"><span class="url" id="visit-url" data-layout-allow-safe-zone data-slot="address-again" data-max="34">TODO-address</span><b class="caret" id="visit-caret"></b></div>
+          <div class="btn-box" id="visit-box"><span class="press"><span class="edge"></span><span class="btn" id="visit-btn" data-layout-allow-safe-zone data-slot="button" data-max="18">Buka halamannya</span></span></div>
         </div>
       </div>
       <script>
         (() => {
-          // LOCKED: the words come in, the button is pressed once, the last second holds still.
+          // LOCKED: the card lands on the page's colour, the address caret blinks three times, the
+          // button is pressed once, and the last two seconds hold still.
           const tl = gsap.timeline({ paused: true });
-          tl.from("#visit-in", { opacity: 0, y: 24, duration: 0.5, ease: "power2.out" }, 0.05);
-          tl.to("#visit-btn", { y: 10, boxShadow: "0 4px 0 #b5381b", duration: 0.12, ease: "power1.in" }, 1.2);
-          tl.to("#visit-btn", { y: 0, boxShadow: "0 14px 0 #b5381b", duration: 0.2, ease: "power1.out" }, 1.36);
-          window.__timelines["visit"] = tl;
+          const name = document.getElementById("visit-name");
+          const url = document.getElementById("visit-url");
+
+          // The name as large as it fits in two lines (144 down to 96), the address on one line.
+          // Measured on a canvas, which needs no layout (this scene is not shown until its turn).
+          function fit() {
+            const ctx = document.createElement("canvas").getContext("2d");
+            const words = name.textContent.trim().split(/\s+/);
+            const room = 864 * 0.97;
+            let size = 96;
+            for (let fs = 144; fs >= 96; fs -= 8) {
+              ctx.font = `700 ${fs}px Finlandica`;
+              if ("letterSpacing" in ctx) ctx.letterSpacing = `${-0.01 * fs}px`;
+              const space = ctx.measureText(" ").width;
+              let lines = 1, line = 0, fits = true;
+              for (const w of words) {
+                const ww = ctx.measureText(w).width;
+                if (ww > room) { fits = false; break; }
+                if (!line) line = ww;
+                else if (line + space + ww <= room) line += space + ww;
+                else { lines++; line = ww; }
+              }
+              if (fits && lines <= 2) { size = fs; break; }
+            }
+            name.style.fontSize = size + "px";
+            const n = Math.max(1, url.textContent.trim().length);
+            url.style.fontSize = Math.max(36, Math.min(52, Math.floor((864 - 12 - 56 - 60) / (0.6 * n)))) + "px"; // border, padding, caret and some air
+          }
+
+          function build() {
+            tl.fromTo(["#visit-line", "#visit-name", "#visit-bar", "#visit-box"], { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.22, ease: "power2.out", stagger: 0.08 }, 0.08);
+            tl.fromTo("#visit-caret", { opacity: 1 }, { opacity: 0, duration: 0.4, ease: "steps(1)", repeat: 5, yoyo: true }, 0.6);
+            tl.fromTo("#visit-btn", { y: 0 }, { y: 10, duration: 0.12, ease: "power1.in" }, 1.25);
+            tl.to("#visit-btn", { y: 0, duration: 0.2, ease: "power1.out" }, 1.41);
+            window.__timelines["visit"] = tl;
+          }
+
+          const ready = document.fonts && document.fonts.load ? document.fonts.load('700 100px "Finlandica"', name.textContent) : Promise.resolve();
+          ready.catch(() => {}).then(() => {
+            try { fit(); } catch (e) {}
+            build();
+          });
         })();
       </script>
     </template>
