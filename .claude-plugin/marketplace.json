@@ -1,5 +1,6 @@
 {
   "name": "hypersheets",
+  "description": "The Claude Code plugin for the Workshop tracks on learnhypersheets.com/workshop.",
   "owner": { "name": "Hyper Sheets" },
   "plugins": [
     {
