@@ -19,10 +19,20 @@
 # the guide tells a learner to (yes to copying the template into ./video, no to anything else)
 # and logs each one to <run-dir>/prompts.jsonl. The skill folder is added with --add-dir so the
 # template can be read.
+#
+# HyperFrames keeps its settings in ~/.hyperframes. The skill runs `telemetry disable`, which would
+# change this machine's own setting, so each run gets its own settings folder,
+# <run-dir>/hf-config, starting with telemetry on as on a fresh machine; afterwards its config.json
+# shows whether the run turned it off (summarize.mjs reports it). HyperFrames copies only its
+# config and state files into a new folder, never ~/.hyperframes/credentials, and the browser stays
+# in ~/.cache/puppeteer. HYPERFRAMES_NO_TELEMETRY=1 is a safety net, so a trial run sends nothing
+# even if a command ran before the skill's telemetry step; it does not stop that step's write.
 set -euo pipefail
 run_dir="$1"; fixture="$2"; prompt_file="$3"; turns="${4:-60}"
 here="$(cd "$(dirname "$0")/.." && pwd)"
-mkdir -p "$run_dir/page" "$run_dir/plugin"
+mkdir -p "$run_dir/page" "$run_dir/plugin" "$run_dir/hf-config"
+printf '{"telemetryEnabled": true, "telemetryNoticeShown": true}\n' > "$run_dir/hf-config/config.json"
+export HYPERFRAMES_CONFIG_DIR="$run_dir/hf-config" HYPERFRAMES_NO_TELEMETRY=1
 cp -R "$fixture"/. "$run_dir/page/"
 cp -R "$here/.claude-plugin" "$here/skills" "$run_dir/plugin/"
 cd "$run_dir/page"

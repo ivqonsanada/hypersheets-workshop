@@ -63,16 +63,19 @@ Work in the learner's page folder (the one with their `index.html`).
    `cp index.html video/assets/page/index.html`
    If the page uses local pictures or a CSS file, copy them into `video/assets/page/` too, keeping their names.
 4. Fill every slot with Edit, one at a time. Then search `video/compositions` for `TODO-`. There must be none left.
-5. Check: `npx hyperframes@0.9.51 check video`
+5. Turn off HyperFrames' usage data before any other HyperFrames command:
+   `npx hyperframes@0.9.51 telemetry disable`
+   This command sends nothing. It saves the choice on this computer, so check, snapshot and render send no usage data to the makers of HyperFrames.
+6. Check: `npx hyperframes@0.9.51 check video`
    Fix every error it names (almost always a text that is too long: make it shorter). Run it again until it shows no errors.
-6. Look at the frames. This is the step that makes the video good. Do not skip it.
+7. Look at the frames. This is the step that makes the video good. Do not skip it.
    `npx hyperframes@0.9.51 snapshot video --at 1,6,9,14.5,18.5 --no-end -o video/frames`
    Open every PNG in `video/frames/` with Read and go through the checklist below for each one.
-7. If anything on the checklist fails, fix the text, then repeat steps 5 and 6. At most three rounds.
-8. Write `video/REVIEW.md`: one line per frame, its time, what you see, and `ok` or what you fixed.
-9. Render: `npx hyperframes@0.9.51 render video --quality draft --workers 1 -o video/promo.mp4`
-   It takes a few minutes. Wait for it to finish.
-10. Tell the learner, in their language: where `video/promo.mp4` is, that it is 20 seconds long, and ask them to watch it on their phone before they put it on the page.
+8. If anything on the checklist fails, fix the text, then repeat steps 6 and 7. At most three rounds.
+9. Write `video/REVIEW.md`: one line per frame, its time, what you see, and `ok` or what you fixed.
+10. Render: `npx hyperframes@0.9.51 render video --quality draft --workers 1 -o video/promo.mp4`
+    It takes a few minutes. Wait for it to finish.
+11. Tell the learner, in their language: where `video/promo.mp4` is, that it is 20 seconds long, and ask them to watch it on their phone before they put it on the page.
 
 ## Checklist for each frame
 

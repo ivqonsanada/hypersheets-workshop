@@ -38,8 +38,18 @@ if (existsSync(streamFile)) {
   result = JSON.parse(raw.slice(raw.indexOf("{")));
 }
 
+// The skill's telemetry step: run-trial.sh gives each run its own HyperFrames settings folder,
+// starting with telemetry on. Did the run turn it off, and before any other HyperFrames command?
+const hf = calls.filter((c) => /^Bash: npx hyperframes@/.test(c)).map((c) => c.replace(/^Bash: npx hyperframes@[\d.]+ /, ""));
+const hfConfig = join(dir, "hf-config", "config.json");
+const telemetry = {
+  disabledInRunConfig: existsSync(hfConfig) ? JSON.parse(readFileSync(hfConfig, "utf8")).telemetryEnabled === false : null,
+  firstHyperframesCommand: hf[0] ?? null,
+};
+
 const u = result?.usage ?? {};
 console.log(JSON.stringify({
+  telemetry,
   subtype: result?.subtype,
   is_error: result?.is_error,
   num_turns: result?.num_turns,
