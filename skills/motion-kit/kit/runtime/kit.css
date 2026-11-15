@@ -82,14 +82,18 @@ html.look-panggung .mk-cover i.b { bottom: 0; }
 .mk-title.v1 .sub { margin-top: 44px; }
 html.look-kertas .mk-title .kick { width: 100%; padding-bottom: 28px; border-bottom: 3px solid var(--ink); color: var(--ink); font-size: 46px; margin-bottom: 64px; }
 html.look-kertas .mk-title .hd .ln { overflow: visible; padding-bottom: 0; margin-bottom: 0; }
-html.look-kertas .mk-title .bd { top: 0.1em; bottom: 0.02em; }
+/* Fraunces runs from 0.17em to 1.13em of its line box: the band holds all of it, so the bands of two lines meet and no tail of a g, j or p is cut. The words on the band sit exactly where the words under it sat. */
+html.look-kertas .mk-title .bd { top: 0.11em; bottom: -0.11em; }
+html.look-kertas .mk-title .bd em { top: -0.11em; }
 html.look-kertas .mk-title .rule { height: 8px; width: 320px; }
 html.look-panggung .mk-title .kick { background: var(--ink); color: var(--g); padding: 10px 26px 12px; font-weight: 700; font-size: 48px; margin-bottom: 48px; }
 html.look-panggung .mk-title .kick i { display: none; }
-html.look-panggung .mk-title .hd .ln { margin-bottom: 0.06em; }
+/* Big Shoulders' g and j reach 0.08em under the line box: the band runs that far, and the lines stand a little further apart to keep the gap between bands. */
+html.look-panggung .mk-title .hd .ln { margin-bottom: 0.12em; }
+html.look-panggung .mk-title .bd { top: 0.04em; bottom: -0.1em; }
 html.look-panggung .mk-title .bd b { background: var(--ink); }
 html.look-panggung .mk-title .bd s { display: none; }
-html.look-panggung .mk-title .bd em { color: var(--g); }
+html.look-panggung .mk-title .bd em { color: var(--g); top: -0.04em; }
 html.look-panggung .mk-title .rule { height: 22px; width: 100%; background: var(--ink); margin-top: 36px; }
 html.look-panggung .mk-title .sub { color: var(--ink); font-weight: 600; }
 

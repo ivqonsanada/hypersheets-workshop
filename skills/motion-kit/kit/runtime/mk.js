@@ -167,7 +167,7 @@
       pop(tl, el, at) { tl.fromTo(el, { scale: 0 }, { scale: 1, duration: 0.18, ease: "steps(3)" }, at); },
       grow(tl, el, at, d) { tl.fromTo(el, { scaleX: 0 }, { scaleX: 1, duration: d || 0.4, ease: steps(8) }, at); },
       block(tl, el, at) { tl.fromTo(el, { clipPath: "inset(100% 0% 0% 0%)" }, { clipPath: "inset(-4% -4% -4% -4%)", duration: 0.3, ease: steps(6) }, at); },
-      sweep(tl, el, at) { tl.fromTo(el, { clipPath: "inset(-40px 100% -40px -40px)" }, { clipPath: "inset(-40px -40px -40px -40px)", duration: 0.6, ease: steps(10) }, at); },
+      sweep(tl, el, at) { tl.fromTo(el, { clipPath: "inset(-40px 101% -40px -40px)" }, { clipPath: "inset(-40px -40px -40px -40px)", duration: 0.6, ease: steps(10) }, at); },
       count: steps(12, "power2.out"),
     },
     kertas: {
@@ -178,7 +178,7 @@
       pop(tl, el, at) { tl.fromTo(el, { scale: 0.6, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.42, ease: "power3.out" }, at); },
       grow(tl, el, at, d) { tl.fromTo(el, { scaleX: 0 }, { scaleX: 1, duration: d || 0.7, ease: "power3.inOut" }, at); },
       block(tl, el, at) { tl.fromTo(el, { y: 36, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, at); },
-      sweep(tl, el, at) { tl.fromTo(el, { clipPath: "inset(-40px 100% -40px -40px)" }, { clipPath: "inset(-40px -40px -40px -40px)", duration: 0.7, ease: "power3.inOut" }, at); },
+      sweep(tl, el, at) { tl.fromTo(el, { clipPath: "inset(-40px 101% -40px -40px)" }, { clipPath: "inset(-40px -40px -40px -40px)", duration: 0.7, ease: "power3.inOut" }, at); },
       count: gsap.parseEase("power3.out"),
     },
     panggung: {
@@ -187,7 +187,7 @@
       grow(tl, el, at, d) { tl.fromTo(el, { scaleX: 0 }, { scaleX: 1, duration: d || 0.32, ease: "power4.out" }, at); },
       // No fade: a half-seen dark panel on a loud ground turns to mud.
       block(tl, el, at) { tl.fromTo(el, { y: 90, clipPath: "inset(0% 0% 100% 0%)" }, { y: 0, clipPath: "inset(-4% -4% -4% -4%)", duration: 0.36, ease: "power4.out" }, at); },
-      sweep(tl, el, at) { tl.fromTo(el, { clipPath: "inset(-40px 100% -40px -40px)" }, { clipPath: "inset(-40px -40px -40px -40px)", duration: 0.3, ease: "power4.out" }, at); },
+      sweep(tl, el, at) { tl.fromTo(el, { clipPath: "inset(-40px 101% -40px -40px)" }, { clipPath: "inset(-40px -40px -40px -40px)", duration: 0.3, ease: "power4.out" }, at); },
       count: gsap.parseEase("power4.out"),
     },
   }[LOOK];

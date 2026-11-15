@@ -16,19 +16,20 @@
   };
   const clamp = (v) => Math.max(0, Math.min(1, v));
   // Like MK.fit, but the lines must also fit `tall` px at line height `lh`. Two settings are
-  // passed over when one of the next four sizes sets the same words without them: a word of one
-  // to three letters alone on a line ("Bu", "di"), and three or more lines of which two or more
-  // hold one word each ("Jangan / pakai / = di / dalam if"), which reads as a list, not a sentence.
+  // passed over when a smaller size, down to half the largest that fits, sets the same words
+  // without them: a word of one to three letters alone on a line ("Bu", "di"), and three or more
+  // lines of which two or more hold one word each ("Jangan / pakai / = di / dalam if", "Sepuluh /
+  // tips / belajar / coding"), which reads as a list, not a sentence.
   const fitTall = (text, role, sizes, room, most, lh, tall) => {
     const alone = (f) => f.lines.length > 2 && f.lines.some((l) => l.length <= 3);
     const stacked = (f) => f.lines.length >= 3 && f.lines.filter((l) => !/\s/.test(l)).length >= 2;
-    let last = null, kept = null, tries = 0;
+    let last = null, kept = null, top = 0;
     for (const size of sizes) {
+      if (kept && size < top * 0.5) break;
       last = MK.fit(text, role, [size], room, most);
       if (!(last.ok && last.lines.length * size * lh <= tall)) continue;
       if (!alone(last) && !stacked(last)) return last;
-      kept = kept || last;
-      if (++tries > 4) break;
+      if (!kept) { kept = last; top = size; }
     }
     return kept || last;
   };
