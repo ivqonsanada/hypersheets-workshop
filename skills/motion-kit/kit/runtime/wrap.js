@@ -32,7 +32,13 @@
       }
       if (cut >= 0) { rows.push({ from, to: cut, pad }); from = cut + 1; }
       else if (soft >= 0) { rows.push({ from, to: soft, pad }); from = soft; }
-      else { rows.push({ from, to: end, pad }); from = end; }
+      else {
+        // A break in the middle of a word still never splits an operator ("?.", "===", "=>", "&&").
+        let hard = end;
+        while (hard > from + 2 && /[?=&|!<>+*/.-]/.test(text[hard - 1]) && /[.=&|>+*/-]/.test(text[hard])) hard--;
+        rows.push({ from, to: hard, pad });
+        from = hard;
+      }
       pad = hang;
     }
     rows.push({ from, to: text.length, pad });
