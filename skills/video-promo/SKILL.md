@@ -89,6 +89,6 @@ Work in the learner's page folder (the one with their `index.html`).
 - Every word is whole: nothing cut at an edge, nothing on top of other text.
 - No `TODO-` and no word from another language than the page's.
 - The name and the address are spelled exactly as on the page.
-- At 6 s and 9 s the window shows the learner's own page, not a blank box and not the words PAGE MISSING.
+- At 6 s and 9 s the window shows the learner's own page, not a blank box and not the words PAGE MISSING. At 6 s an orange marker frames their name. At 9 s the page has scrolled down and the marker frames their list, if the page has one. The marker and the scroll belong to the template: never change anything for them.
 - A long text wraps onto at most two lines in the list, and at most three lines for `role`. If it takes more, shorten it.
 - The text is short enough to read in the time it is on screen. If in doubt, cut words.
