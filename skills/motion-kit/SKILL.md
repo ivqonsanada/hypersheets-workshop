@@ -61,9 +61,9 @@ Work in the user's folder (for a page, the one with its `index.html`).
 | tips or reasons | `tips` | title, list, then optionally stat, quote or image, then end |
 | a piece of code, or a mistake and its fix | `coding` | title, code or fix, then optionally compare, steps or list, then end |
 | what a real person said | `testimonial` | title, quote, then optionally stat, page, image or list, then end |
-| a change: before and after, wrong and right | `before-after` | title, compare (or fix for code), then optionally list, stat or image, then end |
+| a change: before and after, wrong and right | `before-after` | title, then swap for two photos, compare for two lines of words or fix for code, then optionally list, stat, quote or image, then end |
 
-Every video opens with `title` and closes with `end`, holds 3 to 6 scenes, and holds one scene of each kind at most, except `image`: up to three pictures, each in its own scene (a before and an after, a few products). Use a `page` scene when there is a page file, an `image` scene when there is a picture file, a `stat` only for a real number, a `quote` only for real words from a named person.
+Every video opens with `title` and closes with `end`, holds 3 to 6 scenes, and holds one scene of each kind at most, except `image`: up to three pictures, each in its own scene (a few products). Use a `page` scene when there is a page file, an `image` scene when there is a picture file, a `stat` only for a real number, a `quote` only for real words from a named person.
 
 Then pick each scene by what its facts are:
 
@@ -77,6 +77,7 @@ Then pick each scene by what its facts are:
 | things done in order: first, then, last | `steps` |
 | separate points with no order: reasons, features, what is included | `list` |
 | a question and its answer | `qa` |
+| a before photo and an after photo | `swap` |
 | before and after, wrong and right | `compare` |
 | a named person's own words | `quote` |
 | code that runs | `code` |

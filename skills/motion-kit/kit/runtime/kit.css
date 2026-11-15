@@ -372,6 +372,19 @@ html.look-kertas .mk-image .cap::before { height: 3px; width: 100%; background: 
 html.look-panggung .mk-image .fr { border-color: var(--ink); box-shadow: none; }
 html.look-panggung .mk-image .cap { font-weight: 700; }
 
+/* ---------- swap: two pictures in one frame (the scene also carries .mk-image) ---------- */
+.mk-swap .bar { position: absolute; left: -6px; top: 0; bottom: 0; width: 12px; display: block; background: var(--mk-accent); }
+.mk-swap .tg { position: absolute; top: 28px; padding: 12px 22px 14px; font: 700 44px/1 var(--fb), sans-serif; }
+.mk-swap .tg.a { left: 28px; background: var(--deep); color: #f4ede4; transform-origin: 0 0; }
+.mk-swap .tg.b { right: 28px; background: var(--mk-accent); color: var(--mk-on-accent); transform-origin: 100% 0; }
+html.look-kertas .mk-swap .bar { background: var(--panel); width: 8px; left: -4px; }
+html.look-kertas .mk-swap .tg { font-family: var(--fd), serif; font-weight: 600; font-style: italic; }
+html.look-kertas .mk-swap .tg.a { background: var(--panel); color: var(--ink); }
+html.look-panggung .mk-swap .bar { background: var(--g); width: 16px; left: -8px; }
+html.look-panggung .mk-swap .tg { font: 900 56px/1 var(--fd), sans-serif; padding: 8px 20px 12px; }
+html.look-panggung .mk-swap .tg.a { background: var(--ink); color: var(--g); }
+html.look-panggung .mk-swap .tg.b { background: var(--g); color: var(--ink); }
+
 /* ---------- page: the real page in a window ---------- */
 .mk-page-s .head { position: absolute; left: 84px; right: 84px; top: 196px; margin: 0; }
 .mk-page-s .win { position: absolute; left: 72px; top: 320px; width: 936px; height: 1330px; background: var(--panel); border: 6px solid var(--line); box-shadow: 16px 16px 0 var(--deep); }

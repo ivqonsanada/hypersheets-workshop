@@ -142,6 +142,7 @@ scenes.forEach((s, i) => {
   if (type === "numbers" && Array.isArray(s.items)) s.items.forEach((item, k) => {
     if (item && typeof item.value === "string" && item.value.trim() && !/\d/.test(item.value)) say(`scene ${n} (numbers) "items" item ${k + 1} "value" must hold a number from the brief, such as "340" or "Rp8.500.000". A line without a number belongs in a list scene.`);
   });
+  if (type === "swap" && typeof s.before === "string" && s.before === s.after) say(`scene ${n} (swap) shows the same file as "before" and as "after". It needs two pictures; with one picture, use an image scene.`);
   if (type === "image" && !s.title && !s.caption) say(`scene ${n} (image) needs a "title" or a "caption": two or three words that name what the picture shows. A caption is only for something the picture does not say by itself, such as its price.`);
   // Code that would not fit its card even at the smallest size, where a row holds CODE.cols characters and a longer line wraps.
   if (type === "code" || type === "fix") {
@@ -311,7 +312,7 @@ const copy = (from, rel) => { const p = path.join(out, rel); fs.mkdirSync(path.d
 // The sheet shows the pictures. It stays when only the sound changed (a spoken line, a voice
 // that stretched a scene), so the frames a review was written from are still there.
 const sha = (buf) => createHash("sha256").update(buf).digest("hex").slice(0, 16);
-const pictures = sha(JSON.stringify({ look: sb.look, lang: sb.lang, accent: sb.accent || null, layouts: plan.map((p) => p.v), scenes: scenes.map((s) => { const c = { ...s }; delete c.voice; if (typeof c.file === "string" && inside(c.file)) c.fileIs = sha(fs.readFileSync(inside(c.file))); return c; }) }));
+const pictures = sha(JSON.stringify({ look: sb.look, lang: sb.lang, accent: sb.accent || null, layouts: plan.map((p) => p.v), scenes: scenes.map((s) => { const c = { ...s }; delete c.voice; for (const k of ["file", "before", "after"]) if (typeof c[k] === "string" && inside(c[k])) c[k + "Is"] = sha(fs.readFileSync(inside(c[k]))); return c; }) }));
 const sheetStays = !!(before && before.pictures === pictures && fs.existsSync(path.join(out, "sheet.png")));
 for (const old of ["compositions", "index.html", "assets/kit", "assets/page", "assets/img", "assets/custom", ".sheet", ...(sheetStays ? [] : ["frames", "sheet.png"])]) fs.rmSync(path.join(out, old), { recursive: true, force: true });
 fs.cpSync(path.join(KIT, "runtime"), path.join(out, "assets", "kit"), { recursive: true });
@@ -386,6 +387,15 @@ plan.forEach((p, i) => {
     const abs = inside(s.file), size = pictureSize(abs);
     s.src = "assets/img/" + path.basename(abs);
     copy(abs, s.src);
+    if (size && size.w > 0 && size.h > 0) { s.w = size.w; s.h = size.h; }
+  }
+  if (p.type === "swap") {
+    // Both pictures share one frame, in the shape of the after picture.
+    const one = inside(s.before), two = inside(s.after), size = pictureSize(two);
+    s.src = "assets/img/before-" + path.basename(one);
+    s.src2 = "assets/img/after-" + path.basename(two);
+    copy(one, s.src);
+    copy(two, s.src2);
     if (size && size.w > 0 && size.h > 0) { s.w = size.w; s.h = size.h; }
   }
   if (custom[p.type]) {

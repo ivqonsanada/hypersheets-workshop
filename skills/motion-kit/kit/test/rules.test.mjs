@@ -186,7 +186,7 @@ test("fix: the wrong code, then the right code with the changed line marked", ()
   assert.equal(of(r.cues, 2, "marker").length, 2);
   assert.equal(of(r.cues, 2, "land").length, 1);
   assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /two code cards.*under the label "Salah", the wrong code \(2 lines\), dimmed; below, under "Benar", the right code \(2 lines\), with line 1 marked/);
-  assert.match(readFileSync(join(r.dir, "video", "index.html"), "utf8"), /"words":\{"wrong":"Salah","right":"Benar"\}/);
+  assert.match(readFileSync(join(r.dir, "video", "index.html"), "utf8"), /"words":\{"wrong":"Salah","right":"Benar",/);
 
   const en = ok(build(fix({ highlight: 2 }, { lang: "en" })));
   assert.deepEqual(en.scene(2).T.marks.right, [1], "\"highlight\" names the line");
@@ -274,6 +274,37 @@ test("qa: each question lands, then its answer, and the recipe faq needs one", (
   refused(build(sb({ type: "qa", pairs: [...pairs, ...pairs] })), /"pairs" has 4 items; it holds 1 to 3\./);
   refused(build(sb(LIST, { recipe: "faq" })), /The recipe "faq" needs a qa scene\./);
   clean(r, one);
+});
+
+test("swap: two pictures in one frame, a still of the halves and a still of the after picture", () => {
+  const files = { "kusam.png": png(900, 1200), "bersih.png": png(1200, 1200) };
+  const swap = (more = {}, top = {}) => sb({ type: "swap", title: "Sepatu putih kusam", before: "kusam.png", after: "bersih.png", caption: "Dicuci dan dijemur sehari", ...more }, { recipe: "before-after", ...top });
+  const r = ok(build(swap(), files));
+  const d = r.scene(2);
+  assert.deepEqual([d.s.w, d.s.h], [1200, 1200], "the frame takes the after picture's shape");
+  assert.deepEqual([d.s.src, d.s.src2], ["assets/img/before-kusam.png", "assets/img/after-bersih.png"]);
+  assert.ok(d.T.tag < d.T.half0 && d.T.half1 < d.T.full0 && d.T.full1 < d.T.cap);
+  const stills = r.plan.stills.filter((s) => s.scene === 2);
+  assert.equal(stills.length, 2);
+  assert.ok(stills[0].t > r.plan.scenes[1].start + d.T.half1 && stills[0].t < r.plan.scenes[1].start + d.T.full0, "the first still is taken while both halves show");
+  assert.match(stills[0].expect, /one frame split down the middle by a line: the before picture on the left under the label "Sebelum", the after picture on the right under "Sesudah"; neither is stretched; "Sepatu putih kusam" is above the frame/);
+  assert.match(stills[1].expect, /the after picture fills the whole frame, with the label "Sesudah"; the caption "Dicuci dan dijemur sehari" is whole/);
+  assert.equal(of(r.cues, 2, "whoosh").length, 3 + 1, "the frame opens, two wipes, and the scene's own closing whoosh");
+  assert.equal(of(r.cues, 2, "land").length, 3);
+
+  const own = ok(build(swap({ beforeLabel: "Kusam", afterLabel: "Bersih", title: undefined, caption: undefined }, { lang: "en" }), files));
+  assert.match(own.plan.stills.find((s) => s.scene === 2).expect, /under the label "Kusam".*under "Bersih"/);
+  const en = ok(build(swap({}, { lang: "en" }), files));
+  assert.match(en.plan.stills.find((s) => s.scene === 2).expect, /under the label "Before".*under "After"/);
+  refused(build(swap({ after: "kusam.png" }), files), /scene 2 \(swap\) shows the same file as "before" and as "after"\./);
+  refused(build(swap({ after: "tidak-ada.png" }), files), /"after": there is no file "tidak-ada\.png" in this folder\./);
+  refused(build(swap({ before: undefined }), files), /scene 2 \(swap\) needs "before"\./);
+  // A new after picture is a new sheet: the builder does not say the pictures are unchanged.
+  writeFileSync(join(r.dir, "video", "sheet.png"), "the sheet");
+  writeFileSync(join(r.dir, "bersih.png"), png(1000, 1000));
+  const again = spawnSync(process.execPath, [join(KIT, "build.mjs"), "storyboard.json"], { cwd: r.dir, encoding: "utf8", env: { ...process.env, HS_SOUND_HOME: join(r.dir, ".no-voices") } });
+  assert.doesNotMatch(again.stdout, /The pictures did not change/);
+  clean(r, own, en);
 });
 
 test("a code card holds one line", () => {

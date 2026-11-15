@@ -28,22 +28,22 @@ export const NARRATORS = ["ringan", "kokoro", "bagus", "sendiri", "draft"];
 
 // Which scenes a recipe needs and may hold. Every video opens on `title` and closes on `end`.
 export const RECIPES = {
-  promo: { need: [], may: ["page", "image", "list", "steps", "stat", "quote", "prices", "info", "numbers", "when", "qa"], about: "a person, page, shop or product" },
-  announce: { need: [], may: ["image", "page", "stat", "list", "steps", "compare", "prices", "info", "numbers", "when", "qa"], about: "something new: a feature, an opening, a date" },
+  promo: { need: [], may: ["page", "image", "list", "steps", "stat", "quote", "prices", "info", "numbers", "when", "qa", "swap"], about: "a person, page, shop or product" },
+  announce: { need: [], may: ["image", "page", "stat", "list", "steps", "compare", "prices", "info", "numbers", "when", "qa", "swap"], about: "something new: a feature, an opening, a date" },
   faq: { need: [["qa"]], may: ["qa", "info", "list", "prices", "steps", "image", "page"], about: "questions people ask, with their answers" },
   menu: { need: [["prices"]], may: ["prices", "image", "page", "list", "info", "quote", "when", "qa"], about: "a menu, a price list, packages with prices" },
   recap: { need: [["numbers", "stat"]], may: ["numbers", "stat", "list", "quote", "image", "compare"], about: "a year, an event or a project in numbers" },
   explainer: { need: [["steps"]], may: ["steps", "code", "fix", "image", "compare", "list", "info", "qa"], about: "how something works, in steps" },
   tips: { need: [["list"]], may: ["list", "stat", "quote", "image", "info", "numbers", "qa"], about: "a short list of tips or reasons" },
   coding: { need: [["code", "fix"]], may: ["code", "fix", "compare", "steps", "list", "qa"], about: "a piece of code and what it does, or a mistake and its fix" },
-  testimonial: { need: [["quote"]], may: ["quote", "stat", "page", "image", "list", "numbers"], about: "what a real person said" },
-  "before-after": { need: [["compare", "fix"]], may: ["compare", "fix", "list", "stat", "image", "numbers", "prices"], about: "a change: before and after, wrong and right" },
+  testimonial: { need: [["quote"]], may: ["quote", "stat", "page", "image", "list", "numbers", "swap"], about: "what a real person said" },
+  "before-after": { need: [["compare", "swap", "fix"]], may: ["compare", "swap", "fix", "list", "stat", "image", "numbers", "prices", "quote"], about: "a change: before and after, wrong and right" },
 };
 
 // The few words the kit itself puts on screen, in the video's language.
 export const WORDS = {
-  id: { wrong: "Salah", right: "Benar" },
-  en: { wrong: "Wrong", right: "Right" },
+  id: { wrong: "Salah", right: "Benar", before: "Sebelum", after: "Sesudah" },
+  en: { wrong: "Wrong", right: "Right", before: "Before", after: "After" },
 };
 
 const text = (max, req = false) => ({ kind: "text", max, req });
@@ -51,6 +51,12 @@ export const FIELDS = {
   title: { kicker: text(28), headline: text(44, true), sub: text(80) },
   page: { title: text(26, true), address: text(34, true), file: { kind: "file", req: true, ext: ["html", "htm"] } },
   image: { title: text(26), caption: text(64), file: { kind: "file", req: true, ext: ["png", "jpg", "jpeg", "webp"] } },
+  swap: {
+    title: text(26), caption: text(64),
+    before: { kind: "file", req: true, ext: ["png", "jpg", "jpeg", "webp"] },
+    after: { kind: "file", req: true, ext: ["png", "jpg", "jpeg", "webp"] },
+    beforeLabel: text(14), afterLabel: text(14),
+  },
   list: { heading: text(30, true), items: { kind: "texts", min: 2, most: 4, max: 48, req: true } },
   steps: { heading: text(30, true), steps: { kind: "objects", min: 2, most: 4, req: true, of: { title: text(28, true), detail: text(56) } } },
   prices: {
@@ -169,6 +175,27 @@ export const PLAN = {
       T,
       cues: [{ t: T.open, type: "whoosh", weight: 1 }, ...(s.caption ? [{ t: T.cap, type: "land", weight: 1 }] : [])],
       stills: [{ t: r2(a + 2.4), expect: `the picture fills its frame, is not stretched, and neither its top nor a side is cut off${s.caption ? `; the caption ${q(s.caption, 48)} is whole` : ""}${s.title ? `; ${q(s.title)} is above the picture` : ""}` }],
+    };
+  },
+  swap(s, a, lang) {
+    const words = WORDS[lang] || WORDS.id, was = s.beforeLabel || words.before, now = s.afterLabel || words.after;
+    // The before picture alone, then half of each, then the after picture alone.
+    const T = { open: r2(a), tag: r2(a + 0.45), half0: r2(a + 1.5), half1: r2(a + 2.1), full0: r2(a + 3.6), full1: r2(a + 4.2), cap: r2(a + 4.5) };
+    return {
+      need: a + 6.4,
+      T,
+      cues: [
+        { t: T.open, type: "whoosh", weight: 1 },
+        { t: T.half0, until: T.half1, type: "whoosh", weight: 1 },
+        { t: T.half1, type: "land", weight: 2 },
+        { t: T.full0, until: T.full1, type: "whoosh", weight: 1 },
+        { t: T.full1, type: "land", weight: 3 },
+        ...(s.caption ? [{ t: T.cap, type: "land", weight: 1 }] : []),
+      ],
+      stills: [
+        { t: r2((T.half1 + T.full0) / 2), expect: `one frame split down the middle by a line: the before picture on the left under the label "${was}", the after picture on the right under "${now}"; neither is stretched${s.title ? `; ${q(s.title)} is above the frame` : ""}` },
+        { t: r2(T.full1 + 1.3), expect: `the after picture fills the whole frame, with the label "${now}"${s.caption ? `; the caption ${q(s.caption, 48)} is whole` : ""}` },
+      ],
     };
   },
   list(s, a) {

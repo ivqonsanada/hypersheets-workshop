@@ -558,20 +558,22 @@
     drive(c, (t) => { typing(a, s.wrong, T.wrong, t); typing(b, s.right, T.right, t); });
   });
 
-  // ---------- image: one picture, held in a frame, with a slow push ----------
-  MK.define("image", (c) => {
-    const s = c.s;
+  // A picture, a frame for it, and what sits around it. The frame takes what the heading and the
+  // caption leave of the scene's height, in the picture's own shape: a wide picture gets a low
+  // frame, a tall one a narrow frame, so a screenshot keeps its top and a product keeps its
+  // sides. Only a picture more than about twice as tall as it is wide is still cut to fit.
+  const picture = (src) => {
     const img = h("img");
-    img.src = s.src;
+    img.src = src;
     img.alt = "";
     img.setAttribute("data-layout-allow-overflow", "");
-    const fr = h("figure", "fr", h("div", "ph", img));
+    return img;
+  };
+  const framed = (c, kids) => {
+    const s = c.s;
+    const fr = h("figure", "fr", kids);
     const cap = s.caption ? MK.text("p", "cap", flag(c, MK.fit(s.caption, K ? "display" : "body", [50, 46, 42], c.W, 2), "the caption"), 1.24) : null;
     const hd = s.title ? head(c, s.title) : null;
-    // The picture takes what the heading and the caption leave of the frame's height, and its
-    // frame takes the picture's own shape: a wide picture gets a low frame, a tall one a narrow
-    // frame, so a screenshot keeps its top and a product keeps its sides. Only a picture more
-    // than about twice as tall as it is wide is still cut to fit.
     const room = c.H - (hd ? Number(hd.dataset.h) + 68 : 0) - (cap ? 88 + Number(cap.dataset.h) : 0);
     let wide = c.W, tall = Math.min(hd ? 880 : 980, room);
     if (s.w && s.h) {
@@ -581,10 +583,44 @@
     fr.style.width = wide + "px";
     fr.style.height = tall + "px";
     safe(c, [hd, fr, cap]);
+    return { fr, cap, hd, wide };
+  };
+
+  // ---------- image: one picture, held in a frame, with a slow push ----------
+  MK.define("image", (c) => {
+    const img = picture(c.s.src);
+    const { fr, cap, hd } = framed(c, h("div", "ph", img));
     if (hd) M.lines(c.tl, lines(hd), c.T.open);
     M.block(c.tl, fr, c.T.open + (hd ? 0.12 : 0));
     c.tl.fromTo(img, { scale: 1.0 }, { scale: 1.08, duration: c.dur, ease: "none" }, 0);
     if (cap) M.lines(c.tl, lines(cap), c.T.cap);
+  });
+
+  // ---------- swap: a before and an after picture in one frame, the after wiping over the before ----------
+  MK.define("swap", (c) => {
+    const s = c.s, T = c.T, words = MK.words;
+    c.el.classList.add("mk-image");
+    const was = picture(s.src), now = picture(s.src2);
+    const tagA = h("p", "tg a", s.beforeLabel || words.before), tagB = h("p", "tg b", s.afterLabel || words.after);
+    const after = h("div", "ph b", [now, tagB]), bar = h("i", "bar");
+    for (const el of [after, bar, tagA, tagB]) el.setAttribute("data-layout-allow-occlusion", "");
+    const { fr, cap, hd, wide } = framed(c, [h("div", "ph a", [was, tagA]), after, bar]);
+    if (hd) M.lines(c.tl, lines(hd), T.open);
+    M.block(c.tl, fr, T.open + (hd ? 0.12 : 0));
+    M.pop(c.tl, tagA, T.tag);
+    // The after picture comes in from the right, stops at the middle so both halves can be
+    // compared, then takes the whole frame. The line between them travels with its edge.
+    const ease = P ? "power4.inOut" : K ? "power3.inOut" : MK.steps(12, "power2.inOut");
+    const wipe = (from, to, at, d, first) => {
+      c.tl.fromTo(after, { clipPath: `inset(0% 0% 0% ${from}%)` }, { clipPath: `inset(0% 0% 0% ${to}%)`, duration: d, ease, immediateRender: first }, at);
+      c.tl.fromTo(bar, { x: (wide * from) / 100 }, { x: (wide * to) / 100 - (to ? 0 : 24), duration: d, ease, immediateRender: first }, at);
+    };
+    wipe(100, 50, T.half0, T.half1 - T.half0, true);
+    wipe(50, 0, T.full0, T.full1 - T.full0, false);
+    M.pop(c.tl, tagB, T.half1 - 0.1);
+    // Both pictures push in together, so they stay in register along the line.
+    c.tl.fromTo([was, now], { scale: 1.0 }, { scale: 1.06, duration: c.dur, ease: "none" }, 0);
+    if (cap) M.lines(c.tl, lines(cap), T.cap);
   });
 
   // ---------- end: where to go, typed out, and one press of the button ----------

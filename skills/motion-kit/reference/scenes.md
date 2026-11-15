@@ -34,7 +34,7 @@ The real page in a window: its address types itself, the page loads, a marker la
 
 ## image
 
-One picture in a frame of the picture's own shape, with a slow push in. Use it only for a picture file the user has (png, jpg, jpeg, webp). The kit never fetches pictures. A video may hold up to three image scenes, one picture each: for a before and an after, give the first the `title` "Sebelum" and the second "Sesudah"; for products, give each its name as the `title` and its price in the `caption`.
+One picture in a frame of the picture's own shape, with a slow push in. Use it only for a picture file the user has (png, jpg, jpeg, webp). The kit never fetches pictures. A video may hold up to three image scenes, one picture each: for products, give each its name as the `title` and its price in the `caption`. A before picture and an after picture go in one `swap` scene.
 
 | Field | Limit | |
 |---|---|---|
@@ -44,6 +44,22 @@ One picture in a frame of the picture's own shape, with a slow push in. Use it o
 
 ```json
 { "type": "image", "file": "roti.jpg", "caption": "Sourdough yang baru keluar dari oven", "title": "Dipanggang tiap pagi" }
+```
+
+## swap
+
+A before and an after picture in one frame: the before picture shows first, the after picture wipes in to the middle so the two halves sit side by side, then takes the whole frame. Use it when the user has two pictures of the same thing, taken from about the same place. The kit writes the two labels ("Sebelum" and "Sesudah", or "Before" and "After").
+
+| Field | Limit | |
+|---|---|---|
+| `before` | | needed. The picture file of how it was |
+| `after` | | needed. The picture file of how it is now. The frame takes this picture's shape |
+| `title` | 26 | a heading above the frame |
+| `caption` | 64 | one line under it: what was done, or how long it took |
+| `beforeLabel`, `afterLabel` | 14 each | only when the brief has better words than before and after: "Kusam", "Bersih" |
+
+```json
+{ "type": "swap", "title": "Teras Bu Ratna", "before": "teras-lama.jpg", "after": "teras-baru.jpg", "caption": "Dicat ulang dalam dua hari" }
 ```
 
 ## list
