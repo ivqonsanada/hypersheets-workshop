@@ -2,18 +2,26 @@
 
 The sound layer lives in `skills/motion-kit/kit/sound/`. It adds sound effects, a spoken line per scene and music to a video the kit has built, using Node and ffmpeg on the learner's own computer. This page records what was researched on 15 November 2026, what was chosen, what was measured, and what nobody has checked yet.
 
-Nothing here was judged by ear. Every quality claim below is a measurement (loudness, peaks, timing, a speech recogniser's transcript) or a quote from a source. A person still has to listen; the samples in `belajarwebdev/docs/motion-kit-samples/sound/` are for that.
+Nothing here was judged by ear. Every quality claim below is a measurement (loudness, peaks, timing, a speech recogniser's transcript) or a quote from a source. A person still has to listen; the samples in `belajarwebdev/docs/motion-kit-samples/sound/` (the sound layer alone, on the older `video-promo` video) and `belajarwebdev/docs/motion-kit-samples/with-sound/` (videos Haiku made with the joined kit) are for that.
 
-## The four commands
+## How it is used
+
+The sound layer and the video kit were built apart and joined afterwards (plugin 0.4.0). Since then a video needs at most one extra command:
+
+| A video with | Commands |
+|---|---|
+| sound effects (the kit's own choice, see `SOUND_DEFAULT` in `kit/lib/spec.mjs`) | none extra: `kit/build.mjs` calls the mixer on every build |
+| a voice | one extra, after the stills and before the render: `node kit/sound.mjs`. It makes the spoken lines (`sound/voice.mjs`), then runs the builder again, which gives each scene the time its line needs and lays voice, effects and music in one mix |
+| no sound | none: `"sound": "off"` in the storyboard |
+
+Which voice speaks is the storyboard's `"narrator"`: `ringan`, `kokoro`, `bagus`, `sendiri` or `draft` (or a voice's own name from `engines.json`). The scripts underneath can still be run by hand:
 
 | Command | What it does |
 |---|---|
-| `node kit/sound/device.mjs` | Describes the computer and says which voice to use, in Indonesian and English. Installs nothing; prints the install command and its download size. |
-| `node kit/sound/install.mjs <voice>` | Downloads one voice and the program that runs it into `~/.hypersheets/sound` (or `HS_SOUND_HOME`). Checks every file against a SHA-256 in `engines.json`. `--from <folder>` takes the files from a flash drive instead. `list` shows every voice with size and licence. |
-| `node kit/sound/voice.mjs <video folder> [--engine ...]` | Makes `video/voice/scene-N.wav` for each scene with a `voice` line, writes `video/voice/durations.json`, and checks each line by listening to it with whisper when `whisper-cli` is installed. |
-| `node kit/sound/mix.mjs <video folder>` | Lays sound effects from `video/cues.json`, the voice and the storyboard's music into `video/assets/audio/mix.wav`, and writes `video/mix-report.json`. |
-
-The order for a video with a voice: build, `voice.mjs`, build again (scenes stretch to fit their lines), `mix.mjs`, build again (the video picks up `mix.wav`), render. Without a voice: build, `mix.mjs`, build, render.
+| `node kit/sound/device.mjs` | Describes the computer and says which voice suits it, in Indonesian and English, with the `"narrator"` setting for each. Installs nothing; prints what an install would download. |
+| `node kit/sound/install.mjs <voice>` | Downloads one voice and the program that runs it into `~/.hypersheets/sound` (or `HS_SOUND_HOME`). Checks every file against a SHA-256 in `engines.json`. `--from <folder>` takes the files from a flash drive instead. `list` shows every voice with size and licence. The only script that downloads; the skill lets Claude run it only after the user's yes. |
+| `node kit/sound/voice.mjs <video folder> [--engine ...]` | Makes `video/voice/scene-N.wav` for each scene with a `voice` line, writes `video/voice/durations.json`, and checks each line by listening to it with whisper when `whisper-cli` is installed. Ends with 0 when the lines are made, 3 when it waits for files only the user can make, 4 when a voice would have to be downloaded first, 1 for anything else. |
+| `node kit/sound/mix.mjs <video folder>` | Lays sound effects from `video/cues.json`, the voice and the storyboard's music into `video/assets/audio/mix.wav`, and writes `video/mix-report.json`. The builder calls the same function, so a mix made by hand is replaced by the next build. |
 
 ## Voices: what the owner decided, and what the sources say
 
@@ -22,7 +30,7 @@ On 15 November 2026 the owner decided: Piper for practice with a one-line notice
 | Tier | Indonesian | English |
 |---|---|---|
 | `ringan` (runs on this computer) | Piper `id_ID-news_tts-medium`, 41 MB with its program. Practice and non-commercial use. | KittenTTS nano 0.8, 52 MB with its program. Apache-2.0, may be published. |
-| best local voice on a strong computer | the same Piper voice | Kokoro 82M v1.0, 370 MB with its program. Apache-2.0, may be published. `--engine kokoro` |
+| best local voice on a strong computer | the same Piper voice | Kokoro 82M v1.0, 370 MB with its program. Apache-2.0, may be published. `"narrator": "kokoro"` |
 | `bagus` (step up) | ElevenLabs on the learner's own account | ElevenLabs on the learner's own account |
 | `sendiri` | the learner's own recordings | the learner's own recordings |
 | `draft` (Mac only) | macOS Damayanti: timing only, never published | macOS Samantha: timing only, never published |
@@ -30,7 +38,9 @@ On 15 November 2026 the owner decided: Piper for practice with a one-line notice
 The notices, shown once by `voice.mjs` and written to `video/voice/NOTICE.txt` in the storyboard's language:
 
 - Piper Indonesian: "Suara ini untuk latihan dan pemakaian non-komersial. Untuk video yang dijual atau dipakai klien, pakai suaramu sendiri atau ElevenLabs." / "This voice is for practice and non-commercial use. For videos you sell or make for a client, use your own voice or ElevenLabs."
-- ElevenLabs: "Paket gratis ElevenLabs hanya untuk pemakaian non-komersial dan wajib menulis "elevenlabs.io" di judul; untuk video yang dijual atau dipakai klien perlu paket berbayar." / "ElevenLabs' free plan is for non-commercial use only and needs "elevenlabs.io" in the title; videos you sell or make for a client need a paid plan."
+- ElevenLabs: "Paket gratis ElevenLabs hanya untuk pemakaian non-komersial dan meminta kamu menyebut ElevenLabs sebagai pembuat suaranya; syarat lengkapnya ada di elevenlabs.io/terms-of-use. Untuk video yang dijual atau dipakai klien, pakai paket berbayar." / "ElevenLabs' free plan is for non-commercial use only and asks you to credit ElevenLabs; the full terms are at elevenlabs.io/terms-of-use. Videos you sell or make for a client need a paid plan."
+
+The ElevenLabs notice first said that the free plan "needs "elevenlabs.io" in the title". That wording comes from a help-centre article that could not be read at its source (see below), so the notice now says what the billing page does say, "non-commercially with attribution", and points to the terms for how.
 
 ### The Indonesian Piper voice, read at the source
 
@@ -58,11 +68,11 @@ So "practice and non-commercial" is this kit's careful reading, not a grant anyo
 - [Pricing](https://elevenlabs.io/pricing): Free is 0 dollars with "10k credits per month", about 10 minutes of speech. Starter is 6 dollars a month (1 dollar the first month), 30k credits, and lists "Commercial License".
 - Indonesian: the [models page](https://elevenlabs.io/docs/overview/models) lists it for `eleven_multilingual_v2` (the API's default model) and for `eleven_v4`.
 
-For the Workshop's track 3 guide: a voice made on the free plan and placed on a learner's public page needs "elevenlabs.io" in the title of what is published, and may not be used commercially. The guide should say so.
+For the Workshop's track 3 guide: a voice made on the free plan and placed on a learner's public page may not be used commercially and must credit ElevenLabs. The guide's step 2 now says so, on the API branch `workshop-guides-voice` (not merged).
 
-Two ways in, both through `--engine bagus`:
+Two ways in, both through `"narrator": "bagus"`:
 
-1. Files. With no key set, `voice.mjs` prints each line and the name to save it under (`video/voice/1.mp3`, `video/voice/2.mp3`, the scene's number). The learner makes them on elevenlabs.io, saves them, and runs the command again. Tested with stand-in files.
+1. Files. With no key set, the kit prints each line and the name to save it under (`my-voice/1.mp3`, `my-voice/2.mp3`, the scene's number, in a folder beside the storyboard). The learner makes them on elevenlabs.io, saves them, and runs the sound command again. Tested with stand-in files, and on Haiku with no files at all: the run stopped and handed the list over.
 2. Key. With `ELEVENLABS_API_KEY` and `ELEVENLABS_VOICE_ID` set in the shell, `voice.mjs` fetches each missing line as `video/voice/N.mp3` and carries on as in way 1. The key is read from the environment only, sent only to `*.elevenlabs.io`, and never printed or written; a line already fetched is not fetched again unless its words change; a file the learner made is never replaced. **Not tested against the real service**: there was no key to test with. A test runs it against a stand-in server and checks the request and that the key appears in no output or file.
 
 The lines' text goes to ElevenLabs when the key is used. That is the learner's own choice, on their own account.
@@ -73,7 +83,7 @@ Research turned up Supertonic 3, released by Supertone in April 2026: 31 languag
 
 Caveat: Supertone's GitHub repo now sits at `supertone-oss-archive/supertonic`, archived and read-only since September 2026. Third-party pages say the company is closing; no primary source confirmed that. The licence grant is irrevocable and the kit pins the files by checksum, with the archive copy on Hugging Face as a second address.
 
-It is installed and measured (below) and selectable as `--engine supertonic-ringan` (149 MB with its program) or `--engine supertonic` (507 MB). It is not a tier and `device.mjs` does not recommend it, because the owner's decision named Piper and ElevenLabs. It is the only local Indonesian voice found whose licence allows a video that is sold.
+It is installed and measured (below) and selectable as `"narrator": "supertonic-ringan"` (149 MB with its program) or `"narrator": "supertonic"` (507 MB). Neither the skill nor the README's table of voices offers it. It is not a tier and `device.mjs` does not recommend it, because the owner's decision named Piper and ElevenLabs. It is the only local Indonesian voice found whose licence allows a video that is sold.
 
 ## Measured on this Mac
 
@@ -169,7 +179,7 @@ A learner under the revenue line could make their own effects with Stable Audio 
 - A `whoosh` with an `until` is centred on its move, using the palette's longest fitting sound. A `whoosh` without one swells into the next hit within 0.7 s, so its loudest moment lands on that hit.
 - `weight` 1, 2, 3 is -6, -3, 0 dB.
 - Of two hits closer than 120 ms, the lighter (or the later) is turned down 9 dB.
-- A spoken line starts 0.3 s after its scene. While someone speaks, music drops 8 dB and effects drop 3 dB, eased over a tenth of a second.
+- A spoken line starts 0.3 s after its scene, and its scene lasts until 0.5 s after the line (the cover between scenes closes over the last 0.4 s of that; the last scene simply holds). While someone speaks, music drops 8 dB and effects drop 3 dB, eased over a tenth of a second.
 - The master brings the mix to -16 LUFS with a true peak under -1.5 dBTP, using a look-ahead limiter. Speech and music reach -16. Sound effects alone are short and far apart, so the mix stops where the limiter would cut more than 3 dB and says so: in the test video the four palettes land between -22.6 and -16.1 LUFS.
 - The file is exactly as long as the video. The same input gives the same bytes; `mix-report.json` carries a SHA-256.
 - The meter is the kit's own (ITU-R BS.1770-4, checked against a 997 Hz tone). ffmpeg's `ebur128` is the referee and its numbers are the ones reported; the two agree within 0.2 LU and 0.1 dB on the test mixes.
@@ -177,11 +187,13 @@ A learner under the revenue line could make their own effects with Stable Audio 
 ## What the video builder and the sound layer agree on
 
 - The builder writes `video/cues.json` (`look`, `duration`, `cues` with `t`, `type`, `scene`, `weight`, optional `until`) and `video/mk-plan.json` (each scene's `n`, `start`, `dur`). `mix.mjs` needs the first and uses the second to place the voice; without it, a scene starts at its earliest cue.
-- Scene numbers count from 1 everywhere a person sees them: `scene-1.wav`, `video/voice/1.mp3`, "Scene 1" in messages, `scene` in the cues. Only `durations.json` counts from 0, because the builder reads it by list index.
+- Scene numbers count from 1 everywhere: `scene-1.wav`, `my-voice/1.mp3`, "Scene 1" in messages, `scene` in the cues, and the keys of `durations.json` (`{ "1": 2.24, "2": 4.15 }`). Until 0.4.0 `durations.json` alone counted from 0.
+- A take counts only while it still says the storyboard's words in the storyboard's voice. `lib/project.mjs` (`voiceTakes`) compares each scene's `voice` line and the `narrator` with `video/voice/report.json`; the builder stretches a scene only for a take that passes, the mixer leaves the others out (`voiceLeftOut` in `mix-report.json`), and the builder prints which scenes are "not spoken yet" with the command that makes them.
+- The contact sheet stays when only the sound changed: the builder keeps `video/sheet.png` and `video/frames/` when the storyboard's pictures (everything but the `voice` lines and the sound settings) are the same as in the last build.
 - `t` on a `whoosh`, `type` or `count` is where it starts; on a hit it is the moment of impact.
 - The look picks the palette: `warnet` pixel, `kertas` paper, `panggung` bold, anything else soft. `--palette` overrides.
 - Music is the storyboard's `music` path, read from the storyboard's folder.
-- `mix.mjs --check` exits 1 when `mix.wav` was made for an older timeline, voice or music.
+- `mix.mjs --check` exits 1 when `mix.wav` was made for an older timeline, voice or music. The builder mixes on every build, so this can only happen to a folder changed by hand.
 - `video/voice/report.json` holds each line's length, loudness, what the listener heard and the voice's notice. `mix-report.json` holds the loudness, the peak and where each cue's sound was placed.
 
 ## Installing, for a learner
@@ -191,12 +203,14 @@ A learner under the revenue line could make their own effects with Stable Audio 
 | Indonesian practice voice | `node kit/sound/install.mjs piper-id` | 41 MB from github.com |
 | English light voice | `node kit/sound/install.mjs kitten` | 52 MB |
 | English best local voice | `node kit/sound/install.mjs kokoro` | 370 MB |
-| ElevenLabs | nothing to install: `voice.mjs <video> --engine bagus` | nothing |
-| Own voice | nothing to install: `voice.mjs <video> --engine sendiri` | nothing |
+| ElevenLabs | nothing to install: `"narrator": "bagus"` in the storyboard | nothing |
+| Own voice | nothing to install: `"narrator": "sendiri"` in the storyboard | nothing |
 | The line check | whisper.cpp's `whisper-cli` (on a Mac: `brew install whisper-cpp`), then `node kit/sound/install.mjs whisper` | 190 MB model, MIT |
 | Supertonic 3 (optional) | `node kit/sound/install.mjs supertonic-ringan` | 149 MB |
 
 Sizes after the first voice are smaller, because the 20 MB program is shared. In a room with slow internet, download once and pass the folder with `--from`.
+
+A learner can run these by hand. Claude runs an install only after it has asked the question `kit/sound.mjs` prints (the voice's name, the size, the source, the folder) and the learner has answered yes: rule 8 of `SKILL.md`.
 
 ## Not tested
 
@@ -207,7 +221,7 @@ Sizes after the first voice are smaller, because the 20 MB program is shared. In
 - **Recording.** The kit reads recordings; it does not record. The own-voice path ran with stand-in files, not with a person at a microphone.
 - **The Piper program itself** (`piper-tts`). The voice ran in sherpa-onnx.
 - **Music from a real track.** Ducking was measured with a synthesised placeholder bed.
-- **The motion kit's own build.** The mixer ran on a rendered `video-promo` video with a hand-written `cues.json`, since the kit's builder was still being written.
+- **The install path on Haiku.** No trial run ever reached `install.mjs`: every run in which a voice was missing stopped at the question, as it should, and nobody answered yes. `install.mjs` itself ran when the voices on this Mac were installed.
 
 ## What only ears can judge
 
@@ -218,9 +232,13 @@ Sizes after the first voice are smaller, because the 20 MB program is shared. In
 5. Whether Supertonic's 8-bit weights sound worse than its full ones. The numbers cannot tell them apart.
 6. Whether typing ticks are pleasant or irritating over 3 seconds of code.
 7. Whether the whoosh into a cut lands where the eye expects.
+8. Whether a list line's sound should come a little later. Its sound starts with its bullet; the words follow about 0.1 s after (measured in "Sound" of `docs/MOTION-KIT.md`).
+9. Whether the paper palette feels late. Its recordings fade in, so their loudest moment comes 30 to 60 ms after the cue.
 
 ## Still to decide
 
 1. Supertonic 3 for Indonesian: keep it as an unlisted option, make it a tier next to Piper, or drop it. It needs a caption line saying the voice is AI-made.
-2. Whether the track 3 guide mentions ElevenLabs' free-plan rule ("elevenlabs.io" in the title, non-commercial).
-3. Kitten or Piper Kristin as the English light voice, after listening.
+2. Kitten or Piper Kristin as the English light voice, after listening.
+3. Whether sound effects stay on by default once the palettes have been heard (`SOUND_DEFAULT` in `kit/lib/spec.mjs`).
+
+Decided since this page was first written: the track 3 guide says what ElevenLabs' free plan allows (API branch `workshop-guides-voice`).
