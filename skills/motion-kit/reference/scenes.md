@@ -29,7 +29,7 @@ The real page in a window: its address types itself, the page loads, a marker la
 | `file` | | needed. The page's file in this folder, usually `index.html`. The kit copies it and the CSS and pictures it uses |
 
 ```json
-{ "type": "page", "title": "Ini halamanku", "address": "rina-lestari.pages.dev", "file": "index.html" }
+{ "type": "page", "title": "Ini halaman saya", "address": "wayan-sudiarta.pages.dev", "file": "index.html" }
 ```
 
 ## image
@@ -128,12 +128,12 @@ Real code, typed line by line in a code card. Only for code that runs as written
 | Field | Limit | |
 |---|---|---|
 | `caption` | 44 | needed. What the code does |
-| `lines` | 42 each, 2 to 9 lines | needed. One string per line of code; keep the spaces at the start of a line. Break a longer line in two where the language allows |
+| `lines` | 40 each, 2 to 9 lines | needed. One string per line of code; keep the spaces at the start of a line. Break a longer line in two where the language allows |
 | `highlight` | | the number of the line to mark, counted from 1 |
 | `lang` | 12 | "CSS", "HTML", "JavaScript" |
 
 ```json
-{ "type": "code", "caption": "Tiga baris untuk menengahkan", "lang": "CSS", "lines": [".kotak {", "  display: flex;", "  justify-content: center;", "  align-items: center;", "}"], "highlight": 2 }
+{ "type": "code", "caption": "Tiga kolom yang sama lebar", "lang": "CSS", "lines": [".kartu {", "  display: grid;", "  grid-template-columns: repeat(3, 1fr);", "  gap: 16px;", "}"], "highlight": 3 }
 ```
 
 ## end (always the last scene)
@@ -143,10 +143,10 @@ Where to go: the address types itself and the button is pressed once.
 | Field | Limit | |
 |---|---|---|
 | `line` | 30 | needed. "Mampir ke halamanku", "Pesan untuk Sabtu ini", "Try it today" |
-| `address` | 34 | needed. A page address without `https://`, or a handle like `@rotibusari`. The same address as the page scene |
+| `address` | 34 | needed. A page address without `https://`, or a handle like `@dapurmbaktini`. The same address as the page scene |
 | `button` | 20 | needed. "Buka halamannya", "Pesan sekarang", "Open the page" |
 | `name` | 26 | the name again |
 
 ```json
-{ "type": "end", "line": "Pesan untuk Sabtu ini", "name": "Roti Bu Sari", "address": "rotibusari.pages.dev", "button": "Buka halamannya" }
+{ "type": "end", "line": "Pesan untuk Sabtu ini", "name": "Dapur Mbak Tini", "address": "dapurmbaktini.pages.dev", "button": "Buka halamannya" }
 ```

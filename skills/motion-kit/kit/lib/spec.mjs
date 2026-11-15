@@ -26,14 +26,14 @@ export const FIELDS = {
   image: { title: text(26), caption: text(64, true), file: { kind: "file", req: true, ext: ["png", "jpg", "jpeg", "webp"] } },
   list: { heading: text(30, true), items: { kind: "texts", min: 2, most: 4, max: 44, req: true } },
   steps: { heading: text(30, true), steps: { kind: "objects", min: 2, most: 4, req: true, of: { title: text(28, true), detail: text(56) } } },
-  stat: { value: text(10, true), label: text(44, true), note: text(48) },
+  stat: { value: { ...text(10, true), how: "keep only the number and its unit here, as the brief writes it (\"Rp15.000\", \"87%\", \"3 days\"); the words that explain it go in \"label\"" }, label: text(44, true), note: text(48) },
   quote: { text: text(150, true), name: text(28, true), role: text(40) },
   compare: {
     heading: text(30),
     left: { kind: "object", req: true, of: { label: text(14, true), text: text(56, true) } },
     right: { kind: "object", req: true, of: { label: text(14, true), text: text(56, true) } },
   },
-  code: { caption: text(44, true), lang: text(12), lines: { kind: "texts", min: 2, most: 9, max: 42, req: true, raw: true }, highlight: { kind: "int" } },
+  code: { caption: text(44, true), lang: text(12), lines: { kind: "texts", min: 2, most: 9, max: 40, req: true, raw: true }, highlight: { kind: "int" } },
   end: { line: text(30, true), name: text(26), address: text(34, true), button: text(20, true) },
 };
 
@@ -158,7 +158,7 @@ export const PLAN = {
     const addr0 = r2(a + 0.6), addr1 = r2(addr0 + Math.min(0.9, n * 0.035));
     const press = r2(addr1 + 0.7);
     return {
-      need: press + 1.0,
+      need: press + 1.6, // the button stays long enough to be read
       T: { line: r2(a), name: r2(a + 0.2), addr0, addr1, press },
       cues: [{ t: addr0, until: addr1, type: "type", weight: 1 }, { t: press, type: "press", weight: 2 }],
       stills: [{ t: r2(press + 0.55), expect: `the end card on the video's colour: ${q(s.line)}${s.name ? `, the name ${q(s.name)}` : ""}, the address ${q(s.address)} typed in a field, and the button ${q(s.button)}` }],

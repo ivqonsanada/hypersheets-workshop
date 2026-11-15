@@ -15,20 +15,32 @@
     fn(0);
   };
   const clamp = (v) => Math.max(0, Math.min(1, v));
+  // Like MK.fit, but the lines must also fit `tall` px at line height `lh`.
+  const fitTall = (text, role, sizes, room, most, lh, tall) => {
+    let last = null;
+    for (const size of sizes) {
+      last = MK.fit(text, role, [size], room, most);
+      if (last.ok && last.lines.length * size * lh <= tall) break;
+    }
+    return last;
+  };
   const head = (c, text) => MK.text("h2", "head", flag(c, MK.fit(text, "display", P ? [128, 112, 100, 88, 76] : [96, 88, 80, 72, 64], c.W, 2), "the heading"), P ? 1.02 : 1.1);
 
   // ---------- title: the opening statement, whole from the first frame ----------
   MK.define("title", (c) => {
     const s = c.s;
-    const sizes = P ? [264, 232, 204, 180, 156, 136, 116, 100] : K ? [164, 148, 132, 118, 106, 94, 84] : [176, 160, 144, 128, 112, 96, 84];
-    const hd = MK.text("h1", "hd", flag(c, MK.fit(s.headline, "display", sizes, c.W - (P ? 56 : 28), 4), "the headline"), P ? 1.0 : 1.08);
+    const sizes = P ? [320, 288, 256, 228, 204, 180, 156, 136, 116, 100] : K ? [216, 196, 180, 164, 148, 132, 118, 106, 94, 84] : [208, 192, 176, 160, 144, 128, 112, 96, 84];
+    const band = c.v === 0;
+    const sub = s.sub ? MK.text("p", "sub", flag(c, MK.fit(s.sub, "body", [54, 50, 46], c.W, 3), "the line under the headline"), 1.28) : null;
+    // The headline takes what the lines above and below it leave of the frame's height.
+    const tall = c.H - (s.kicker ? (K ? 150 : P ? 128 : 105) : 0) - (sub ? Number(sub.dataset.h) + 56 : 0) - (band ? 0 : 60);
+    const hd = MK.text("h1", "hd", flag(c, fitTall(s.headline, "display", sizes, c.W - (P ? 56 : 28), 4, P ? 1.06 : 1.08, tall), "the headline"), P ? 1.0 : 1.08);
     const kids = [];
     if (s.kicker) kids.push(h("p", "kick", [h("i"), h("span", null, s.kicker)]));
     kids.push(hd);
-    const band = c.v === 0;
     const rule = band ? null : h("i", "rule");
     if (rule) kids.push(rule);
-    if (s.sub) kids.push(MK.text("p", "sub", flag(c, MK.fit(s.sub, "body", [54, 50, 46], c.W, 3), "the line under the headline"), 1.28));
+    if (sub) kids.push(sub);
     safe(c, kids);
     if (band) {
       const bands = lines(hd).map((ln) => {
@@ -39,7 +51,13 @@
         return bd;
       });
       // The words are on screen from frame 0; the colour arrives behind them within the first second.
-      bands.forEach((bd, i) => M.sweep(c.tl, bd, c.T.band + i * 0.12));
+      const took = P ? 0.3 : K ? 0.7 : 0.6; // how long the look's sweep takes
+      bands.forEach((bd, i) => {
+        const at = c.T.band + i * 0.12;
+        M.sweep(c.tl, bd, at);
+        // Once the band covers a line, the words under it go, so no descender shows below the band.
+        c.tl.fromTo(bd.parentNode.firstChild, { opacity: 1 }, { opacity: 0, duration: 0.01, ease: "none", immediateRender: false }, at + took);
+      });
     } else {
       M.grow(c.tl, rule, c.T.band, P ? 0.36 : 0.6);
     }
@@ -77,10 +95,20 @@
     const s = c.s, n = s.steps.length;
     const hd = head(c, s.heading);
     const room = c.W - 88 - 36;
-    const few = n < 4;
+    // One size for every step's title and one for every detail: the largest pair at which
+    // each text takes at most two lines and the whole rail fits under the heading.
+    const tall = c.H - Number(hd.dataset.h) - 68;
+    let pick = null;
+    for (const [a, b] of n < 4 ? [[66, 46], [60, 42], [54, 40], [50, 38], [46, 36]] : [[56, 40], [52, 38], [48, 36], [44, 34]]) {
+      const tts = s.steps.map((st) => MK.fit(st.title, "body", [a], room, 2));
+      const dts = s.steps.map((st) => (st.detail ? MK.fit(st.detail, "body", [b], room, 2) : null));
+      const total = tts.reduce((sum, f, i) => sum + Math.max(88, 6 + f.lines.length * a * 1.16 + (dts[i] ? 14 + dts[i].lines.length * b * 1.26 : 0)), 0) + (n - 1) * 64;
+      pick = { tts, dts };
+      if (tts.every((f) => f.ok) && dts.every((f) => !f || f.ok) && total <= tall) break;
+    }
     const sts = s.steps.map((st, i) => {
-      const tt = MK.text("p", "tt", flag(c, MK.fit(st.title, "body", few ? [66, 60, 54, 50, 46] : [56, 52, 48, 44], room, 2), "step " + (i + 1)), 1.16);
-      const dt = st.detail ? MK.text("p", "dt", flag(c, MK.fit(st.detail, "body", few ? [46, 42, 38] : [40, 36], room, 2), "the detail of step " + (i + 1)), 1.26) : null;
+      const tt = MK.text("p", "tt", flag(c, pick.tts[i], "step " + (i + 1)), 1.16);
+      const dt = pick.dts[i] ? MK.text("p", "dt", flag(c, pick.dts[i], "the detail of step " + (i + 1)), 1.26) : null;
       // Each step but the last carries the piece of line that runs down to the next node.
       const way = i < n - 1 ? h("i", "way", h("i")) : null;
       return h("div", "st", [way, h("b", "node", [String(i + 1), h("u", null, String(i + 1))]), h("div", "bd2", [tt, dt])]);
@@ -156,14 +184,21 @@
   MK.define("compare", (c) => {
     const s = c.s;
     const room = c.W - (K ? 0 : 88 + 16);
-    const pane = (side, cls) => {
+    // Both panels' texts are set at one size, so they compare.
+    let fits = null;
+    for (const size of [58, 54, 50, 46, 42]) {
+      fits = [s.left, s.right].map((side) => MK.fit(side.text, K ? "display" : "body", [size], room, 3));
+      if (fits.every((f) => f.ok)) break;
+    }
+    const pane = (side, cls, fitted) => {
       const strike = cls === "a" ? h("s") : null;
       const lb = h("p", "lb", [h("span", null, side.label), strike]);
-      const pt = MK.text("p", "pt", flag(c, MK.fit(side.text, K ? "display" : "body", [58, 54, 50, 46, 42], room, 3), `the ${cls === "a" ? "first" : "second"} panel's text`), 1.22);
+      if (strike) lb.setAttribute("data-layout-allow-occlusion", "");
+      const pt = MK.text("p", "pt", flag(c, fitted, `the ${cls === "a" ? "first" : "second"} panel's text`), 1.22);
       return h("div", "pn " + cls, [lb, pt]);
     };
     const hd = s.heading ? head(c, s.heading) : null;
-    const a = pane(s.left, "a"), b = pane(s.right, "b"), arrow = h("div", "arrow", h("i"));
+    const a = pane(s.left, "a", fits[0]), b = pane(s.right, "b", fits[1]), arrow = h("div", "arrow", h("i"));
     safe(c, [hd, a, arrow, b]);
     if (hd) M.lines(c.tl, lines(hd), c.T.head);
     M.block(c.tl, a, c.T.left);
@@ -189,15 +224,20 @@
   MK.define("code", (c) => {
     const s = c.s;
     const cap = MK.text("p", "cap" + (K || P ? " d" : ""), flag(c, MK.fit(s.caption, K || P ? "display" : "body", P ? [112, 100, 88, 76, 64] : K ? [84, 76, 68, 60, 52] : [72, 66, 60, 54, 48], c.W, 2), "the caption"), P ? 1.02 : 1.14);
-    const longest = s.lines.reduce((a, b) => (b.length > a.length ? b : a), "");
+    // The largest size at which the widest line, indentation included, fits the card.
     const room = c.W - 76 - 28 - 16;
-    const fitted = flag(c, MK.fit(longest.replace(/ /g, " ") || "x", "mono", [46, 42, 38, 36, 34, 32, 30], room, 1), "the longest line of code");
+    let size = 32, fitsCard = false;
+    for (const sz of [46, 42, 38, 36, 34, 32]) {
+      size = sz;
+      if (Math.max(...s.lines.map((line) => MK.width(line, "mono", sz))) <= room) { fitsCard = true; break; }
+    }
+    if (!fitsCard) MK.problem(c, "the longest line of code");
     const lis = s.lines.map((line, i) => {
       const hl = s.highlight === i + 1;
       return h("li", null, [hl ? h("u") : null, hl ? h("em") : null, h("b", null, String(i + 1)), h("code")]);
     });
     const ol = h("ol", null, lis);
-    ol.style.fontSize = fitted.size + "px";
+    ol.style.fontSize = size + "px";
     ol.style.lineHeight = "1.6";
     const card = h("div", "card", [h("div", "top", [h("i"), h("i"), h("i"), s.lang ? MK.plain("span", null, s.lang) : null]), ol]);
     safe(c, [cap, card]);
@@ -240,7 +280,8 @@
     const fr = h("figure", "fr", h("div", "ph", img));
     const cap = MK.text("p", "cap", flag(c, MK.fit(s.caption, K ? "display" : "body", [50, 46, 42], c.W, 2), "the caption"), 1.24);
     const hd = s.title ? head(c, s.title) : null;
-    if (hd) fr.style.height = "880px";
+    // The picture takes what the heading and the caption leave of the frame's height.
+    fr.style.height = Math.min(hd ? 880 : 980, c.H - (hd ? Number(hd.dataset.h) + 68 : 0) - 88 - Number(cap.dataset.h)) + "px";
     safe(c, [hd, fr, cap]);
     if (hd) M.lines(c.tl, lines(hd), c.T.open);
     M.block(c.tl, fr, c.T.open + (hd ? 0.12 : 0));
@@ -251,15 +292,16 @@
   // ---------- end: where to go, typed out, and one press of the button ----------
   MK.define("end", (c) => {
     const s = c.s, T = c.T;
-    const line = MK.plain("p", "line", s.line);
-    const nm = s.name ? MK.text("h2", "nm", flag(c, MK.fit(s.name, "display", P ? [210, 184, 160, 136, 116, 96] : [150, 132, 116, 100, 88, 76], c.W, 2), "the name"), P ? 1.0 : 1.08) : null;
+    // With a name, the line sits small above it. Without one, the line itself is the large text.
+    const line = s.name ? MK.plain("p", "line", s.line) : null;
+    const nm = MK.text("h2", "nm", flag(c, MK.fit(s.name || s.line, "display", P ? [210, 184, 160, 136, 116, 96] : [150, 132, 116, 100, 88, 76], c.W, s.name ? 2 : 3), s.name ? "the name" : "the end card's line"), P ? 1.0 : 1.08);
     const addr = h("span", "addr"), caret = h("b", "caret");
     const field = h("div", "field", [addr, caret]);
     const btn = h("div", "btn", [h("s"), MK.plain("b", null, s.button)]);
     const box = h("div", "mk-safe", [line, nm, field, btn]);
     c.el.append(h("div", "card", box));
-    M.lines(c.tl, [line], T.line);
-    if (nm) M.lines(c.tl, lines(nm), T.name);
+    if (line) M.lines(c.tl, [line], T.line);
+    M.lines(c.tl, lines(nm), line ? T.name : T.line);
     M.block(c.tl, field, T.addr0 - 0.22);
     M.pop(c.tl, btn, T.addr1 + 0.2);
     const face = btn.lastChild;

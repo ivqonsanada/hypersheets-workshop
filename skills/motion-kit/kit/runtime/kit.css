@@ -34,7 +34,7 @@ html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--
 
 /* ---------- every scene ---------- */
 .mk-scene { position: absolute; inset: 0; color: var(--ink); font-family: var(--fb), sans-serif; font-weight: var(--wb); }
-.mk-safe { position: absolute; left: 84px; right: 84px; top: 210px; bottom: 300px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+.mk-safe { position: absolute; left: 84px; right: 84px; top: 210px; bottom: 410px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
 .mk-scene .ln { display: block; white-space: nowrap; }
 .mk-scene .tx { display: block; }
 html.look-kertas .mk-scene .ln { overflow: hidden; padding-bottom: 0.12em; margin-bottom: -0.12em; }
@@ -222,7 +222,7 @@ html.look-panggung .mk-code .top i { background: var(--g); }
 html.look-panggung .mk-code .top span, html.look-panggung .mk-code li b { color: color-mix(in srgb, var(--g) 70%, var(--ink)); }
 html.look-panggung .mk-code li code { color: var(--g); }
 html.look-panggung .mk-code .c1 { color: color-mix(in srgb, var(--g) 60%, var(--ink)); }
-html.look-panggung .mk-code .c2, html.look-panggung .mk-code .c3 { color: #ffffff; }
+html.look-panggung .mk-code .c2, html.look-panggung .mk-code .c3 { color: var(--mk-pop); }
 html.look-panggung .mk-code li u, html.look-panggung .mk-code li em { background: var(--g); }
 
 /* ---------- image ---------- */

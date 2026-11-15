@@ -53,7 +53,7 @@ function checkText(where, v, rule) {
   if (!v.trim()) return say(`${where} is empty. Write it, or remove it.`);
   if (/\n/.test(v)) say(`${where} has a line break in it. Write it as one line.`);
   if (n > rule.max && rule.raw) say(`${where} is ${n} characters; a line of code holds ${rule.max}. Break it into two lines at a place the language allows (after a comma, an operator or an opening bracket), and indent the second.`);
-  else if (n > rule.max) say(`${where} is ${n} characters; the limit is ${rule.max}. Shorten it by ${n - rule.max} or more: ${SHORTEN}.`);
+  else if (n > rule.max) say(`${where} is ${n} characters; the limit is ${rule.max}. Shorten it by ${n - rule.max} or more: ${rule.how || SHORTEN}.`);
   if (rule.raw) return;
   if (v !== v.trim()) say(`${where} starts or ends with a space. Remove it.`);
   if (/[—–]|\s-\s/.test(v)) say(`${where} uses a dash as punctuation. Use a comma or a full stop.`);

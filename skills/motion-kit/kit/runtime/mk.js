@@ -47,6 +47,8 @@
     st.setProperty("--mk-accent", hex(fill));
     st.setProperty("--mk-on-accent", hex(on));
     st.setProperty("--mk-accent-ink", hex(LOOK === "panggung" ? on : readable(fill, ground, 4.5)));
+    // A second tone for the marked words inside a panel filled with the ink (panggung's code card).
+    st.setProperty("--mk-pop", on === DARK ? "#ffffff" : hex(DARK));
   };
   MK.setAccent(parse(CFG.accent));
   MK.color = { parse, hex, lum, contrast, mix };
@@ -115,6 +117,8 @@
     el.dataset.h = String(Math.ceil(fitted.lines.length * fitted.size * lh));
     return el;
   };
+  // How wide `text` is at `size`, spaces and all (code keeps its indentation).
+  MK.width = (text, role, size) => measure(text, FONT[role], size);
   MK.plain = (tag, cls, text) => { const el = h(tag, cls); el.textContent = text; return el; };
 
   // ---------- motion: one vocabulary per look ----------
@@ -143,7 +147,8 @@
       lines(tl, els, at) { tl.fromTo(els, { y: 70, opacity: 0 }, { y: 0, opacity: 1, duration: 0.34, ease: "back.out(1.6)", stagger: 0.07 }, at); },
       pop(tl, el, at) { tl.fromTo(el, { scale: 0, rotation: -18 }, { scale: 1, rotation: 0, duration: 0.3, ease: "back.out(2.2)" }, at); },
       grow(tl, el, at, d) { tl.fromTo(el, { scaleX: 0 }, { scaleX: 1, duration: d || 0.32, ease: "power4.out" }, at); },
-      block(tl, el, at) { tl.fromTo(el, { y: 140, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "back.out(1.3)" }, at); },
+      // No fade: a half-seen dark panel on a loud ground turns to mud.
+      block(tl, el, at) { tl.fromTo(el, { y: 90, clipPath: "inset(0% 0% 100% 0%)" }, { y: 0, clipPath: "inset(-4% -4% -4% -4%)", duration: 0.36, ease: "power4.out" }, at); },
       sweep(tl, el, at) { tl.fromTo(el, { clipPath: "inset(-40px 100% -40px -40px)" }, { clipPath: "inset(-40px -40px -40px -40px)", duration: 0.3, ease: "power4.out" }, at); },
       count: gsap.parseEase("power4.out"),
     },
@@ -198,7 +203,7 @@
     const el = document.getElementById(id + "-in");
     const data = JSON.parse(el.dataset.mk);
     const tl = gsap.timeline({ paused: true });
-    const c = { id, el, host: el.parentNode, s: data.s, T: data.T, v: data.v || 0, dur: data.dur, first: !!data.first, last: !!data.last, tl, W: 912, H: 1410 };
+    const c = { id, el, host: el.parentNode, s: data.s, T: data.T, v: data.v || 0, dur: data.dur, first: !!data.first, last: !!data.last, tl, W: 912, H: 1300 };
     el.classList.add("mk-" + data.type.replace("/", "-"), "v" + c.v);
     MK.ready.then(() => {
       try {

@@ -50,7 +50,7 @@ What `c` holds:
 | `c.tl` | the scene's paused GSAP timeline, in the scene's own seconds |
 | `c.T.a` | when the content may start (0 in a first scene, 0.34 after a cover) |
 | `c.dur` | the scene's whole length |
-| `c.W`, `c.H` | the safe box inside `.mk-safe`: 912 x 1410 |
+| `c.W`, `c.H` | the safe box inside `.mk-safe`: 912 x 1300. It ends 410 px above the bottom edge, where the apps put their own captions and buttons |
 | `c.first`, `c.last` | whether it opens or closes the video |
 
 What the kit gives you:
