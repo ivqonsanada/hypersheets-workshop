@@ -10,7 +10,7 @@ Videos made this way are assembled from the kit. They are not designed from noth
 
 ```
 skills/motion-kit/
-  SKILL.md                 the steps and rules, written for Haiku (102 lines)
+  SKILL.md                 the steps and rules, written for Haiku (136 lines)
   reference/scenes.md      every scene's fields and limits, with one example each
   reference/writing.md     how the lines should read, in Indonesian and English
   reference/sound.md       a voice or a silent video: opened only when the user asks for one
@@ -21,15 +21,17 @@ skills/motion-kit/
   kit/stills.mjs           one frame per scene on a sheet, each with what it should show
   kit/sound.mjs            the one extra command for a video with a voice
   kit/test/kit.test.mjs    node --test for the kit and its sound together (11 tests)
+  kit/test/rules.test.mjs  node --test for what the builder accepts and refuses, scene by scene, and what it hands the sound layer and the sheet
   kit/runtime/mk.js        text fitting on a canvas, colour from one accent, motion per look, the cover between scenes
   kit/runtime/scenes.js    the scenes
   kit/runtime/page.js      the page scene (the user's real page in a window)
+  kit/runtime/wrap.js      how a long line of code wraps in its card; the builder counts rows with the same function
   kit/runtime/kit.css      the three looks
   kit/runtime/fonts/       Finlandica, Fraunces, Big Shoulders Display, JetBrains Mono (OFL, licence texts beside them)
   kit/sound/               the sound layer: voices, effects, the mix (see "Sound" and docs/SOUND.md)
 ```
 
-**Ten scenes.** `title` (always first), `page` (the user's real page in a window: the address types itself, a marker lands on the name, the page scrolls to its first list), `image` (one picture the user has), `list`, `steps`, `stat` (one number, counted up), `quote`, `compare`, `code` (typed line by line, one line marked), `end` (always last: the address types itself and the button is pressed once). `title`, `list`, `stat`, `quote` and `end` each have two layouts; the builder picks one from the scene's own words, so two videos differ without anyone choosing.
+**Seventeen scenes.** `title` (always first) and `end` (always last: the address types itself and the button is pressed once). For what a person or a shop has: `page` (the user's real page in a window: the address types itself, a marker lands on the name, the page scrolls to its first list), `image` (one picture, in a frame of its own shape; up to three in a video), `swap` (a before and an after photo in one frame: the after wipes in to the middle, then over the whole). For facts: `prices` (two to six names, each led across to its price, an old price struck through), `info` (two to four labelled facts: hours, a place, a number), `when` (one date on a calendar leaf, the number rolling into place), `numbers` (two to four numbers counted up), `stat` (one number), `list`, `steps`, `qa` (one to three questions, each answered under itself), `quote`, `compare`. For code: `code` (typed line by line, one line marked, long lines wrapped under themselves) and `fix` (the wrong code typed and dimmed, the right code under it with the changed line marked). `title`, `list`, `stat`, `quote` and `end` each have two layouts; the builder picks one from the scene's own words the first time and keeps it through every later build, so a revision changes only what was asked.
 
 **Three looks.** Each takes every colour from one accent, and fixes contrast by itself.
 
@@ -41,7 +43,7 @@ skills/motion-kit/
 
 `"accent": "page"` takes the colour of the user's page (read in the page scene); `"accent": "#0f766e"` takes a brand colour. A colour too weak to show on the ground is moved toward white or black until it does; text on the accent is whichever of the two inks reads better.
 
-**Seven recipes**: `promo`, `announce`, `explainer`, `tips`, `coding`, `testimonial`, `before-after`. A recipe says which scenes it needs and which it may hold. Every video has 3 to 6 scenes, one of each kind at most, and runs 8 to 32 seconds (45 with a voice).
+**Ten recipes**: `promo`, `announce`, `menu` (needs `prices`), `faq` (needs `qa`), `recap` (needs `numbers` or `stat`), `explainer`, `tips`, `coding` (needs `code` or `fix`), `testimonial`, `before-after` (needs `compare`, `swap` or `fix`). A recipe says which scenes it needs and which it may hold; `promo` and `announce` need none, so a shop without a page or a picture still gets a video. Every video has 3 to 6 scenes, one of each kind at most (three pictures; two code cards in a row for code longer than one card), and runs 8 to 32 seconds (45 with a voice).
 
 ## How a video is made
 
@@ -52,13 +54,13 @@ skills/motion-kit/
 5. Only for a video with `voice` lines: `node "<skill>/kit/sound.mjs"` makes the spoken lines and builds again (see "Sound").
 6. `npx hyperframes@0.9.51 render video --quality standard --workers 1 -o video/video.mp4`.
 
-What the builder checks, each with its own sentence: unknown settings and fields, missing fields ("take it from the brief; never make one up"), the length of every text (with how many characters to cut and the two allowed ways to shorten), a dash used as punctuation, emoji, placeholders, capitals, a stat without a digit, an address with `https://` or spaces, a page address that differs from the end card's, files that are missing, outside the folder or of the wrong kind, the recipe's needs, first scene `title` and last `end`, 3 to 6 scenes, one of each kind, the total length, a spoken line too long for its scene or holding a digit, an address or a sign (with the words to write instead), `"sound": "off"` beside a voice or music, a `"narrator"` the kit does not know or with no line to speak, and a `video` folder the kit did not make.
+What the builder checks, each with its own sentence: unknown settings and fields, missing fields ("take it from the brief; never make one up"), the length of every text (with how many characters to cut and the two allowed ways to shorten), a dash used as punctuation, emoji, placeholders, capitals, a stat without a digit, an address with `https://` or spaces, a page address that differs from the end card's, files that are missing, outside the folder or of the wrong kind, the recipe's needs, first scene `title` and last `end`, 3 to 6 scenes, one of each kind, the total length, a spoken line too long for its scene or holding a digit, an address or a sign (with the words to write instead), `"sound": "off"` beside a voice or music, a `"narrator"` the kit does not know or with no line to speak, and a `video` folder the kit did not make. Since 0.5.0 also: a price or a number without a digit, a picture with neither a title nor a caption, more than three pictures, code that would take more rows than its card holds, a `"variant"` the scene does not have, and the same number, date or address in three or more scenes (a number that is part of the name itself, such as "RW 05", does not count). A missing heading, caption, label or button is answered with what to write ("these are your own words"), a missing fact with "ask the user". A day name that does not match its date ("Sabtu, 13 Desember 2026" is a Sunday) does not stop the build: its last lines say to stop before the render and ask the user which is right. An end card address that also stands inside the code does not stop it either: its last lines say to read the brief again, since an address the code calls is not where a viewer goes.
 
 Text that passes the limits always fits. Scenes are not laid out until they play, so nothing is measured in the page: the runtime measures every text on a canvas with the look's own fonts, takes the largest size at which it fits its lines and the height that is left, and evens out two to four lines so a last line is never one stray word. If something still does not fit, the frame carries a red strip that says DOES NOT FIT and what to shorten, so the sheet shows it plainly.
 
 ## Rules the kit keeps
 
-- Every name, number, quote and address comes from the brief or the user's files. A `stat` needs a real number, a `quote` real words and a name; without them the scene is left out.
+- Every name, number, quote and address comes from the brief or the user's files. A `stat` needs a real number, a `quote` real words (a name when the brief gives one); without them the scene is left out. The kit's own words on screen are four labels in the video's language: "Salah" and "Benar" on a `fix`, "Sebelum" and "Sesudah" on a `swap`.
 - The kit never downloads pictures or music. A render loads GSAP 3.15.0 from cdn.jsdelivr.net, as `video-promo` does.
 - A voice is never installed without the user's yes. Only `kit/sound/install.mjs` downloads, and the skill lets the model run it only after it has asked the question the sound command prints (the voice's name, the size, the source, the folder) and the user has answered yes. No script asks for, prints or stores a key.
 - HyperFrames 0.9.51 only, through `npx`, with usage data turned off before the first other command.
@@ -71,7 +73,9 @@ Text that passes the limits always fits. Scenes are not laid out until they play
 - **The safe box** is 912 px wide and runs from 210 px below the top to 410 px above the bottom. TikTok, Reels and Shorts put their captions and buttons over the lowest part of a vertical video. The page scene is the one exception: its window is a stage and runs lower.
 - **One motion vocabulary per look** (`lines`, `pop`, `grow`, `block`, `sweep`, `count`) and one cover between scenes per look (warnet: nine stepped columns; kertas: one pane that slides across; panggung: two halves that shut). Every move is a pure function of time, so any frame can be drawn on its own.
 - **Timing is decided in Node** (`kit/lib/spec.mjs`) and handed to the browser as data, so the builder knows the video's length, the stills and the sound cues without opening a browser.
-- **Text is 32 px or larger**, code included. A line of code holds 40 characters; the builder says where to break a longer one.
+- **Text is 32 px or larger**, code included. A row of code holds about 40 characters at that size; a longer line (up to 110 characters) continues on a second or third row with a hanging indent, broken at a space where there is one (by choice after a comma or a bracket, before `&&` or `||`). The card takes the size that wraps the fewest rows, so short code is still set large. A card holds nine lines; code longer than that goes on two cards in a row, and the second card's line numbers carry on from the first.
+- **Lines break by the whole line.** Two to four lines are set as even as they can be, at a comma before anywhere else, never after "di", "dan" or "with". A headline passes over a size that leaves a short word alone on a line, or two one-word lines among three or more, when a slightly smaller size avoids it.
+- **A count never shows 0.** A number is not on screen before its count begins, and its first step is 1 or more.
 
 ## Sound
 
@@ -255,14 +259,85 @@ The rubric was tightened after round 1: a prompt refused at the permission step 
 
 `check` passes on a built project with 0 errors. Its warnings that remain: `film_silent` (no sound in a silent build), `outside_safe_zone` for text that sits outside HyperFrames' strictest per-app zones (the kit keeps a 84 px side margin and stays above the lowest 410 px, but a wide line can still sit behind an app's right-hand buttons), and `dead_stretch` on a title whose sub line is long (the headline holds while it is read; only the ground moves).
 
+## The use-case trial for 0.5.0 (2026-11-16)
+
+**What 0.5.0 adds.** A use-case campaign ran 37 briefs on v0.3.0 (small shops, students and campus groups, coding shorts, requests the kit cannot fill) and left twelve patches and a list of what to build next. 0.5.0 is those patches on top of 0.4.0's sound layer, then the list:
+
+- **Seven scenes**: `prices`, `info`, `numbers` (from the campaign), `when`, `qa`, `swap`, `fix`. **Three recipes**: `menu`, `recap`, `faq`. Each scene has its sound cues and its sentence on the check sheet.
+- **Code that fits.** A line holds 110 characters and wraps under itself (it held 40, and a longer line was refused). A card holds one to nine lines, and short code is set larger. Code longer than one card goes on two cards in a row.
+- **A scene keeps its layout through a revision** (`mk-plan.json` records it), and `"variant": 1` or `2` asks for one.
+- **Smaller ones**: no headline with two one-word lines among three or more, a list without numbers, a quote without a name, a larger stat note, a count that never shows 0, pictures in their own shape and up to three of them, a promo without a page.
+- **Checks**: the same fact in three scenes, a day name against the calendar, a kicker that repeats the headline or only greets, a price or a number without a digit, an end card address taken out of the code.
+- **Wording in SKILL.md**: ask once and briefly, a fact stays whole, never make initials of a long name, never build an address, one command per call, render warnings are not passed on, and a last message of six short lines. Rule 9 now says what the kit does not do (a song, an avatar or a person on screen, a download, a wide or square video); a spoken voice it can make.
+
+**Harness.** As in the earlier trials: headless `claude -p --model claude-haiku-5-5`, the plugin loaded from a copy of this repo, a stand-in for the person at the permission prompt. Sound was left at its default (effects on). 30 runs, each a brief of the campaign run again on the kit as it stood: `t01` on `d5f2d20`, `t02` to `t09` on `02739a3`, `t10` to `t17` on `2f3fd12`, `t18` to `t24` on `20dff59`, `t25` to `t30` on `aafdf0d`. Eight runs asked the user something and got an answer in a second turn; two finished videos were sent back for a revision. One run (`t24`) was narrated in Indonesian on the light voice, already installed. The runs, their sheets and the tools that measured them are in `../.kit-v05/` beside this repo.
+
+**Grading.** As the campaign did it: from the contact sheet and the storyboard, against the brief. **A**: would post it. **B**: right, but plain or with one small flaw. **C**: looks wrong, or misses what the brief asked for. **F**: broken, or holds an invented fact. Sound is measured in the finished MP4: integrated loudness, true peak, and how many of the cues the builder planned can be heard at their time.
+
+| Run | Brief | Use case | Recipe | Look | Scenes | Sound in the MP4 | Grade | Why | Turns | Cost |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| t01 | a02-menu-harga | Menu or price list | menu | kertas | title, prices, info, end | -21.3 LUFS, -1.7 dBTP, cues 20/20 | A | six prices exact, address and handle; revised once (a price and a note), nothing else moved | 13+9 | $0.0180 |
+| t02 | a04-jam-buka | Hours and location | promo | kertas | title, info, end | -22 LUFS, -1.7 dBTP, cues 12/12 | A | hours and place as labelled facts, the number on the end card | 11 | $0.0109 |
+| t03 | a08-sebelum-sesudah-foto | Before and after photos | before-after | kertas | title, swap, stat, end | -22.1 LUFS, -1.6 dBTP, cues 19/19 | A | both photos in one frame, side by side then the after; caption a little empty | 13 | $0.0126 |
+| t04 | a10-paket-katering-panjang | Packages with prices, rambling brief | menu | kertas | title, prices, list, info, end | -21.5 LUFS, -1.7 dBTP, cues 25/25 | A | three packages, what is in one, the ordering rules, all as the brief has them | 13 | $0.0142 |
+| t05 | a15-faq-cod | FAQ | faq | kertas | title, qa, end | -22.5 LUFS, -1.7 dBTP, cues 15/15 | A | three questions, each with its answer | 12 | $0.0108 |
+| t06 | a16-nama-panjang | Announcement, a long name | announce | kertas | title, when, info, end | -21.7 LUFS, -1.3 dBTP, cues 17/17 | A | stopped before the render to ask about a Monday that is a Tuesday, then fixed it; the full name kept whole | 11+5 | $0.0141 |
+| t07 | b05-rekap-angka | Recap in numbers | recap | kertas | title, numbers, stat, end | -21.8 LUFS, -1 dBTP, cues 20/20 | A | three numbers counted, the fourth on its own | 12 | $0.0109 |
+| t08 | c03-salah-benar | Mistake and its fix | coding | warnet | title, fix, list, end | -16.1 LUFS, -1.6 dBTP, cues 19/19 | B | wrong and right code both shown; the headline broke as four short lines | 13 | $0.0114 |
+| t09 | c07-kode-panjang | Code longer than the card | explainer | warnet | title, steps, end | -16 LUFS, -2.7 dBTP, cues 13/13 | C | left the code out of a video about a function and put it in the chat | 12 | $0.0136 |
+| t10 | a17-coffee-vague-en | Vague shop brief, English | promo | kertas | title, list, end | -21.2 LUFS, -1.5 dBTP, cues 12/12 | B | asked once, then a plain three-scene video; the kicker was "Welcome to" | 4+8 | $0.0097 |
+| t11 | d04-tip-satu | Tip of the day | tips | warnet | title, list, end | -16.1 LUFS, -2.1 dBTP, cues 11/11 | B | asked for a reason and an example, then a plain two-line list | 3+10 | $0.0116 |
+| t12 | e01-avatar | Asks for a talking avatar | promo | kertas | title, info, end | -21.6 LUFS, -1.7 dBTP, cues 12/12 | B | said no avatar, offered a voice and asked before any download; plain after the user's no | 13+4 | $0.0147 |
+| t13 | e03-horizontal-en | Asks for 16:9 | announce | warnet | title, info, end | -16.1 LUFS, -2.3 dBTP, cues 11/11 | B | said vertical only and made it; two facts said twice | 12 | $0.0113 |
+| t14 | e04-lagu | Asks for a viral song and a voice | promo | panggung | title, info, end | -21.2 LUFS, -1.6 dBTP, cues 12/12 | B | no song, asked the download question word for word; price and place said twice | 13+4 | $0.0146 |
+| t15 | c07-kode-panjang | Code longer than the card | coding | warnet | title, code, steps, list, end | -16.1 LUFS, -1.6 dBTP, cues 22/22 | B | nine lines of the code shown and wrapped, the rest named to the user; a dense card | 13 | $0.0140 |
+| t16 | c03-salah-benar | Mistake and its fix | coding | warnet | title, fix, compare, end | -16.1 LUFS, -1.1 dBTP, cues 19/19 | A | the wrong line and the right line, then what = and === mean | 13 | $0.0117 |
+| t17 | a11-flash-sale-campur | Flash sale | announce | panggung | title, stat, when, end | -23.4 LUFS, -1.7 dBTP, cues 17/17 | B | loud and right, but the kicker repeated the headline; revised once (hours and the discount), the end card's hour followed | 13+11 | $0.0191 |
+| t18 | a06-diskon-tanggal | Discount with an end date, shop has a page | announce | panggung, #7b2d26 | title, stat, when, info, end | -23.4 LUFS, -1.7 dBTP, cues 20/20 | A | the page's own colour, the span of days on the leaf; it ran ls once, which the kit's rubric fails | 14 | $0.0118 |
+| t19 | a12-bazar | Event with a date | announce | kertas | title, when, list, end | -21.5 LUFS, -1.2 dBTP, cues 19/19 | A | stopped to ask about a Saturday that is a Sunday, then fixed both places | 14+9 | $0.0164 |
+| t20 | b04-seminar | Seminar | announce | panggung | title, when, info, end | -23.3 LUFS, -1.7 dBTP, cues 18/18 | B | asked about the weekday and fixed it; made initials of the organiser's name | 11+8 | $0.0157 |
+| t21 | c06-tebak-output | Guess the output | coding | warnet | title, code, list, end | -16.1 LUFS, -1.8 dBTP, cues 15/15 | A | the question, the one line of code set large, then why | 13 | $0.0122 |
+| t22 | a07-testimoni | Testimonial | testimonial | kertas | title, quote, end | -20.9 LUFS, -1.5 dBTP, cues 10/10 | B | the quote word for word; the headline is the shop's name | 12 | $0.0105 |
+| t23 | c02-code-tip-en | Code tip, English | coding | warnet | title, fix, end | -16.1 LUFS, -1.6 dBTP, cues 14/14 | B | wrong and right line in a fix scene; "?." was split across two rows | 12 | $0.0108 |
+| t24 | n01-narasi-laundry | Shop video with a narrator | menu | kertas | title, prices, info, end | -16 LUFS, -1.7 dBTP, cues 16/16, 4 spoken lines | A | four spoken lines on the light voice, numbers in words; passed on the recogniser's doubt about one line | 15 | $0.0126 |
+| t25 | c02-code-tip-en | Code tip, English | coding | warnet | title, code, fix, end | -16.1 LUFS, -1.4 dBTP, cues 16/16 | A | the three lines as given with "?." whole, then the wrong and the right line; ends on the address the brief gave | 13 | $0.0104 |
+| t26 | b04-seminar | Seminar | announce | kertas | title, when, info, end | -21.5 LUFS, -1.7 dBTP, cues 20/20 | A | the organiser's name kept whole; stopped before the render to ask about a Saturday that is a Sunday, then rendered | 9+3 | $0.0131 |
+| t27 | a07-testimoni | Testimonial | testimonial | kertas | title, quote, end | -22.8 LUFS, -1.6 dBTP, cues 10/10 | B | the quote word for word, name and role right; the headline is the shop's name again | 11 | $0.0093 |
+| t28 | a11-flash-sale-campur | Flash sale | announce | panggung | title, when, list, end | -23 LUFS, -1.7 dBTP, cues 17/17 | B | date leaf with the weekday from the calendar, hours and code right; the discount and the free shipping are said in the title and again in the list | 13 | $0.0111 |
+| t29 | c07-kode-panjang | Code longer than the card | coding | warnet | title, code, steps, end | -16.1 LUFS, -1.7 dBTP, cues 17/17 | C | nine of fourteen lines shown though the brief asked for the whole code, and the end card sends the viewer to the API address inside the code, not to the address the brief gave | 13 | $0.0140 |
+| t30 | a03-promo-minggu | Promo with an end date | announce | panggung | title, stat, info, end | -23 LUFS, -1.7 dBTP, cues 17/17 | A | price large with the usual price under it, the end date with its right weekday, the WA number as written | 13 | $0.0116 |
+
+**Totals.** A 15, B 13, C 2, F 0 of 30. The campaign on v0.3.0: A 6, B 17, C 12, F 2 of 37. Its patched copy, on the 23 briefs it ran again: A 9, B 14. No run invented a fact, and no run rendered a video with a wrong weekday: the four runs whose brief carried one stopped before the render and asked.
+
+**The aim was no C or F in the last 12 runs, and one run missed it.** `t19` to `t30`: A 6, B 5, C 1 (`t29`). The trial stopped at its limit of 30 runs, so the two changes `t29` led to have tests and hand-made frames behind them and no Haiku run. For that reason no `v0.5.0` tag was placed.
+
+**Sound.** Every finished video has its sound: -23.4 to -16.0 LUFS, true peaks -1.0 to -2.7 dBTP, and every planned cue heard (10 of 10 up to 25 of 25). `warnet`'s palette sits near -16 LUFS, the other two near -22. The narrated video (`t24`) has four spoken lines at -16 LUFS; the recogniser doubted one line, and Haiku passed that on to the user. As before, this is measured and not heard.
+
+**Cost and time.** $0.0123 a video on average ($0.0093 to $0.0164), 9 to 15 turns, about a minute. A question about a date and its answer add $0.004 to $0.006. The two revisions cost $0.0073 and $0.0072; each changed only what was asked, and every scene kept its layout. All 30 runs with their second turns: $0.383. The campaign's figures were $0.0101 to $0.0113 a video and $0.0074 a revision.
+
+**What Haiku stumbled on, and what changed.**
+
+- `t09` left the code out of a video about a function, because two of its lines were over the limit. A line now holds 110 characters, and the reference says a video about code always shows it. `t15` then showed nine of its lines.
+- `t08` set a headline as four short lines. The headline rule now passes over such a size.
+- `t06`, `t19`, `t20` and `t26` each had a weekday that does not match its date. All four stopped and asked; the builder's note now says to do exactly that, and to make the sheet first.
+- `t10` wrote the kicker "Welcome to", `t17` a kicker that repeated the headline. The builder refuses both. `t17` also worked a weekday out by itself; the builder now writes it from the calendar when a `when` scene leaves `day` out (`t28` used that).
+- `t20` made initials of an organiser's long name. The skill says never to; `t26`, the same brief, kept it whole.
+- `t18` ran `ls`. Step 1 now says Glob.
+- `t23` showed `address?.city` broken between `?` and `.`. The wrap never splits an operator now; `t25`, the same brief, shows it whole.
+- `t22` and `t27` wrote the shop's name as the headline of a customer's words. `reference/writing.md` got an example after `t22`, and `t27` did it again. A check would be easy to write; unproven, it might push Haiku to invent a hook, so it was left for a round that can run it.
+- `t13`, `t14` and `t28` said a fact in the title and again in a later scene. The builder refuses a fact in three scenes, not two.
+- `t29` was asked for a function's fourteen lines whole. A card held nine, and a video held one code scene, so it showed nine and named the rest in the chat. It also took the end card's address out of the code (`api.tokocontoh.test/produk`) and missed the one on the brief's last line. Now two code scenes in a row are one piece of code on two cards, the builder says so when a card is too long, and an end card address that stands inside the code is flagged before the sheet. **Neither has been run on Haiku.**
+
 ## Not done, and what is weak
 
+- **0.5.0's last two changes are untested on Haiku**: code on two cards and the note about an address taken from the code (see the trial above). Twelve clean runs after them would meet the trial's aim.
+- **A headline that is only the shop's name** still gets through (`t22`, `t27`), and so does a fact said in the title and again in one later scene.
 - **9:16 only.** 16:9 and 1:1 are not done. The scenes are laid out for 1080 x 1920 and nothing reflows them.
 - **Sound has been measured, not heard.** Loudness, peaks, timing and a recogniser's transcript say the sound is level, on its cues and intelligible. Whether it is pleasant is unknown until a person listens (see "Sound").
 - **Open mode was run once**, on Sonnet 5.5 (k22: 20 turns, $0.25, 77 s). It wrote `custom/bars/` (31 lines of `scene.js`, a `scene.json` with an honest `expect`, six lines of CSS), used the kit's fitting and motion, saw on the sheet that its bars touched, widened them and built again. Two things went wrong that the rubric does not catch. It wrote the video's words in Indonesian although the brief was in English. And it put the three numbers inside `scene.js` instead of in fields, where the builder would have checked them: a custom scene can hold facts the builder never sees. One run is not a trial; open mode is tried, not proven.
-- **Haiku rarely picks `panggung`.** In 21 runs it chose `kertas` 11 times, `warnet` 9 times and `panggung` once, when the brief asked for a video that stands out. A branch opening got `kertas` three times out of three. That is a fair reading of the look table, but a user who wants the loud look has to say so.
+- **Haiku picks `panggung` for sales and little else.** In the first trial's 21 runs it chose `panggung` once. In the 30 runs of the 0.5.0 trial it chose `kertas` 14 times, `warnet` 10 times (every coding brief) and `panggung` 6 times: the flash sale, the discount, the weekly promo, a seminar. A menu, an FAQ and a recap all got `kertas`. A user who wants the loud look for those has to say so.
 - **REVIEW.md is a weak check.** Haiku's review lines mostly restate the sentence under each frame. It would notice a red strip or a blank page window; it would not notice a subtle fault. What keeps the frames right is the builder's limits and the text fitting, not the model's eye.
-- **The videos are typographic.** Without a page or a picture from the user there is no imagery, by design (nothing is downloaded). Several videos from the same kit will look related: ten scenes, three looks, two layouts for five of the scenes.
+- **The videos are typographic.** Without a page or a picture from the user there is no imagery, by design (nothing is downloaded). Several videos from the same kit will look related: seventeen scenes, three looks, two layouts for five of the scenes.
 - **`check` still warns** about text outside HyperFrames' strictest per-app safe zones, and about a still title when the sub line is long (see above).
 - **Latin text only.** The bundled fonts cover Latin and Latin Extended.
 - **Not tried on Windows**, and not with a page that needs JavaScript to show its content (the page scene has the limits of `video-promo`'s).

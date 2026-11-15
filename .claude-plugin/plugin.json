@@ -1,6 +1,6 @@
 {
   "name": "hypersheets-workshop",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Skills for the Hyper Sheets Workshop. video-promo: a 20-second vertical motion video for the learner's own page, made with HyperFrames 0.9.51 from a template that already renders. motion-kit: a 10 to 30 second vertical video from any short brief, assembled from a kit of ready-made scenes through one storyboard file, with sound effects and, when asked, a spoken voice, so a small model such as Haiku 5.5 is enough.",
   "author": { "name": "Hyper Sheets" },
   "homepage": "https://learnhypersheets.com/workshop",
