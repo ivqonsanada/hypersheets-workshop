@@ -150,6 +150,8 @@
     const fitted = flag(c, MK.fit(s.value.replace(/\s+/g, " "), "display", sizes, c.W - (boxed ? 88 : 0), 1), "the number");
     const num = MK.plain("div", "num", s.value);
     num.style.fontSize = fitted.size + "px";
+    // A value with letters that hang below the line ("3 days", "Rp") gets room for them.
+    if (/[gjpqy]/.test(s.value)) num.style.paddingBottom = "0.13em";
     const bar = h("i", "bar");
     const lab = MK.text("p", "lab", flag(c, MK.fit(s.label, "body", [64, 58, 52], c.W, 2), "the label"), 1.2);
     const note = s.note ? MK.text("p", "note", flag(c, MK.fit(s.note, "body", [42, 38], c.W, 2), "the small line"), 1.3) : null;
