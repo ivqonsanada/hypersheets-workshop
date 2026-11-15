@@ -56,6 +56,30 @@ export function checkCues(c) {
   return out;
 }
 
+// Which spoken lines have a take that still says the storyboard's words, in the voice the
+// storyboard asks for. Scene numbers count from 1 here and in every file of video/voice/:
+// scene-1.wav, 1.mp3, and the keys of durations.json.
+//   ready    { "<scene number>": { file, seconds } }
+//   waiting  [scene numbers whose line has no take yet, or whose take says older words]
+export function voiceTakes(video, storyboard) {
+  const scenes = storyboard && Array.isArray(storyboard.scenes) ? storyboard.scenes : [];
+  const report = readJson(join(video, "voice", "report.json"));
+  const durations = readJson(join(video, "voice", "durations.json")) || {};
+  const rows = report && Array.isArray(report.lines) ? report.lines : null;
+  const sameVoice = !report || report.narrator == null || report.narrator === (storyboard.narrator || "ringan");
+  const ready = {}, waiting = [];
+  scenes.forEach((s, i) => {
+    const n = i + 1, text = s && typeof s.voice === "string" ? s.voice.trim() : "";
+    if (!text) return;
+    const file = join(video, "voice", `scene-${n}.wav`);
+    const seconds = Number(durations[n]);
+    const row = rows ? rows.find((r) => r.scene === n) : null;
+    if (existsSync(file) && seconds > 0 && sameVoice && (!rows || (row && row.text === text))) ready[n] = { file, seconds };
+    else waiting.push(n);
+  });
+  return { ready, waiting, report };
+}
+
 // When each scene starts, by scene number (1 is the first). The builder's plan is the source;
 // without it, a scene starts at its earliest cue.
 export function sceneStarts(plan, cues) {

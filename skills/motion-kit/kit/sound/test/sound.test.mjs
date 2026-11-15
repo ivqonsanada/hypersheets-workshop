@@ -265,9 +265,9 @@ const runVoice = (dir, flags, env = {}) => new Promise((done) => {
 test("with no files and no key, the ElevenLabs tier lists each line and the name to save it under", async () => {
   const dir = project(["Halo, aku Rina.", null, "Mampir ke halamanku, ya."]);
   const r = await runVoice(dir, ["--engine", "bagus"]);
-  assert.equal(r.status, 1);
-  assert.match(r.out, /video\/voice\/1\.mp3\n  Halo, aku Rina\./);
-  assert.match(r.out, /video\/voice\/3\.mp3\n  Mampir ke halamanku, ya\./);
+  assert.equal(r.status, 3, "3 says: waiting for files only the user can make");
+  assert.match(r.out, /my-voice\/1\.mp3\n  Halo, aku Rina\./);
+  assert.match(r.out, /my-voice\/3\.mp3\n  Mampir ke halamanku, ya\./);
   assert.doesNotMatch(r.out, /voice\/2\.mp3/, "a scene with no voice line asks for no file");
   assert.match(r.out, /non-komersial/, "the plan's limit is said once, in the learner's language");
   rmSync(dir, { recursive: true });
@@ -282,8 +282,8 @@ test("files the learner made are measured, levelled and timed, from video/voice 
   const r = await runVoice(dir, ["--engine", "sendiri", "--no-check"]);
   assert.equal(r.status, 0, r.out);
   const durations = JSON.parse(readFileSync(join(dir, "video", "voice", "durations.json"), "utf8"));
-  assert.deepEqual(Object.keys(durations), ["0", "1"], "keys are the builder's scene indexes, from 0");
-  assert.ok(Math.abs(durations["0"] - 1.5) < 0.2 && Math.abs(durations["1"] - 2.2 * (RATE / 44100)) < 0.3);
+  assert.deepEqual(Object.keys(durations), ["1", "2"], "keys are scene numbers from 1, like scene-1.wav and 1.mp3");
+  assert.ok(Math.abs(durations["1"] - 1.5) < 0.2 && Math.abs(durations["2"] - 2.2 * (RATE / 44100)) < 0.3);
   const made = readWav(join(dir, "video", "voice", "scene-2.wav"));
   assert.equal(made.rate, RATE);
   assert.ok(Math.abs(integrated([made.channels[0], made.channels[0]]) - -17) < 0.6);

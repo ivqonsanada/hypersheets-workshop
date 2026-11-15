@@ -6,6 +6,8 @@
 //                [--no-sfx] [--no-voice] [--no-music] [--music file] [--lufs -16] [--peak -1.5]
 //   node mix.mjs <video folder> --check     says whether mix.wav still matches the timeline
 //
+// The video builder (kit/build.mjs) calls mixVideo() itself on every build, so nobody has to
+// run this by hand; the command is here for looking at one mix closely.
 // The same input gives the same file, byte for byte. Sound effects need only Node; ffmpeg is
 // used to read music and voice files that are not 48 kHz WAV, and to measure the result.
 import { createHash } from "node:crypto";
@@ -17,7 +19,7 @@ import { integrated, truePeakDb, limit } from "./lib/loudness.mjs";
 import { readWav, wavBuffer } from "./lib/wav.mjs";
 import { decode, measure, ffmpegPath } from "./lib/ffmpeg.mjs";
 import { hash32, rng } from "./lib/rng.mjs";
-import { args, exitWith, openVideo, checkCues, sceneStarts, readJson } from "./lib/project.mjs";
+import { args, exitWith, openVideo, checkCues, sceneStarts, readJson, voiceTakes } from "./lib/project.mjs";
 
 const KIT = dirname(fileURLToPath(import.meta.url));
 const SFX = join(KIT, "sfx");
@@ -211,24 +213,38 @@ export function master(left, right, targetLufs, ceilingDb, sparse) {
   return { channels: out, lufs, truePeakDb: truePeakDb(out), gainDb: gain, limiterDb: cut, note };
 }
 
-function fingerprint(v, opts) {
-  const voice = {};
+// The takes to lay, by scene number: with a storyboard, only those that still say its words.
+function takes(v) {
+  const out = {};
   const starts = sceneStarts(v.plan, v.cues);
+  const known = v.storyboard && Array.isArray(v.storyboard.scenes) ? voiceTakes(v.video, v.storyboard) : null;
   for (const n of Object.keys(starts)) {
     const f = join(v.video, "voice", `scene-${n}.wav`);
-    if (existsSync(f)) voice[n] = sha(readFileSync(f));
+    if (!existsSync(f)) continue;
+    if (known && !known.ready[n]) { out[n] = { stale: true }; continue; }
+    out[n] = { file: f };
   }
+  return out;
+}
+
+function fingerprint(v, opts) {
+  const voice = {};
+  if (!opts.noVoice) for (const [n, t] of Object.entries(takes(v))) if (t.file) voice[n] = sha(readFileSync(t.file));
   return { cues: sha(readFileSync(v.cuesFile)), voice, music: opts.music && existsSync(opts.music) ? sha(readFileSync(opts.music)) : null };
 }
 
-function main() {
-  const a = args(process.argv.slice(2), ["palette", "seed", "music", "lufs", "peak", "out"]);
-  const v = openVideo(a._[0]);
+// Mixes one video folder. Returns { ok: false, problems } with one sentence per problem, or
+// { ok: true, report, said } where `said` are the lines a person would read. `a` holds the
+// command's flags (palette, seed, music, lufs, peak, out, no-sfx, no-voice, no-music, check).
+export function mixVideo(videoDir, a = {}) {
+  const v = openVideo(videoDir);
+  if (a.storyboard && typeof a.storyboard === "object") v.storyboard = a.storyboard; // the builder hands over the one it just checked
+  if (a.plan && typeof a.plan === "object") v.plan = a.plan;
   const problems = [...v.problems];
   if (!v.problems.length) problems.push(...checkCues(v.cues));
   const manifest = readJson(join(SFX, "palettes.json"));
   if (!manifest) problems.push(`The kit's sound folder is missing ${join(SFX, "palettes.json")}. Install the kit again.`);
-  if (problems.length) exitWith("The sound cannot be mixed yet.", problems);
+  if (problems.length) return { ok: false, problems };
 
   const cues = v.cues;
   const musicRel = a["no-music"] ? null : a.music || (v.storyboard && v.storyboard.music) || null;
@@ -238,32 +254,32 @@ function main() {
 
   if (a.check) {
     const old = readJson(reportFile);
-    const now = fingerprint(v, { music });
-    if (!old || !existsSync(outFile)) { console.log("There is no mix yet. Run mix.mjs on this video folder."); process.exit(1); }
-    if (JSON.stringify(old.inputs) !== JSON.stringify(now)) { console.log("The mix was made for an older timeline, voice or music. Run mix.mjs on this video folder again."); process.exit(1); }
-    console.log("The mix matches the timeline.");
-    return;
+    const now = fingerprint(v, { music, noVoice: a["no-voice"] });
+    if (!old || !existsSync(outFile)) return { ok: false, problems: ["There is no mix yet. Run the video builder again; it lays the sound."] };
+    if (JSON.stringify(old.inputs) !== JSON.stringify(now)) return { ok: false, problems: ["The mix was made for an older timeline, voice or music. Run the video builder again; it lays the sound."] };
+    return { ok: true, said: ["The mix matches the timeline."] };
   }
 
   const pal = pickPalette(manifest, cues.look, a.palette);
-  if (!pal) exitWith("The sound cannot be mixed yet.", [`There is no palette named "${a.palette}". Use one of: ${Object.keys(manifest.palettes).join(", ")}.`]);
+  if (!pal) return { ok: false, problems: [`There is no palette named "${a.palette}". Use one of: ${Object.keys(manifest.palettes).join(", ")}.`] };
   if (music && !existsSync(music)) problems.push(`The music file ${music} is not there. Put it in the storyboard's folder, or remove "music" from the storyboard.`);
   if (music && existsSync(music) && !/\.wav$/i.test(music) && !ffmpegPath()) problems.push(`Reading ${music} needs ffmpeg, which is not installed. Install ffmpeg, or give the music as a 48 kHz WAV file.`);
-  if (problems.length) exitWith("The sound cannot be mixed yet.", problems);
+  if (problems.length) return { ok: false, problems };
 
   const n = Math.round(cues.duration * RATE);
   const seed = a.seed != null ? String(a.seed) : "1";
   const sfx = new Float32Array(n), voice = new Float32Array(n);
-  const report = { duration: cues.duration, palette: pal.name, paletteWhy: pal.why, seed, cues: [], voice: [], music: null, warnings: [] };
+  const report = { duration: cues.duration, palette: pal.name, paletteWhy: pal.why, seed, cues: [], voice: [], voiceLeftOut: [], music: null, warnings: [] };
 
   if (!a["no-sfx"]) report.cues = layCues(cues, loadPalette(manifest, pal.name), seed, sfx);
 
   const starts = sceneStarts(v.plan, cues);
   if (!a["no-voice"]) {
+    const laid = takes(v);
     for (const [num, sc] of Object.entries(starts).sort((p, q) => p[0] - q[0])) {
-      const f = join(v.video, "voice", `scene-${num}.wav`);
-      if (!existsSync(f)) continue;
-      const x = loadMono(f);
+      if (!laid[num]) continue;
+      if (laid[num].stale) { report.voiceLeftOut.push(Number(num)); continue; } // says older words, or is in another voice
+      const x = loadMono(laid[num].file);
       const level = integrated([x, x]);
       const g = Number.isFinite(level) ? fromDb(VOICE_LUFS - level) : 1;
       const at = sc.start + VOICE_LEAD;
@@ -273,7 +289,7 @@ function main() {
       const room = sc.dur != null ? sc.start + sc.dur : cues.duration;
       if (at + seconds > room + 0.05) {
         row.note = `runs ${r1(at + seconds - room)} s past the end of its scene`;
-        report.warnings.push(`The voice of scene ${num} is ${r1(at + seconds - room)} s longer than its scene. Run the video builder again so the scene follows the voice, then mix again.`);
+        report.warnings.push(`The voice of scene ${num} is ${r1(at + seconds - room)} s longer than its scene. Run the video builder again so the scene follows the voice.`);
       }
       report.voice.push(row);
     }
@@ -283,7 +299,7 @@ function main() {
   if (voiceReport) {
     report.voiceName = voiceReport.name;
     if (voiceReport.notice) report.voiceNotice = voiceReport.notice;
-    if (voiceReport.use === "draft") report.warnings.push(`The spoken lines use ${voiceReport.name}, a draft voice that may not be published. Before publishing, run voice.mjs with --engine ringan, bagus or sendiri, then mix again.`);
+    if (voiceReport.use === "draft") report.warnings.push(`The spoken lines use ${voiceReport.name}, a draft voice that may not be published. Before publishing, set "narrator" in storyboard.json to "ringan", "bagus" or "sendiri" and make the spoken lines again.`);
   }
   const act = spoken ? speaking(voice) : null;
   if (spoken) duck(sfx, act, DUCK.sfx);
@@ -328,21 +344,32 @@ function main() {
     masterGainDb: r1(m.gainDb),
     limiterDb: r1(m.limiterDb),
     note: m.note,
-    inputs: fingerprint(v, { music }),
+    inputs: fingerprint(v, { music, noVoice: a["no-voice"] }),
     sha256: sha(wav),
   });
   if (ff && ff.truePeakDb > ceiling + 0.05) report.warnings.push(`The loudest peak is ${ff.truePeakDb} dBTP, above the ${ceiling} dBTP ceiling. Run the mix again with --peak ${ceiling - 0.5}.`);
   const ordered = {};
-  for (const k of ["duration", "palette", "paletteWhy", "seed", "target", "lufs", "truePeakDb", "measuredBy", "ownMeter", "masterGainDb", "limiterDb", "note", "warnings", "voiceName", "voiceNotice", "voice", "music", "cues", "inputs", "sha256"]) if (report[k] !== undefined) ordered[k] = report[k];
+  for (const k of ["duration", "palette", "paletteWhy", "seed", "target", "lufs", "truePeakDb", "measuredBy", "ownMeter", "masterGainDb", "limiterDb", "note", "warnings", "voiceName", "voiceNotice", "voice", "voiceLeftOut", "music", "cues", "inputs", "sha256"]) if (report[k] !== undefined) ordered[k] = report[k];
   writeFileSync(reportFile, JSON.stringify(ordered, null, 2) + "\n");
 
   const parts = [`${report.cues.length} sound effects (palette "${pal.name}", ${pal.why})`];
   if (spoken) parts.push(`${report.voice.length} spoken lines`);
   if (music) parts.push("music");
-  console.log(`OK. ${parts.join(", ")}: ${report.lufs ?? "silent"} LUFS, peak ${report.truePeakDb ?? "none"} dBTP, ${cues.duration} seconds.`);
-  if (m.note) console.log(m.note);
-  for (const w of report.warnings) console.log(`Warning: ${w}`);
-  console.log(`Wrote ${outFile} and ${reportFile}. Build the video again so it carries this sound.`);
+  const said = [`OK. ${parts.join(", ")}: ${report.lufs ?? "silent"} LUFS, peak ${report.truePeakDb ?? "none"} dBTP, ${cues.duration} seconds.`];
+  if (m.note) said.push(m.note);
+  for (const w of report.warnings) said.push(`Warning: ${w}`);
+  if (report.voiceLeftOut.length) said.push(`Left out: the recording of scene ${report.voiceLeftOut.join(", ")}, which says older words or is in another voice than the storyboard asks for. Make the spoken lines again (kit/sound.mjs).`);
+  said.push(`Wrote ${outFile} and ${reportFile}.`);
+  return { ok: true, report: ordered, said, outFile, reportFile };
+}
+
+function main() {
+  const a = args(process.argv.slice(2), ["palette", "seed", "music", "lufs", "peak", "out"]);
+  const r = mixVideo(a._[0], a);
+  if (!r.ok && a.check) { console.log(r.problems[0]); process.exit(1); }
+  if (!r.ok) exitWith("The sound cannot be mixed yet.", r.problems);
+  for (const line of r.said) console.log(line);
+  if (!a.check) console.log("The video builder lays this mix by itself on every build; a mix made here by hand is replaced by the next build.");
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) main();

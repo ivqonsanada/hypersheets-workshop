@@ -7,6 +7,8 @@
 //
 // It downloads only what engines.json names, checks each file against its SHA-256 there, and
 // runs nothing it downloads. The folder is ~/.hypersheets/sound unless HS_SOUND_HOME says otherwise.
+// This is the only script of the kit that downloads. An agent runs it only after the user has
+// said yes to the download, its size and its source (kit/sound.mjs prints that question).
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { createReadStream, createWriteStream, existsSync, mkdirSync, renameSync, rmSync, copyFileSync, statSync } from "node:fs";
@@ -81,7 +83,7 @@ function list() {
     const tiers = Object.entries(reg.tiers).flatMap(([lang, t]) => Object.entries(t).filter(([, vid]) => vid === id).map(([tier]) => `${tier} for ${lang}`));
     console.log(`${id}${size && installed(reg, id, home) ? " (installed)" : ""}: ${v.name}. ${v.says}. ${size ? mb(size) : "No download"}.${tiers.length ? ` Tier: ${tiers.join(", ")}.` : ""}${USE[v.use]}\n  ${v.licence}\n`);
   }
-  console.log(`whisper: ${reg.whisper.name}, ${mb(reg.whisper.parts[0].bytes)}. Lets voice.mjs check each spoken line by listening to it. ${reg.whisper.licence}.`);
+  console.log(`whisper: ${reg.whisper.name}, ${mb(reg.whisper.parts[0].bytes)}. Lets the kit check each spoken line by listening to it. ${reg.whisper.licence}.`);
 }
 
 async function main() {
@@ -90,14 +92,14 @@ async function main() {
     const p = reg.whisper.parts[0];
     if (existsSync(join(home, p.to, p.file)) && statSync(join(home, p.to, p.file)).size === p.bytes) return console.log(`The whisper model is already in ${join(home, p.to)}.`);
     await getPart(p);
-    return console.log(`OK. The whisper model is in ${join(home, p.to)}. voice.mjs also needs the whisper-cli program (whisper.cpp) on this computer to use it.`);
+    return console.log(`OK. The whisper model is in ${join(home, p.to)}. Checking a line by listening also needs the whisper-cli program (whisper.cpp) on this computer.`);
   }
   const v = reg.voices[what];
   if (!v) fail(`There is no voice named "${what}". Run "node install.mjs list" to see the names.`);
   if (!v.parts.length) return console.log(`${v.name} needs no install.${USE[v.use]}`);
   if (installed(reg, what, home)) return console.log(`${v.name} is already installed in ${home}.`);
   const build = reg.runtime.builds[platformKey()];
-  if (!build) fail(`There is no ${reg.runtime.name} build for this computer (${platformKey()}). Record your own voice instead: node voice.mjs <video folder> --engine sendiri.`);
+  if (!build) fail(`There is no ${reg.runtime.name} build for this computer (${platformKey()}). Use your own recordings instead: set "narrator": "sendiri" in storyboard.json.`);
   if (!runtimeProgram(reg, home)) await getPart({ ...build, url: reg.runtime.base + build.file, unpack: "runtime" });
   for (const part of v.parts) {
     const there = part.unpack ? existsSync(join(home, part.unpack, v.dir)) : existsSync(join(home, part.to, part.file));

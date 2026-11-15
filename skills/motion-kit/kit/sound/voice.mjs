@@ -1,17 +1,27 @@
 #!/usr/bin/env node
 // Makes the spoken lines of one video: one WAV per scene in video/voice/, and
 // video/voice/durations.json, which the video builder reads to give each scene enough time.
+// kit/sound.mjs runs this and then the builder, which is the one command a video needs; this
+// file can also be run by hand:
 //
-//   node voice.mjs <video folder> [--engine ringan|bagus|sendiri|draft|<voice name>]
+//   node voice.mjs <video folder> [--engine ringan|kokoro|bagus|sendiri|draft|<voice name>]
 //                  [--speaker F1] [--speed 1] [--threads 2] [--lang id|en] [--fresh] [--no-check]
 //                  [--as-written]   speak lines that hold digits or addresses without stopping
 //
-// ringan   a voice that runs on this computer (see device.mjs and install.mjs).
+// Which voice speaks is the storyboard's "narrator" (--engine overrides it):
+// ringan   a light voice that runs on this computer (see device.mjs and install.mjs).
+// kokoro   a better English voice for a stronger computer.
 // bagus    ElevenLabs on your own account: make each line there and save it as
-//          video/voice/1.mp3, video/voice/2.mp3 (the scene's number); or set ELEVENLABS_API_KEY
-//          and ELEVENLABS_VOICE_ID in your shell and this script fetches the lines itself.
-// sendiri  your own voice: recordings saved under the same names, in video/voice/ or my-voice/.
+//          my-voice/1.mp3, my-voice/2.mp3 (the scene's number), beside the storyboard; or set
+//          ELEVENLABS_API_KEY and ELEVENLABS_VOICE_ID in your shell and this script fetches
+//          the lines itself, into video/voice/.
+// sendiri  your own voice: recordings saved under the same names in my-voice/.
+//          (Files of those names in video/voice/ are read too, and win.)
 // draft    the computer's own voice, for timing only, never for publishing.
+//
+// Scene numbers count from 1 in every name here: scene-1.wav, 1.mp3, durations.json's keys.
+// It ends with 0 when the lines are made, 3 when it waits for files only the user can make,
+// 4 when a voice would have to be downloaded first, and 1 for anything else to fix.
 //
 // When whisper-cli is on the computer, every line is listened to and compared with its text.
 import { spawnSync } from "node:child_process";
@@ -23,7 +33,7 @@ import { RATE, peak, scale, fade, filter, resample, soundingRange, fromDb, toDb,
 import { integrated, truePeakDb, limit } from "./lib/loudness.mjs";
 import { readWav, writeWav } from "./lib/wav.mjs";
 import { decode, which, ffmpegPath } from "./lib/ffmpeg.mjs";
-import { registry, installed, speak, whisper, mb, toDownload, macVoices } from "./lib/engines.mjs";
+import { registry, installed, speak, whisper, mb, toDownload, macVoices, soundHome, downloadHost } from "./lib/engines.mjs";
 import { inspect, recommend } from "./lib/device.mjs";
 import { compare, advice, words, lint } from "./lib/text.mjs";
 import { args, exitWith, openVideo, readJson } from "./lib/project.mjs";
@@ -119,15 +129,19 @@ async function elevenLabs(text, voiceId, model, file) {
   }
 }
 
-function pickEngine(a, lang, reg, info, haveFiles) {
-  const ask = a.engine || a.voice || a.tier || null;
-  const install = (id) => `node "${join(KIT, "install.mjs")}" ${id}`;
+// How a line of advice names another voice: by the storyboard's own setting.
+const SET = (tier) => `"narrator": "${tier}" in storyboard.json`;
+const NO_DOWNLOAD = `Two voices need no download: ${SET("bagus")} (ElevenLabs on the user's own account) and ${SET("sendiri")} (the user's own recordings).`;
+
+// Which voice speaks. Returns { id }, or { problem } as one sentence; a voice that would have
+// to be downloaded first also comes back as { need: its name in engines.json }.
+export function pickEngine(ask, lang, reg, info, haveFiles) {
   if (ask === "sendiri" || (!ask && haveFiles)) return { id: "sendiri" };
-  if (ask === "draft") return process.platform === "darwin" ? { id: "say" } : { problem: "Only a Mac has a draft voice. Use --engine ringan instead." };
+  if (ask === "draft") return process.platform === "darwin" ? { id: "say" } : { problem: `Only a Mac has a draft voice. Set ${SET("ringan")} instead.` };
   let id = ask;
   if (!ask || ask === "ringan" || ask === "bagus") {
     id = ask ? reg.tiers[lang][ask] : recommend(info, lang, reg).voice;
-    if (!id) return { problem: `There is no speech program for this computer (${info.platform}). Use --engine bagus (ElevenLabs on your own account) or --engine sendiri (your own voice).` };
+    if (!id) return { problem: `There is no speech program for this computer (${info.platform}). ${NO_DOWNLOAD}` };
     // No choice made and that voice is absent: any installed voice for this language will do.
     if (!ask && !installed(reg, id)) {
       const other = Object.keys(reg.voices).find((k) => ["any", "practice"].includes(reg.voices[k].use) && reg.voices[k].parts.length && reg.voices[k].lang.includes(lang) && installed(reg, k));
@@ -135,10 +149,11 @@ function pickEngine(a, lang, reg, info, haveFiles) {
     }
   }
   const v = reg.voices[id];
-  if (!v) return { problem: `There is no voice or tier named "${ask}". Use ringan, bagus, sendiri or draft, or a name from: node "${join(KIT, "install.mjs")}" list.` };
-  if (!v.lang.includes(lang)) return { problem: `${v.name} does not speak "${lang}". Use --engine ringan and the kit picks a voice that does.` };
-  if (v.kind === "say" && process.platform !== "darwin") return { problem: "The system voice exists only on a Mac. Use --engine ringan instead." };
-  if (!installed(reg, id)) return { problem: `${v.name} is not installed. Run: ${install(id)} (it downloads ${mb(toDownload(reg, id))}); or use --engine bagus (ElevenLabs on your own account) or --engine sendiri (your own voice), which need no install.` };
+  if (!v) return { problem: `There is no voice named "${ask}". Set "narrator" in storyboard.json to "ringan", "kokoro", "bagus" or "sendiri".` };
+  if (!v.lang.includes(lang)) return { problem: `${v.name} does not speak "${lang}". Set ${SET("ringan")} and the kit picks a voice that does.` };
+  if (v.kind === "say" && process.platform !== "darwin") return { problem: `The system voice exists only on a Mac. Set ${SET("ringan")} instead.` };
+  if (v.parts.length && !reg.runtime.builds[info.platform]) return { problem: `There is no speech program for this computer (${info.platform}). ${NO_DOWNLOAD}` };
+  if (!installed(reg, id)) return { need: id, problem: `${v.name} is not on this computer. Installing it downloads ${mb(toDownload(reg, id))} from ${downloadHost(reg, id)} into ${soundHome()}, and that needs the user's yes first. ${NO_DOWNLOAD}` };
   return { id };
 }
 
@@ -153,7 +168,7 @@ async function main() {
   const lang = a.lang || sb.lang || (v.plan && v.plan.lang);
   if (!["id", "en"].includes(lang)) exitWith(NOT_YET, [`The storyboard's "lang" is ${JSON.stringify(lang)}. Set it to "id" or "en", or pass --lang.`]);
   const lines = sb.scenes.map((s, i) => ({ n: i + 1, text: typeof s.voice === "string" ? s.voice.trim() : "" })).filter((l) => l.text);
-  if (!lines.length) exitWith(NOT_YET, ['No scene in the storyboard has a "voice" line. Add "voice": "one spoken sentence" to each scene that should speak.']);
+  if (!lines.length) exitWith(NOT_YET, ['No scene in the storyboard has a "voice" line. Add "voice": "one spoken sentence" to each scene that should speak, and build again.']);
   const unclear = lines.flatMap((l) => lint(l.text, lang).map((what) => `Scene ${l.n}'s "voice" line ${what}`));
   if (unclear.length && !a["as-written"]) exitWith(NOT_YET, unclear);
 
@@ -162,7 +177,10 @@ async function main() {
   mkdirSync(out, { recursive: true });
   const shown = (file) => relative(v.home, file);
   let files = dropIns([out, join(v.home, "my-voice")]);
-  const eng = pickEngine(a, lang, reg, info, Object.keys(files).length > 0);
+  const own = sb.narrator || "ringan";
+  const ask = a.engine || a.voice || a.tier || sb.narrator || null;
+  const eng = pickEngine(ask, lang, reg, info, Object.keys(files).length > 0);
+  if (eng.need) { console.log(`${NOT_YET} ${eng.problem}`); process.exit(4); }
   if (eng.problem) exitWith(NOT_YET, [eng.problem]);
   const fromFiles = eng.id === "sendiri" || eng.id === "elevenlabs";
   const voice = reg.voices[eng.id] || null;
@@ -213,12 +231,12 @@ async function main() {
     const missing = lines.filter((l) => !files[l.n]);
     if (missing.length) {
       const how = eng.id === "elevenlabs"
-        ? `Make ${missing.length === 1 ? "this line" : `these ${missing.length} lines`} on elevenlabs.io (Text to Speech: paste the line, pick a voice, download), save each file under the name shown, then run the same command again. With ELEVENLABS_API_KEY and ELEVENLABS_VOICE_ID set in your shell, this script fetches them itself.`
+        ? `Make ${missing.length === 1 ? "this line" : `these ${missing.length} lines`} on elevenlabs.io (Text to Speech: paste the line, pick a voice, download), save each file under the name shown, then run the same command again. (Someone with an ElevenLabs API key can set ELEVENLABS_API_KEY and ELEVENLABS_VOICE_ID in their own shell before starting, and the lines are fetched for them; a key is never typed into a chat.)`
         : `Record ${missing.length === 1 ? "this line" : `these ${missing.length} lines`} (a phone's voice recorder is fine; any audio format), save each file under the name shown, then run the same command again.`;
       console.log(`The voice is not ready. ${how}\n`);
-      for (const l of missing) console.log(`${shown(join(out, `${l.n}.${eng.id === "elevenlabs" ? "mp3" : "m4a"}`))}\n  ${l.text}\n`);
+      for (const l of missing) console.log(`${shown(join(v.home, "my-voice", `${l.n}.${eng.id === "elevenlabs" ? "mp3" : "m4a"}`))}\n  ${l.text}\n`);
       if (voice && voice.notice) console.log(voice.notice[lang]);
-      process.exit(1);
+      process.exit(3);
     }
   }
   if (hard.length) exitWith("The voice is not ready.", hard);
@@ -245,13 +263,13 @@ async function main() {
       } else {
         const tmp = join(out, `.take-${line.n}.wav`);
         const r = speak(reg, eng.id, line.text, tmp, { lang, speaker, speakerName, speed, threads });
-        if (!r.ok) { rmSync(tmp, { force: true }); hard.push(`${voice.name} could not speak scene ${line.n} (${r.error || "no sound came out"}). Run the same command again; if it fails again, use another --engine.`); continue; }
+        if (!r.ok) { rmSync(tmp, { force: true }); hard.push(`${voice.name} could not speak scene ${line.n} (${r.error || "no sound came out"}). Run the same command again; if it fails again, set another "narrator" in storyboard.json.`); continue; }
         spent += r.seconds;
         take = loadAny(tmp);
         rmSync(tmp, { force: true });
       }
       const t = tidy(take.x, take.rate);
-      if (t.seconds < 0.2) { hard.push(`Scene ${line.n} came out silent. ${fromFiles ? `Make ${shown(files[line.n])} again, with the voice clearly heard.` : "Run the same command again with --fresh."}`); continue; }
+      if (t.seconds < 0.2) { hard.push(`Scene ${line.n} came out silent. ${fromFiles ? `Make ${shown(files[line.n])} again, with the voice clearly heard.` : "Run the same command again."}`); continue; }
       writeWav(file, [t.x], RATE, 16);
       spoke += t.seconds;
       row = { scene: line.n, text: line.text, key, file: `voice/scene-${line.n}.wav`, seconds: r2(t.seconds), lufs: r1(integrated([t.x, t.x])), truePeakDb: r1(truePeakDb([t.x])), wordsPerSecond: r1(words(line.text, lang).length / t.seconds) };
@@ -272,18 +290,19 @@ async function main() {
     }
     if (row.flag === "wrong") hard.push(`Scene ${row.scene} does not say its line: a listener heard "${row.heard}". ${fromFiles ? `Make ${row.source} again so it says exactly: "${row.text}"` : advice(row.text, row.heard, lang)}`);
     else if (row.flag === "check") soft.push(`Scene ${row.scene} may be misread (${Math.round(row.wer * 100)}% of its words differ). ${fromFiles ? `Listen to ${row.source}; if a word is unclear, make it again.` : advice(row.text, row.heard, lang)}`);
-    if (row.wordsPerSecond > 4.3) soft.push(`Scene ${row.scene} is spoken very fast (${row.wordsPerSecond} words a second). ${fromFiles ? "Make it again more slowly." : "Shorten the line, or run with --speed 0.9."}`);
+    if (row.wordsPerSecond > 4.3) soft.push(`Scene ${row.scene} is spoken very fast (${row.wordsPerSecond} words a second). ${fromFiles ? "Make it again more slowly." : "Say it in fewer words."}`);
     rows.push(row);
   }
 
+  // Keys are scene numbers, from 1, like every file name beside it.
   const durations = {};
-  for (const r of rows) durations[String(r.scene - 1)] = r.seconds;
+  for (const r of rows) durations[String(r.scene)] = r.seconds;
   writeFileSync(join(out, "durations.json"), JSON.stringify(durations, null, 2) + "\n");
   const notice = voice && voice.notice ? voice.notice[lang] : null;
   const report = {
-    engine: eng.id, name: voice ? voice.name : "your own voice", speaker: fromFiles ? null : setup.speaker, speed, lang,
+    engine: eng.id, narrator: ask === own ? own : null, name: voice ? voice.name : "your own voice", speaker: fromFiles ? null : setup.speaker, speed, lang,
     use: voice ? voice.use : "any", notice, licence: voice ? voice.licence : "Your own recordings: yours to publish.",
-    checkedBy: canListen ? "whisper-cli" : null, lines: rows,
+    checkedBy: canListen ? "whisper-cli" : null, checks: soft, lines: rows,
   };
   writeFileSync(join(out, "report.json"), JSON.stringify(report, null, 2) + "\n");
   rmSync(join(out, "NOT-FOR-PUBLISHING.txt"), { force: true });
@@ -297,11 +316,11 @@ async function main() {
   for (const r of rows) console.log(`  scene ${r.scene}: ${r.seconds} s${r.wer != null ? `, heard ${r.flag ? "differently" : "correctly"}` : ""}`);
   if (fetched) console.log(`Fetched ${fetched} ${fetched === 1 ? "line" : "lines"} from ElevenLabs with your key.`);
   if (spent > 0 && spoke > 0) console.log(`Speaking took ${r1(spent)} s for ${r1(spoke)} s of speech.`);
-  if (!canListen && !a["no-check"]) console.log(`The lines were not checked by listening: ${w.program ? `the whisper model is missing (run: node "${join(KIT, "install.mjs")}" whisper)` : "whisper-cli is not on this computer"}. Listen to each line yourself.`);
+  if (!canListen && !a["no-check"]) console.log(`The lines were not checked by listening (${w.program ? "the whisper model is not on this computer" : "whisper-cli is not on this computer"}). Ask the user to listen to each line.`);
   else if (checked.length) console.log(`A listener (whisper) heard ${checked.filter((r) => !r.flag).length} of ${checked.length} lines as written.`);
   for (const s of soft) console.log(`Check: ${s}`);
   if (notice) console.log(notice);
-  console.log(`Wrote ${out}. Build the video again so each scene is long enough for its line, then run mix.mjs.`);
+  console.log(`Wrote ${out}. Build the video again: each scene then lasts as long as its line, and the mix carries the voice.`);
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) main();

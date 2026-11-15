@@ -64,6 +64,13 @@ export function toDownload(reg, id, home = soundHome()) {
 
 export const mb = (bytes) => `${Math.round(bytes / 1e6)} MB`;
 
+// Where a voice's files come from, as the host names a person would recognise.
+export function downloadHost(reg, id) {
+  const hosts = new Set([new URL(reg.runtime.base).host]);
+  for (const p of reg.voices[id].parts) hosts.add(new URL(p.url).host);
+  return [...hosts].join(" and ");
+}
+
 // Speaks `text` into a WAV file. Returns { ok, seconds (how long it took), error }.
 export function speak(reg, id, text, outFile, o = {}, home = soundHome()) {
   const v = reg.voices[id];
