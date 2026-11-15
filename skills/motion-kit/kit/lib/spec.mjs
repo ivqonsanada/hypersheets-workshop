@@ -114,7 +114,7 @@ export const PLAN = {
       need: a + 3.7,
       T,
       cues: [{ t: T.open, type: "whoosh", weight: 1 }, { t: T.cap, type: "land", weight: 1 }],
-      stills: [{ t: r2(a + 2.4), expect: `the picture fills its frame and is not stretched; the caption ${q(s.caption, 48)} is whole${s.title ? `; ${q(s.title)} is above the picture` : ""}` }],
+      stills: [{ t: r2(a + 2.4), expect: `the picture fills its frame, is not stretched, and neither its top nor a side is cut off; the caption ${q(s.caption, 48)} is whole${s.title ? `; ${q(s.title)} is above the picture` : ""}` }],
     };
   },
   list(s, a) {

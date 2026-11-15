@@ -61,7 +61,7 @@ Work in the user's folder (for a page, the one with its `index.html`).
 | what a real person said | `testimonial` | title, quote, then optionally stat, page, image or list, then end |
 | a change: before and after, wrong and right | `before-after` | title, compare, then optionally list, stat or image, then end |
 
-Every video opens with `title` and closes with `end`, holds 3 to 6 scenes, and holds one scene of each kind at most. Use a `page` scene when there is a page file, an `image` scene when there is a picture file, a `stat` only for a real number, a `quote` only for real words from a named person.
+Every video opens with `title` and closes with `end`, holds 3 to 6 scenes, and holds one scene of each kind at most, except `image`: up to three pictures, each in its own scene (a before and an after, a few products). Use a `page` scene when there is a page file, an `image` scene when there is a picture file, a `stat` only for a real number, a `quote` only for real words from a named person.
 
 Then pick each scene by what its facts are:
 

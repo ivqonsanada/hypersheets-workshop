@@ -34,7 +34,7 @@ The real page in a window: its address types itself, the page loads, a marker la
 
 ## image
 
-One picture in a frame, with a slow push in. Use it only for a picture file the user has (png, jpg, jpeg, webp). The kit never fetches pictures.
+One picture in a frame of the picture's own shape, with a slow push in. Use it only for a picture file the user has (png, jpg, jpeg, webp). The kit never fetches pictures. A video may hold up to three image scenes, one picture each: for a before and an after, give the first the `title` "Sebelum" and the second "Sesudah"; for products, give each its name as the `title` and its price in the `caption`.
 
 | Field | Limit | |
 |---|---|---|

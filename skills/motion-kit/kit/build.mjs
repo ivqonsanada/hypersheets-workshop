@@ -137,7 +137,8 @@ if (scenes.length && types[types.length - 1] !== "end") say(`The last scene must
 if (scenes.length < 3 || scenes.length > 6) say(`The video has ${scenes.length} scenes; it needs 3 to 6.`);
 for (const t of new Set(types)) {
   const count = types.filter((x) => x === t).length;
-  if (count > 1 && FIELDS[t]) say(`There are ${count} ${t} scenes; a video holds one of each. Keep the stronger one, or join them.`);
+  if (t === "image") { if (count > 3) say(`There are ${count} image scenes; a video holds three pictures at most. Keep the three that show the most.`); }
+  else if (count > 1 && FIELDS[t]) say(`There are ${count} ${t} scenes; a video holds one of each. Keep the stronger one, or join them.`);
 }
 const recipe = RECIPES[sb.recipe];
 if (recipe) {
@@ -219,6 +220,31 @@ const sheetStays = !!(before && before.pictures === pictures && fs.existsSync(pa
 for (const old of ["compositions", "index.html", "assets/kit", "assets/page", "assets/img", "assets/custom", ".sheet", ...(sheetStays ? [] : ["frames", "sheet.png"])]) fs.rmSync(path.join(out, old), { recursive: true, force: true });
 fs.cpSync(path.join(KIT, "runtime"), path.join(out, "assets", "kit"), { recursive: true });
 
+// A picture's width and height in pixels, read from the file's own header (png, jpg, webp), so
+// the image scene can give it a frame of its own shape. Unknown: null, and the frame is the kit's.
+function pictureSize(abs) {
+  try {
+    const b = fs.readFileSync(abs);
+    if (b.length > 24 && b.readUInt32BE(0) === 0x89504e47) return { w: b.readUInt32BE(16), h: b.readUInt32BE(20) };
+    if (b.length > 4 && b[0] === 0xff && b[1] === 0xd8) {
+      let i = 2;
+      while (i + 9 < b.length) {
+        if (b[i] !== 0xff) { i++; continue; }
+        const m = b[i + 1];
+        if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) return { w: b.readUInt16BE(i + 7), h: b.readUInt16BE(i + 5) };
+        i += 2 + b.readUInt16BE(i + 2);
+      }
+    }
+    if (b.length > 30 && b.toString("ascii", 0, 4) === "RIFF" && b.toString("ascii", 8, 12) === "WEBP") {
+      const kind = b.toString("ascii", 12, 16);
+      if (kind === "VP8X") return { w: 1 + b.readUIntLE(24, 3), h: 1 + b.readUIntLE(27, 3) };
+      if (kind === "VP8 ") return { w: b.readUInt16LE(26) & 0x3fff, h: b.readUInt16LE(28) & 0x3fff };
+      if (kind === "VP8L") { const v = b.readUInt32LE(21); return { w: 1 + (v & 0x3fff), h: 1 + ((v >> 14) & 0x3fff) }; }
+    }
+  } catch (e) {}
+  return null;
+}
+
 // The page and the files it uses (its CSS, its pictures), kept at the same relative places.
 function copyPage(rel) {
   const abs = inside(rel), base = path.dirname(abs);
@@ -258,7 +284,12 @@ plan.forEach((p, i) => {
   const s = { ...scenes[i] };
   delete s.voice;
   if (p.type === "page") { s.src = copyPage(s.file); if (!scripts.includes("assets/kit/page.js")) scripts.push("assets/kit/page.js"); }
-  if (p.type === "image") { const abs = inside(s.file); s.src = "assets/img/" + path.basename(abs); copy(abs, s.src); }
+  if (p.type === "image") {
+    const abs = inside(s.file), size = pictureSize(abs);
+    s.src = "assets/img/" + path.basename(abs);
+    copy(abs, s.src);
+    if (size && size.w > 0 && size.h > 0) { s.w = size.w; s.h = size.h; }
+  }
   if (custom[p.type]) {
     const base = inside(p.type), name = p.type.slice(7);
     copy(path.join(base, "scene.js"), `assets/custom/${name}.js`);
