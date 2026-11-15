@@ -157,6 +157,10 @@ scenes.forEach((s, i) => {
   if (type === "when" && typeof s.month === "string" && /^\d{1,2}\s/.test(s.month)) say(`scene ${n} (when) "month" starts with a day of the month. Put that number in "date" and keep only the month and the year here.`);
   if (type === "stat" && typeof s.value === "string" && !/\d/.test(s.value)) say(`scene ${n} (stat) "value" must hold a number from the brief, such as "87%" or "Rp15.000".`);
   // A page address or a handle has no spaces; a street address or a phone number, given by a shop with no page, may.
+  if (type === "title" && typeof s.kicker === "string" && typeof s.headline === "string") {
+    const flat = (t) => t.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+    if (flat(s.kicker).length >= 4 && flat(s.headline).includes(flat(s.kicker))) say(`scene ${n} (title) "kicker" repeats words of the headline ("${s.kicker}"). The kicker adds who, where or when (the shop's name, the place, the day), or it is left out.`);
+  }
   for (const k of ["address"]) if (typeof s[k] === "string") {
     const v = s[k], web = /^@|[a-z0-9-]\.[a-z]{2,}(\/|$)/i.test(v.replace(/\s+/g, ""));
     if (/^https?:/i.test(v)) say(`scene ${n} (${type}) "${k}" must be the address alone, without "https://".`);
@@ -224,9 +228,25 @@ const strings = (o, got = [], top = true) => {
 // A day name beside a full date ("Sabtu, 13 Desember 2026") that the calendar does not agree with. The builder cannot
 // know which of the two the user meant, so it builds with the words as written and says so at the end.
 const notes = [];
+const DAYS = { id: ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"], en: ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] };
+const MONTHS = { id: ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"], en: ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"] };
+// A when scene without a day's name gets it from the calendar, in the video's language: the writer
+// never has to work a weekday out, and the leaf's band is never empty when the date is whole.
+scenes.forEach((sc, i) => {
+  if (typeOf(sc) !== "when" || sc.day != null || typeof sc.date !== "string" || typeof sc.month !== "string" || !/^\d{1,2}$/.test(sc.date)) return;
+  const m = /^(\p{L}+)\s+(\d{4})$/u.exec(sc.month.trim());
+  if (!m) return;
+  for (const L of [sb.lang, "id", "en"]) {
+    const k = (MONTHS[L] || []).indexOf(m[1].toLowerCase());
+    if (k < 0) continue;
+    const date = new Date(Date.UTC(+m[2], k, +sc.date));
+    if (date.getUTCDate() !== +sc.date) return;
+    const name = DAYS[LANGS.includes(sb.lang) ? sb.lang : L][date.getUTCDay()];
+    scenes[i] = { ...sc, day: name[0].toUpperCase() + name.slice(1) };
+    return;
+  }
+});
 {
-  const DAYS = { id: ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabtu"], en: ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] };
-  const MONTHS = { id: ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"], en: ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"] };
   const told = new Set();
   scenes.forEach((sc, i) => {
     for (const t of strings(sc)) {

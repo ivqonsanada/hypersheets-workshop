@@ -49,6 +49,7 @@ const clean = (...rs) => rs.forEach((r) => rmSync(r.dir, { recursive: true, forc
 const of = (cues, n, type) => cues.filter((q) => q.scene === n && q.type === type);
 
 test("a promo needs no page and no picture", () => {
+  refused(build({ ...sb(LIST), scenes: [{ type: "title", kicker: "Flash sale 12.12", headline: "Flash sale 12.12, cuma sehari" }, LIST, END] }), /scene 1 \(title\) "kicker" repeats words of the headline \("Flash sale 12\.12"\)\. The kicker adds who, where or when/);
   const r = ok(build(sb(LIST)));
   assert.deepEqual(r.plan.scenes.map((s) => s.type), ["title", "list", "end"]);
   clean(r);
@@ -249,7 +250,14 @@ test("when: one loud date, checked against the calendar and counted as one fact"
 
   const wrong = ok(build(when({ day: "Minggu" })));
   assert.match(wrong.out, /CHECK WITH THE USER before the render\.[\s\S]*scene 2 says "Minggu, 12 Desember 2026", and on the calendar that date is a Sabtu\./);
+  // Without a day's name, the kit writes the calendar's, in the video's language.
+  const auto = ok(build(when({ day: undefined })));
+  assert.equal(auto.scene(2).s.day, "Sabtu");
+  assert.match(auto.plan.stills.find((s) => s.scene === 2).expect, /"Sabtu" on the band at its top/);
+  assert.equal(ok(build(when({ day: undefined, month: "December 2026", label: "Opening day", lines: ["From 6 am"] }, { lang: "en" }))).scene(2).s.day, "Saturday");
+  assert.equal(ok(build(when({ day: undefined, month: "Desember" }))).scene(2).s.day, undefined, "no year, no day");
   const span = ok(build(when({ date: "12-13", day: undefined, end: "sampai Minggu, 13 Desember 2026", lines: undefined })));
+  assert.equal(span.scene(2).s.day, undefined);
   assert.equal(span.scene(2).T.roll, false, "a span of days does not roll");
   assert.equal(of(span.cues, 2, "count").length, 0);
 
