@@ -168,6 +168,32 @@ if (sb.music != null) {
   music = inside(sb.music);
   if (!music || !fs.existsSync(music) || !/\.(mp3|wav|m4a)$/i.test(music)) say(`"music" must be an mp3, wav or m4a file in this folder. The kit never downloads or makes music.`);
 }
+// A number, a date or an address that three scenes show: the viewer has read it twice already, and the third place is a scene with nothing new.
+{
+  const words = (t) => t.toLowerCase().split(/[^\p{L}\p{N}@.%-]+/u).map((w) => w.replace(/^[.-]+|[.-]+$/g, "")).filter(Boolean);
+  const strings = (o, got = []) => {
+    if (typeof o === "string") got.push(o);
+    else if (o && typeof o === "object") for (const [k, v] of Object.entries(o)) if (!["type", "scene", "file", "lines", "voice"].includes(k)) strings(v, got);
+    return got;
+  };
+  const number = (w) => /\d/.test(w) && (w.replace(/\D/g, "").length >= 2 || /%|^rp/.test(w)) && !/^(19|20)\d\d$/.test(w);
+  const at = new Map();
+  scenes.forEach((sc, i) => {
+    if (!sc || typeof sc !== "object") return;
+    const here = new Set();
+    for (const t of strings(sc)) {
+      const w = words(t);
+      w.forEach((x, k) => {
+        if (number(x)) here.add(x);
+        if (k + 1 < w.length && (/\d/.test(x) || /\d/.test(w[k + 1])) && x.length + w[k + 1].length >= 5) here.add(`${x} ${w[k + 1]}`);
+      });
+    }
+    for (const h of here) at.set(h, [...(at.get(h) || []), i + 1]);
+  });
+  const sets = new Map();
+  for (const [h, where] of at) if (where.length >= 3) sets.set(where.join(), { where, said: [...((sets.get(where.join()) || {}).said || []), h] });
+  for (const { where, said } of sets.values()) say(`Scenes ${where.slice(0, -1).join(", ")} and ${where[where.length - 1]} all show the same fact (${said.slice(0, 3).map((x) => `"${x}"`).join(", ")}). A viewer needs it once, or twice when the second place is the end card. Keep it where it reads best and take it out of the other scenes. Do not put a new fact in its place: a scene left with nothing of its own is removed.`);
+}
 if (fs.existsSync(out) && !fs.existsSync(path.join(out, "mk-plan.json"))) say(`A folder named video is already here and the kit did not make it. Ask the user before anything in it is replaced.`);
 
 // Sound: effects by the kit's own choice, spoken lines where a scene has "voice", music if given.
