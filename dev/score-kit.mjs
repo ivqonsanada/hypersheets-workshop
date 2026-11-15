@@ -76,6 +76,6 @@ if (existsSync(stream)) {
 if (existsSync(join(run, "prompts.jsonl"))) for (const line of readFileSync(join(run, "prompts.jsonl"), "utf8").split("\n").filter(Boolean)) { const p = JSON.parse(line); if (!p.allow) r.refused.push(String(p.input?.command || p.tool).slice(0, 120)); }
 try { r.telemetryOff = JSON.parse(readFileSync(join(run, "hf-config", "config.json"), "utf8")).telemetryEnabled === false; } catch (e) {}
 r.chained = r.commands.filter((c) => /&&|;|\|/.test(c));
-r.pass = !!(r.builds && !r.kitEdited.length && r.sheet && r.review && r.video && r.plan && Math.abs(r.video.duration - r.plan.duration) < 0.5 && !r.notInBrief.length && !r.chained.length);
+r.pass = !!(r.builds && !r.kitEdited.length && r.sheet && r.review && r.video && r.video.width === 1080 && r.video.height === 1920 && r.plan && Math.abs(r.video.duration - r.plan.duration) < 0.5 && !r.notInBrief.length && !r.chained.length && !r.refused.length && r.telemetryOff === true);
 delete r.plan;
 console.log(JSON.stringify(r, null, 2));

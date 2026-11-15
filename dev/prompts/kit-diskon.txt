@@ -1,0 +1,1 @@
+Pakai skill motion-kit. Buat video pengumuman untuk Toko Sepatu Langkah di Medan: diskon akhir tahun 30% untuk semua sepatu lari, dari 20 sampai 31 Desember 2026, di toko dan di halaman kami. Ini promo besar, jadi videonya harus mencolok. Alamat halamannya sepatulangkah.pages.dev. Kerjakan sampai videonya selesai dirender.
