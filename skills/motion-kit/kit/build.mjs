@@ -328,8 +328,9 @@ const wording = [];
   // A price list and a comparison show a price again by design, and a stat scene is there to set large a number the title may have named.
   const compares = (sc) => ["prices", "compare", "stat"].includes(typeOf(sc));
   // The longest run of words two texts share that carries a fact: a number, three words that are not small
-  // words, or two such words when they are most of what one of the two places says ("Tiap Jumat" in a row of
-  // its own). Two words inside two longer sentences are a thing named twice, not a fact said twice.
+  // words, two such words when they are most of what one of the two places says ("Tiap Jumat" in a row of
+  // its own), or one word that is the whole of an item, a row or a step ("Lemper" in a list, after a headline
+  // that names it). Two words inside two longer sentences are a thing named twice, not a fact said twice.
   const shared = (a, b, numbersCount) => {
     let best = null;
     for (let i = 0; i < a.low.length; i++) for (let j = 0; j < b.low.length; j++) {
@@ -344,7 +345,8 @@ const wording = [];
       const proper = (raw, at) => raw.slice(at, at + run.length).every((w) => /^\p{Lu}\p{Ll}/u.test(w));
       if (run.length >= 2 && proper(a.raw, i + from) && proper(b.raw, j + from)) continue;
       const most = weight(fact) / Math.max(1, Math.min(weight(a.low), weight(b.low)));
-      if (!run.length || within(run, free) || !(weight(fact) >= 3 || (weight(fact) === 2 && most >= 0.6) || (numbersCount && fact.some(numberish)))) continue;
+      const entry = (x) => ["items", "rows", "steps"].includes(x.field) && weight(x.low) === 1;
+      if (!run.length || within(run, free) || !(weight(fact) >= 3 || (weight(fact) === 2 && most >= 0.6) || (weight(fact) === 1 && !fact.some(numberish) && (entry(a) || entry(b))) || (numbersCount && fact.some(numberish)))) continue;
       const found = { words: b.raw.slice(j + from, j + from + run.length).join(" "), size: weight(run) * 10 + run.length };
       if (!best || found.size > best.size) best = found;
     }
@@ -394,7 +396,7 @@ const wording = [];
     const whole = name.length >= 2 && line.some((_, k) => name.every((w, n) => line[k + n] === w));
     if (whole) lines.push(`  - The end card says "${endScene.name}" twice, in "line" and in "name". Write the "line" as the reason to act or the deadline, without the name.`);
   }
-  if (lines.length) wording.push(`CHECK WHAT IS SAID TWICE before the sheet. A viewer needs each thing once:\n${lines.join("\n")}\nTake out only the words that are said again, and keep what else that line says. A field that is left empty is written again with other true words from the brief, or left out when the scene does not need it; a row, an item or a scene left with nothing of its own is removed. Never put a new fact in its place. Then build again. Do this once: if a line is still listed after that build, leave it and go on.`);
+  if (lines.length) wording.push(`CHECK WHAT IS SAID TWICE before the sheet. A viewer needs each thing once:\n${lines.join("\n")}\nTake out only the words that are said again, and keep what else that line says. A field that is left empty is written again with other true words from the brief, or left out when the scene does not need it; a row, an item or a scene left with nothing of its own is removed. Never put a new fact in its place. If that would leave the video with fewer than three scenes, change the other place instead. Then build again. Do this once: if a line is still listed after that build, leave it and go on.`);
 
   // Initials. Capitals of three to six letters that are the first letters of words the video shows in a row.
   const texts = scenes.flatMap((sc, i) => all[i].map((x) => ({ ...x, n: i + 1 })));

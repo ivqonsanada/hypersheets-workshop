@@ -420,7 +420,14 @@ test("a fact said in two scenes builds, and the builder names it, both places an
   // The line under the headline says what a later scene says: the later scene keeps it.
   const sub = ok(build(video([title({ sub: "50 pembeli pertama dapat roti sobek gratis" }), info, end])));
   assert.match(sub.out, /CHECK WHAT IS SAID TWICE before the sheet\. A viewer needs each thing once:\n  - "Roti sobek gratis", "50 pembeli pertama": keep them in scene 2, and take them out of scene 1 \("sub"\)\.\nTake out only the words that are said again, and keep what else that line says\./);
-  assert.match(sub.out, /Never put a new fact in its place\. Then build again\. Do this once: if a line is still listed after that build, leave it and go on\./);
+  assert.match(sub.out, /Never put a new fact in its place\. If that would leave the video with fewer than three scenes, change the other place instead\. Then build again\. Do this once: if a line is still listed after that build, leave it and go on\./);
+  // One word that is a whole item of a list, after a headline that names it.
+  const items = ok(build({ recipe: "promo", look: "kertas", lang: "id", scenes: [
+    { type: "title", kicker: "Kue Basah Bu Rini", headline: "Lemper, klepon, kue lumpur" },
+    { type: "list", heading: "Yang kami jual", numbered: false, items: ["Lemper", "Klepon", "Kue lumpur"] },
+    { type: "end", line: "Pesan lewat Instagram", name: "Kue Basah Bu Rini", address: "@kuebasahburini", button: "Pesan sekarang" }] }));
+  assert.match(items.out, /  - "Kue lumpur", "Lemper", "Klepon": keep them in scene 1, and take them out of scene 2 \("items"\)\./);
+  clean(items);
   // The headline is the hook: it keeps its words, and the later row loses them.
   const head = ok(build(video([title({ headline: "Roti sobek gratis di cabang baru" }), info, end])));
   assert.match(head.out, /  - "Roti sobek gratis": keep it in scene 1, and take it out of scene 2 \("rows"\)\./);
