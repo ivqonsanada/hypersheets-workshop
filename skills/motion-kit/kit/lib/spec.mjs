@@ -33,7 +33,7 @@ const text = (max, req = false) => ({ kind: "text", max, req });
 export const FIELDS = {
   title: { kicker: text(28), headline: text(44, true), sub: text(80) },
   page: { title: text(26, true), address: text(34, true), file: { kind: "file", req: true, ext: ["html", "htm"] } },
-  image: { title: text(26), caption: text(64, true), file: { kind: "file", req: true, ext: ["png", "jpg", "jpeg", "webp"] } },
+  image: { title: text(26), caption: text(64), file: { kind: "file", req: true, ext: ["png", "jpg", "jpeg", "webp"] } },
   list: { heading: text(30, true), items: { kind: "texts", min: 2, most: 4, max: 48, req: true } },
   steps: { heading: text(30, true), steps: { kind: "objects", min: 2, most: 4, req: true, of: { title: text(28, true), detail: text(56) } } },
   prices: {
@@ -113,8 +113,8 @@ export const PLAN = {
     return {
       need: a + 3.7,
       T,
-      cues: [{ t: T.open, type: "whoosh", weight: 1 }, { t: T.cap, type: "land", weight: 1 }],
-      stills: [{ t: r2(a + 2.4), expect: `the picture fills its frame, is not stretched, and neither its top nor a side is cut off; the caption ${q(s.caption, 48)} is whole${s.title ? `; ${q(s.title)} is above the picture` : ""}` }],
+      cues: [{ t: T.open, type: "whoosh", weight: 1 }, ...(s.caption ? [{ t: T.cap, type: "land", weight: 1 }] : [])],
+      stills: [{ t: r2(a + 2.4), expect: `the picture fills its frame, is not stretched, and neither its top nor a side is cut off${s.caption ? `; the caption ${q(s.caption, 48)} is whole` : ""}${s.title ? `; ${q(s.title)} is above the picture` : ""}` }],
     };
   },
   list(s, a) {

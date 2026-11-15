@@ -137,6 +137,7 @@ scenes.forEach((s, i) => {
   if (type === "numbers" && Array.isArray(s.items)) s.items.forEach((item, k) => {
     if (item && typeof item.value === "string" && item.value.trim() && !/\d/.test(item.value)) say(`scene ${n} (numbers) "items" item ${k + 1} "value" must hold a number from the brief, such as "340" or "Rp8.500.000". A line without a number belongs in a list scene.`);
   });
+  if (type === "image" && !s.title && !s.caption) say(`scene ${n} (image) needs a "title" or a "caption": two or three words that name what the picture shows. A caption is only for something the picture does not say by itself, such as its price.`);
   if (type === "stat" && typeof s.value === "string" && !/\d/.test(s.value)) say(`scene ${n} (stat) "value" must hold a number from the brief, such as "87%" or "Rp15.000".`);
   // A page address or a handle has no spaces; a street address or a phone number, given by a shop with no page, may.
   for (const k of ["address"]) if (typeof s[k] === "string") {

@@ -441,13 +441,13 @@
     img.alt = "";
     img.setAttribute("data-layout-allow-overflow", "");
     const fr = h("figure", "fr", h("div", "ph", img));
-    const cap = MK.text("p", "cap", flag(c, MK.fit(s.caption, K ? "display" : "body", [50, 46, 42], c.W, 2), "the caption"), 1.24);
+    const cap = s.caption ? MK.text("p", "cap", flag(c, MK.fit(s.caption, K ? "display" : "body", [50, 46, 42], c.W, 2), "the caption"), 1.24) : null;
     const hd = s.title ? head(c, s.title) : null;
     // The picture takes what the heading and the caption leave of the frame's height, and its
     // frame takes the picture's own shape: a wide picture gets a low frame, a tall one a narrow
     // frame, so a screenshot keeps its top and a product keeps its sides. Only a picture more
     // than about twice as tall as it is wide is still cut to fit.
-    const room = c.H - (hd ? Number(hd.dataset.h) + 68 : 0) - 88 - Number(cap.dataset.h);
+    const room = c.H - (hd ? Number(hd.dataset.h) + 68 : 0) - (cap ? 88 + Number(cap.dataset.h) : 0);
     let wide = c.W, tall = Math.min(hd ? 880 : 980, room);
     if (s.w && s.h) {
       tall = Math.min(room, Math.round((wide * s.h) / s.w));
@@ -459,7 +459,7 @@
     if (hd) M.lines(c.tl, lines(hd), c.T.open);
     M.block(c.tl, fr, c.T.open + (hd ? 0.12 : 0));
     c.tl.fromTo(img, { scale: 1.0 }, { scale: 1.08, duration: c.dur, ease: "none" }, 0);
-    M.lines(c.tl, lines(cap), c.T.cap);
+    if (cap) M.lines(c.tl, lines(cap), c.T.cap);
   });
 
   // ---------- end: where to go, typed out, and one press of the button ----------

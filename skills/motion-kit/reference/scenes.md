@@ -39,7 +39,7 @@ One picture in a frame of the picture's own shape, with a slow push in. Use it o
 | Field | Limit | |
 |---|---|---|
 | `file` | | needed. The picture's file in this folder |
-| `caption` | 64 | needed. What the picture shows |
+| `caption` | 64 | optional when there is a `title`. Something the picture does not say by itself: its price, where it was taken. Leave it out before writing "Monstera dalam pot" under a picture titled "Monstera" |
 | `title` | 26 | a heading above the picture |
 
 ```json
