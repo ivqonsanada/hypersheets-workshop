@@ -1,0 +1,7 @@
+Pakai skill motion-kit untuk membuat short yang menjelaskan kode JavaScript ini untuk pemula:
+
+const harga = [12000, 8000, 15000];
+const total = harga.reduce((a, b) => a + b, 0);
+console.log(total); // 35000
+
+Jelaskan bahwa reduce menjumlahkan isi array menjadi satu angka. Akhiri dengan ajakan belajar di learnhypersheets.com. Kerjakan sampai videonya selesai dirender.
