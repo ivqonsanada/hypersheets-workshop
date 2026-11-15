@@ -3,12 +3,9 @@
   "look": "panggung",
   "lang": "id",
   "scenes": [
-    { "type": "title", "kicker": "Mulai bulan depan", "headline": "Kelas menjahit dibuka lagi", "sub": "Untuk pemula, setiap Minggu pagi di Jahit Laras" },
-    { "type": "image", "file": "kelas.jpg", "caption": "Ruang kelas dengan enam mesin jahit", "title": "Tempatnya" },
-    { "type": "steps", "heading": "Cara daftar", "steps": [
-      { "title": "Buka halaman kami", "detail": "Lihat jadwal dan biayanya" },
-      { "title": "Isi formulir", "detail": "Nama dan nomor yang bisa dihubungi" },
-      { "title": "Datang hari Minggu", "detail": "Kain dan benang kami siapkan" } ] },
-    { "type": "end", "line": "Daftar kelas menjahit", "name": "Jahit Laras", "address": "jahitlaras.pages.dev", "button": "Buka halamannya" }
+    { "type": "title", "kicker": "Jahit Laras", "headline": "Kelas menjahit dibuka lagi", "sub": "Untuk pemula, setiap Minggu pagi" },
+    { "type": "when", "label": "Kelas pertama", "date": "6", "month": "Desember 2026", "lines": ["Pukul 09.00 sampai 11.00", "Jalan Kenari 12, Klaten"] },
+    { "type": "image", "file": "kelas.jpg", "title": "Tempatnya", "caption": "Enam mesin jahit, kain dan benang kami siapkan" },
+    { "type": "end", "line": "Daftar sebelum kelas pertama", "name": "Jahit Laras", "address": "jahitlaras.pages.dev", "button": "Buka halamannya" }
   ]
 }

@@ -1,6 +1,6 @@
 ---
 name: motion-kit
-description: Make a short vertical motion video (10 to 30 seconds, 1080x1920 MP4, with sound effects and, when asked, a spoken voice) from a brief by writing one storyboard file for a kit of ready-made scenes, with HyperFrames 0.9.51. Use when the user asks for a video, promo, reel, short, announcement, menu or price list, explainer, tip list, coding short, testimonial, recap in numbers or before/after video (for example "buat video promo untuk tokoku", "bikin video daftar harga" or "make a short that explains flexbox"). The scenes, looks, motion and sound are built into the kit: this skill chooses and writes, it does not design.
+description: Make a short vertical motion video (10 to 30 seconds, 1080x1920 MP4, with sound effects and, when asked, a spoken voice) from a brief by writing one storyboard file for a kit of ready-made scenes, with HyperFrames 0.9.51. Use when the user asks for a video, promo, reel, short, announcement, menu or price list, FAQ, explainer, tip list, coding short, testimonial, recap in numbers or before/after video (for example "buat video promo untuk tokoku", "bikin video daftar harga" or "make a short that explains flexbox"). The scenes, looks, motion and sound are built into the kit: this skill chooses and writes, it does not design.
 ---
 
 # Motion kit
