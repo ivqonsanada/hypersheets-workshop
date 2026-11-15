@@ -157,7 +157,7 @@ The rebuild check still holds: the spoken lines go into the copy as they are, an
 - No run wrote a `voice` line or a `narrator` that was not asked for.
 - Every `voice` line kept the rules on the first build: numbers in words ("Mulai Sabtu enam Desember, buka pukul tujuh pagi sampai tiga sore"), no address ("alamatnya ada di layar").
 - Whisper heard 19 of the 19 lines in the five finished voiced videos as written, after s01's rewrite; in s04 the lines were the brief's own, copied word for word, and matched the recordings.
-- Piper's notice reached the user in all three runs it spoke in (s01, s05, s12). In s03 the ElevenLabs notice was passed on too.
+- Piper's notice reached the user in all three runs it spoke in (s01, s05, s12). In s03 the ElevenLabs notice was passed on too, in the softer wording it had during the trial ("asks you to credit ElevenLabs"). After the trial the rule was read at its source, and the notice again names `elevenlabs.io` in the title; the sound command passes the notice through as it is, so no run depends on its words.
 - No run asked for a key. s03 said, unprompted, that it would not ask for one.
 - Seven of the nine finished videos' final messages mention the renderer's `blank-frame suspect` lines (the flat cover between two scenes trips HyperFrames' check, as it did in the first trial, where the render log was the same). Rule 7 of `SKILL.md` says to ignore those lines since s06, and four of the five videos finished after that still mention them, now as harmless. It is noise in the message, not a fault in the video.
 - No run opened `reference/sound.md` unless its brief asked for a voice: s06 to s09 did not, the eight others did.

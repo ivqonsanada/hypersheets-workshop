@@ -92,7 +92,7 @@ Semuanya disimpan di `~/.hypersheets/sound`, di luar foldermu. Program dan suara
 **Dua pemberitahuan** yang ditampilkan kit saat suaranya dipakai, dan ditulis ke `video/voice/NOTICE.txt`:
 
 - Piper bahasa Indonesia: "Suara ini untuk latihan dan pemakaian non-komersial. Untuk video yang dijual atau dipakai klien, pakai suaramu sendiri atau ElevenLabs."
-- ElevenLabs: "Paket gratis ElevenLabs hanya untuk pemakaian non-komersial dan meminta kamu menyebut ElevenLabs sebagai pembuat suaranya; syarat lengkapnya ada di elevenlabs.io/terms-of-use. Untuk video yang dijual atau dipakai klien, pakai paket berbayar."
+- ElevenLabs: "Paket gratis ElevenLabs hanya untuk pemakaian non-komersial dan wajib menulis "elevenlabs.io" di judul; untuk video yang dijual atau dipakai klien perlu paket berbayar."
 
 Belum ada orang yang mendengarkan suara dan bunyi ini. Yang diukur: kekerasan, puncak, ketepatan waktu, dan apakah pendengar otomatis (whisper) menangkap kalimatnya. Enak atau tidaknya di telinga, kamu yang menilai. Rinciannya ada di `docs/SOUND.md`.
 
@@ -235,7 +235,7 @@ Everything goes to `~/.hypersheets/sound`, outside your folder. The program and 
 **The two notices** the kit shows when that voice speaks, and writes to `video/voice/NOTICE.txt`:
 
 - Piper, Indonesian: "This voice is for practice and non-commercial use. For videos you sell or make for a client, use your own voice or ElevenLabs."
-- ElevenLabs: "ElevenLabs' free plan is for non-commercial use only and asks you to credit ElevenLabs; the full terms are at elevenlabs.io/terms-of-use. Videos you sell or make for a client need a paid plan."
+- ElevenLabs: "ElevenLabs' free plan is for non-commercial use only and needs "elevenlabs.io" in the title; videos you sell or make for a client need a paid plan."
 
 Nobody has listened to these voices and sounds yet. What was measured: loudness, peaks, timing, and whether an automatic listener (whisper) hears each line. Whether they sound good is yours to judge. The details are in `docs/SOUND.md`.
 

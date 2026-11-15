@@ -38,9 +38,7 @@ On 15 November 2026 the owner decided: Piper for practice with a one-line notice
 The notices, shown once by `voice.mjs` and written to `video/voice/NOTICE.txt` in the storyboard's language:
 
 - Piper Indonesian: "Suara ini untuk latihan dan pemakaian non-komersial. Untuk video yang dijual atau dipakai klien, pakai suaramu sendiri atau ElevenLabs." / "This voice is for practice and non-commercial use. For videos you sell or make for a client, use your own voice or ElevenLabs."
-- ElevenLabs: "Paket gratis ElevenLabs hanya untuk pemakaian non-komersial dan meminta kamu menyebut ElevenLabs sebagai pembuat suaranya; syarat lengkapnya ada di elevenlabs.io/terms-of-use. Untuk video yang dijual atau dipakai klien, pakai paket berbayar." / "ElevenLabs' free plan is for non-commercial use only and asks you to credit ElevenLabs; the full terms are at elevenlabs.io/terms-of-use. Videos you sell or make for a client need a paid plan."
-
-The ElevenLabs notice first said that the free plan "needs "elevenlabs.io" in the title". That wording comes from a help-centre article that could not be read at its source (see below), so the notice now says what the billing page does say, "non-commercially with attribution", and points to the terms for how.
+- ElevenLabs: "Paket gratis ElevenLabs hanya untuk pemakaian non-komersial dan wajib menulis "elevenlabs.io" di judul; untuk video yang dijual atau dipakai klien perlu paket berbayar." / "ElevenLabs' free plan is for non-commercial use only and needs "elevenlabs.io" in the title; videos you sell or make for a client need a paid plan."
 
 ### The Indonesian Piper voice, read at the source
 
@@ -64,11 +62,11 @@ So "practice and non-commercial" is this kit's careful reading, not a grant anyo
 
 - [Terms of Service](https://elevenlabs.io/terms-of-use), updated 9 October 2026: "if you access or use our Services free of charge (such a user, a "Free User"), you may only use the Services for non-commercial purposes"; a paid subscriber "may use the Services for commercial purposes".
 - [Billing docs](https://elevenlabs.io/docs/overview/administration/billing): "If you are on the free plan, you can use the content non-commercially with attribution." "When generating content on our paid plans, you get commercial rights to use that content."
-- The help-centre article "Can I publish the content I generate on the platform?" refused an automated read (HTTP 403). A search result quotes it: content published from the free plan must carry "elevenlabs.io" or "11.ai" in the title, and content made outside a paid plan stays non-commercial. Open the [article](https://help.elevenlabs.io/hc/en-us/articles/13313564601361-Can-I-publish-the-content-I-generate-on-the-platform) in a browser before relying on the exact wording.
+- The help-centre article "Can I publish the content I generate on the platform?" refused an automated read at help.elevenlabs.io (HTTP 403). The same article [in ElevenLabs' docs](https://elevenlabs.io/docs/help-center/legal/can-i-publish-the-content-i-generate-on-the-platform) was read on 15 November 2026: "The free plan does not include a commercial license and cannot be used for any commercial purpose." "If you publish content generated using our Services on a free plan or without being signed-in to your account, you must attribute it to ElevenLabs by including "elevenlabs.io" or "11.ai" in the title". "Content created outside of a paid subscription (before or after) cannot be used commercially and always requires attribution when shared non-commercially." The kit's notice rests on these three sentences.
 - [Pricing](https://elevenlabs.io/pricing): Free is 0 dollars with "10k credits per month", about 10 minutes of speech. Starter is 6 dollars a month (1 dollar the first month), 30k credits, and lists "Commercial License".
 - Indonesian: the [models page](https://elevenlabs.io/docs/overview/models) lists it for `eleven_multilingual_v2` (the API's default model) and for `eleven_v4`.
 
-For the Workshop's track 3 guide: a voice made on the free plan and placed on a learner's public page may not be used commercially and must credit ElevenLabs. The guide's step 2 now says so, on the API branch `workshop-guides-voice` (not merged).
+For the Workshop's track 3 guide: step 2 already tells the learner that the free plan's output may not be used commercially and must carry `elevenlabs.io` in its title, and links the article above. What it did not say is what follows for a page used for business. The API branch `workshop-guides-voice` (not merged) adds that one sentence: such a page needs a paid plan or a recording of the learner's own voice.
 
 Two ways in, both through `"narrator": "bagus"`:
 
@@ -241,4 +239,4 @@ A learner can run these by hand. Claude runs an install only after it has asked 
 2. Kitten or Piper Kristin as the English light voice, after listening.
 3. Whether sound effects stay on by default once the palettes have been heard (`SOUND_DEFAULT` in `kit/lib/spec.mjs`).
 
-Decided since this page was first written: the track 3 guide says what ElevenLabs' free plan allows (API branch `workshop-guides-voice`).
+Settled since this page was first written: the track 3 guide already said what ElevenLabs' free plan allows, and the API branch `workshop-guides-voice` adds what a page used for business needs.

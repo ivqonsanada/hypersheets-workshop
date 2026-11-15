@@ -159,7 +159,7 @@ test("ElevenLabs without files or a key: the lines to make and where to save the
   assert.ok(r.out.includes("my-voice/1.mp3\n  This is a customer story."), r.out);
   assert.ok(r.out.includes("my-voice/4.mp3\n  The address is on screen."), r.out);
   assert.doesNotMatch(r.out, /my-voice\/[23]\.mp3/);
-  assert.match(r.out, /ElevenLabs' free plan is for non-commercial use only and asks you to credit ElevenLabs/);
+  assert.match(r.out, /ElevenLabs' free plan is for non-commercial use only and needs "elevenlabs\.io" in the title/);
   assert.match(r.out, /Do not render yet\./);
   assert.deepEqual(json(join(dir, "video", "mk-plan.json")).sound.voiceWaiting, [1, 4]);
   rmSync(dir, { recursive: true });
