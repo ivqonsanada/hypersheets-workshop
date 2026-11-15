@@ -59,6 +59,64 @@ A heading and two to four lines that land one by one.
 { "type": "list", "heading": "Yang bisa dipesan", "items": ["Roti tawar gandum", "Sourdough polos dan kismis", "Kue kering untuk hantaran"] }
 ```
 
+## prices
+
+A menu or a price list: each name is led across to its price. Use it whenever the brief gives things with prices; never write prices into list lines.
+
+| Field | Limit | |
+|---|---|---|
+| `heading` | 30 | needed. "Menu kami", "Harga minggu ini", "Pilihan paket" |
+| `rows` | 2 to 6 items | needed. Each item is `{ "name": …, "price": … }` |
+| `name` in a row | 28 | needed. What is sold: "Nasi ayam goreng", "Paket Hemat" |
+| `price` in a row | 12 | needed. The price alone, as the brief writes it: "Rp15.000", "Rp1.250.000" |
+| `was` in a row | 12 | the old price, when the brief gives one. It is shown struck through beside the new price |
+| `note` | 48 | one small line under the rows: "Harga per porsi", "Sudah termasuk pot" |
+
+More than six things with prices: keep the six that matter most to the brief, and tell the user which you left out.
+
+```json
+{ "type": "prices", "heading": "Roti minggu ini", "rows": [
+  { "name": "Sourdough polos", "price": "Rp38.000" },
+  { "name": "Roti gandum", "price": "Rp24.000", "was": "Rp28.000" },
+  { "name": "Kue kering toples", "price": "Rp55.000" } ], "note": "Harga per buah" }
+```
+
+## info
+
+The facts someone needs to come or to get in touch, each under its own small label: a date, the hours, a place, a deadline, a number. Use it for an event, an opening, opening hours, a vacancy. These facts are not steps and not a numbered list.
+
+| Field | Limit | |
+|---|---|---|
+| `heading` | 30 | needed. "Catat tanggalnya", "Kapan dan di mana", "Jam buka" |
+| `rows` | 2 to 4 items | needed. Each item is `{ "label": …, "text": … }` |
+| `label` in a row | 14 | needed. One or two words: "Hari", "Jam", "Tempat", "Sampai", "Biaya", "Daftar" |
+| `text` in a row | 48 | needed. The fact, whole: "Sabtu, 13 Desember 2026", "08.00 sampai 14.00", "Lapangan RW 05, Kampung Wetan" |
+
+```json
+{ "type": "info", "heading": "Catat tanggalnya", "rows": [
+  { "label": "Hari", "text": "Sabtu, 6 Desember 2026" },
+  { "label": "Jam", "text": "07.00 sampai 15.00" },
+  { "label": "Tempat", "text": "Jalan Kenari 12, Bandung" } ] }
+```
+
+## numbers
+
+Two to four numbers, each counted up over its label. Use it for a recap or a result with several real numbers. One number alone is a `stat`.
+
+| Field | Limit | |
+|---|---|---|
+| `heading` | 30 | needed. "Tahun 2026 kami", "Sejauh ini" |
+| `items` | 2 to 4 items | needed. Each item is `{ "value": …, "label": … }` |
+| `value` in an item | 12 | needed. The number as the brief writes it: "340", "Rp8.500.000", "87%" |
+| `label` in an item | 32 | needed. What it counts: "peserta", "donasi untuk pos ronda" |
+
+```json
+{ "type": "numbers", "heading": "Setahun toko kami", "items": [
+  { "value": "1.250", "label": "roti terjual" },
+  { "value": "48", "label": "pesanan hantaran" },
+  { "value": "3", "label": "varian baru" } ] }
+```
+
 ## steps
 
 Numbered steps on a line, lit one after another. Only for things done in order (first this, then that). Opening hours, an address, ways to reach a shop or a set of choices are not steps: they have no order.

@@ -1,6 +1,6 @@
 ---
 name: motion-kit
-description: Make a short vertical motion video (10 to 30 seconds, 1080x1920 MP4, with sound effects and, when asked, a spoken voice) from a brief by writing one storyboard file for a kit of ready-made scenes, with HyperFrames 0.9.51. Use when the user asks for a video, promo, reel, short, announcement, explainer, tip list, coding short, testimonial or before/after video (for example "buat video promo untuk tokoku" or "make a short that explains flexbox"). The scenes, looks, motion and sound are built into the kit: this skill chooses and writes, it does not design.
+description: Make a short vertical motion video (10 to 30 seconds, 1080x1920 MP4, with sound effects and, when asked, a spoken voice) from a brief by writing one storyboard file for a kit of ready-made scenes, with HyperFrames 0.9.51. Use when the user asks for a video, promo, reel, short, announcement, menu or price list, explainer, tip list, coding short, testimonial, recap in numbers or before/after video (for example "buat video promo untuk tokoku", "bikin video daftar harga" or "make a short that explains flexbox"). The scenes, looks, motion and sound are built into the kit: this skill chooses and writes, it does not design.
 ---
 
 # Motion kit
@@ -51,8 +51,10 @@ Work in the user's folder (for a page, the one with its `index.html`).
 
 | The brief is about | `recipe` | Scenes, in this order |
 |---|---|---|
-| a person, a page, a shop, a product, a service | `promo` | title, then page or image when there is one, then one or two of list, steps, stat, quote, then end |
-| something new: a feature, an opening, a date | `announce` | title, then one to three of image, page, stat, list, steps, compare, then end |
+| a person, a page, a shop, a product, a service | `promo` | title, then page or image when there is one, then one or two of list, prices, info, steps, stat, numbers, quote, then end |
+| something new: a feature, an opening, an event, a sale, a vacancy | `announce` | title, then one to three of info, image, page, stat, prices, list, steps, compare, then end |
+| a menu, a price list, packages with prices | `menu` | title, prices, then optionally image, info, list or quote, then end |
+| a year, an event or a project in numbers | `recap` | title, numbers (or stat for one number), then optionally list, quote, image or compare, then end |
 | how something works | `explainer` | title, steps, then optionally code, image, compare or list, then end |
 | tips or reasons | `tips` | title, list, then optionally stat, quote or image, then end |
 | a piece of code | `coding` | title, code, then optionally compare, steps or list, then end |
@@ -60,6 +62,20 @@ Work in the user's folder (for a page, the one with its `index.html`).
 | a change: before and after, wrong and right | `before-after` | title, compare, then optionally list, stat or image, then end |
 
 Every video opens with `title` and closes with `end`, holds 3 to 6 scenes, and holds one scene of each kind at most. Use a `page` scene when there is a page file, an `image` scene when there is a picture file, a `stat` only for a real number, a `quote` only for real words from a named person.
+
+Then pick each scene by what its facts are:
+
+| The facts are | Scene |
+|---|---|
+| things with prices: a menu, a price list, packages, an old and a new price | `prices` |
+| a date, hours, a place, a deadline, a number to call or chat | `info` |
+| two to four numbers | `numbers` |
+| one number that matters most | `stat` |
+| things done in order: first, then, last | `steps` |
+| separate points with no order: reasons, features, what is included | `list` |
+| before and after, wrong and right | `compare` |
+| a named person's own words | `quote` |
+| code that runs | `code` |
 
 ## Pick the look
 

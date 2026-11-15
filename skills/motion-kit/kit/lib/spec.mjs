@@ -18,13 +18,15 @@ export const NARRATORS = ["ringan", "kokoro", "bagus", "sendiri", "draft"];
 
 // Which scenes a recipe needs and may hold. Every video opens on `title` and closes on `end`.
 export const RECIPES = {
-  promo: { need: [], may: ["page", "image", "list", "steps", "stat", "quote"], about: "a person, page, shop or product" },
-  announce: { need: [], may: ["image", "page", "stat", "list", "steps", "compare"], about: "something new: a feature, an opening, a date" },
-  explainer: { need: [["steps"]], may: ["steps", "code", "image", "compare", "list"], about: "how something works, in steps" },
-  tips: { need: [["list"]], may: ["list", "stat", "quote", "image"], about: "a short list of tips or reasons" },
+  promo: { need: [], may: ["page", "image", "list", "steps", "stat", "quote", "prices", "info", "numbers"], about: "a person, page, shop or product" },
+  announce: { need: [], may: ["image", "page", "stat", "list", "steps", "compare", "prices", "info", "numbers"], about: "something new: a feature, an opening, a date" },
+  menu: { need: [["prices"]], may: ["prices", "image", "page", "list", "info", "quote"], about: "a menu, a price list, packages with prices" },
+  recap: { need: [["numbers", "stat"]], may: ["numbers", "stat", "list", "quote", "image", "compare"], about: "a year, an event or a project in numbers" },
+  explainer: { need: [["steps"]], may: ["steps", "code", "image", "compare", "list", "info"], about: "how something works, in steps" },
+  tips: { need: [["list"]], may: ["list", "stat", "quote", "image", "info", "numbers"], about: "a short list of tips or reasons" },
   coding: { need: [["code"]], may: ["code", "compare", "steps", "list"], about: "a piece of code and what it does" },
-  testimonial: { need: [["quote"]], may: ["quote", "stat", "page", "image", "list"], about: "what a real person said" },
-  "before-after": { need: [["compare"]], may: ["compare", "list", "stat", "image"], about: "a change: before and after, wrong and right" },
+  testimonial: { need: [["quote"]], may: ["quote", "stat", "page", "image", "list", "numbers"], about: "what a real person said" },
+  "before-after": { need: [["compare"]], may: ["compare", "list", "stat", "image", "numbers", "prices"], about: "a change: before and after, wrong and right" },
 };
 
 const text = (max, req = false) => ({ kind: "text", max, req });
@@ -34,6 +36,26 @@ export const FIELDS = {
   image: { title: text(26), caption: text(64, true), file: { kind: "file", req: true, ext: ["png", "jpg", "jpeg", "webp"] } },
   list: { heading: text(30, true), items: { kind: "texts", min: 2, most: 4, max: 48, req: true } },
   steps: { heading: text(30, true), steps: { kind: "objects", min: 2, most: 4, req: true, of: { title: text(28, true), detail: text(56) } } },
+  prices: {
+    heading: text(30, true),
+    rows: { kind: "objects", min: 2, most: 6, req: true, of: {
+      name: text(28, true),
+      price: { ...text(12, true), how: "keep only the price here, as the brief writes it (\"Rp15.000\", \"Rp1.250.000\"); what it is the price of goes in \"name\", and words like \"per kotak\" go in the scene's \"note\"" },
+      was: { ...text(12), how: "keep only the old price here, as the brief writes it" },
+    } },
+    note: text(48),
+  },
+  info: {
+    heading: text(30, true),
+    rows: { kind: "objects", min: 2, most: 4, req: true, of: { label: text(14, true), text: text(48, true) } },
+  },
+  numbers: {
+    heading: text(30, true),
+    items: { kind: "objects", min: 2, most: 4, req: true, of: {
+      value: { ...text(12, true), how: "keep only the number and its unit here, as the brief writes it (\"340\", \"Rp8.500.000\", \"87%\"); what it counts goes in \"label\"" },
+      label: text(32, true),
+    } },
+  },
   stat: { value: { ...text(12, true), how: "keep only the number and its unit here, as the brief writes it (\"Rp15.000\", \"87%\", \"3 days\"); the words that explain it go in \"label\"" }, label: text(44, true), note: text(48) },
   quote: { text: text(150, true), name: text(28, true), role: text(40) },
   compare: {
@@ -105,6 +127,27 @@ export const PLAN = {
       stills: [{ t: r2(last + 0.95), expect: `the heading ${q(s.heading)} and ${s.items.length} items, each whole and on at most two lines: ${s.items.map((x) => q(x, 30)).join(", ")}` }],
     };
   },
+  prices(s, a) {
+    const rows = s.rows.map((_, i) => r2(a + 0.5 + i * 0.6));
+    const last = rows[rows.length - 1];
+    const was = s.rows.some((x) => x.was);
+    return {
+      need: last + 1.9 + s.rows.length * 0.15,
+      T: { head: r2(a), rows, note: r2(last + 0.45) },
+      cues: [{ t: r2(a), type: "land", weight: 1 }, ...rows.map((t) => ({ t, type: "land", weight: 2 }))],
+      stills: [{ t: r2(last + 1.2), expect: `the heading ${q(s.heading)} and ${s.rows.length} rows, each a name on the left and its price on the right, whole and not touching: ${s.rows.map((x) => `${q(x.name, 24)} ${x.price}`).join(", ")}${was ? "; each old price is struck through, left of its new price" : ""}${s.note ? `; the smaller line ${q(s.note)} is under the rows` : ""}` }],
+    };
+  },
+  info(s, a) {
+    const rows = s.rows.map((_, i) => r2(a + 0.45 + i * 0.8));
+    const last = rows[rows.length - 1];
+    return {
+      need: last + 2.1 + s.rows.length * 0.15,
+      T: { head: r2(a), rows },
+      cues: [{ t: r2(a), type: "land", weight: 1 }, ...rows.map((t) => ({ t, type: "land", weight: 2 }))],
+      stills: [{ t: r2(last + 1.2), expect: `the heading ${q(s.heading)} and ${s.rows.length} facts, each a small label over its own large line, whole: ${s.rows.map((x) => `${x.label}: ${q(x.text, 32)}`).join(", ")}` }],
+    };
+  },
   steps(s, a) {
     const steps = s.steps.map((_, i) => r2(a + 0.5 + i * 1.35));
     const last = steps[steps.length - 1];
@@ -113,6 +156,16 @@ export const PLAN = {
       T: { head: r2(a), steps },
       cues: [{ t: r2(a), type: "land", weight: 1 }, ...steps.map((t) => ({ t, type: "land", weight: 2 }))],
       stills: [{ t: r2(last + 1.05), expect: `the heading ${q(s.heading)} and ${s.steps.length} numbered steps joined by a line, step ${s.steps.length} lit: ${s.steps.map((x) => q(x.title, 28)).join(", ")}` }],
+    };
+  },
+  numbers(s, a) {
+    const items = s.items.map((_, i) => { const t = r2(a + 0.4 + i * 0.7); return { count0: t, count1: r2(t + 0.8) }; });
+    const last = items[items.length - 1].count1;
+    return {
+      need: last + 1.9 + s.items.length * 0.15,
+      T: { head: r2(a), items },
+      cues: [{ t: r2(a), type: "land", weight: 1 }, ...items.flatMap((x) => [{ t: x.count0, until: x.count1, type: "count", weight: 1 }, { t: x.count1, type: "land", weight: 2 }])],
+      stills: [{ t: r2(last + 1.0), expect: `the heading ${q(s.heading)} and ${s.items.length} numbers in large type, each exactly as written with its label under it: ${s.items.map((x) => `${q(x.value)} ${cut(x.label, 28)}`).join(", ")}` }],
     };
   },
   stat(s, a) {

@@ -110,6 +110,59 @@ html.look-panggung .mk-list .chip { background: var(--ink); color: var(--g); box
 html.look-panggung .mk-list.v1 .chip { background: none; border: var(--bw) solid var(--ink); color: var(--ink); }
 html.look-panggung .mk-list .it { font-weight: 700; }
 
+/* ---------- prices ---------- */
+.mk-prices .head, .mk-info .head { margin-bottom: 68px; }
+.mk-prices ol { list-style: none; width: 100%; display: flex; flex-direction: column; }
+.mk-prices li { display: flex; align-items: flex-end; gap: 20px; }
+.mk-prices .nm { flex: 1 1 auto; min-width: 0; font-weight: 600; color: var(--ink); }
+.mk-prices .ln.last { display: flex; align-items: flex-end; }
+.mk-prices .ln.last .tx { flex: none; }
+.mk-prices .ld { flex: 1 1 auto; min-width: 50px; height: 6px; margin: 0 0 0.3em 22px; display: block; background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--muted) 55%, var(--g)) 0 6px, transparent 6px 18px); transform-origin: 0 50%; }
+.mk-prices .pr { flex: none; font-family: var(--fd), sans-serif; font-weight: var(--wd); letter-spacing: var(--trk); color: var(--mk-accent-ink); white-space: nowrap; }
+.mk-prices .was { position: relative; flex: none; font-weight: 500; color: var(--muted); white-space: nowrap; }
+.mk-prices .was s { position: absolute; left: -6px; right: -6px; top: 50%; height: 4px; margin-top: -1px; display: block; background: var(--muted); transform-origin: 0 50%; text-decoration: none; }
+.mk-prices .note { color: var(--muted); margin-top: 48px; }
+html.look-kertas .mk-prices .nm { font-family: var(--fd), serif; font-weight: 500; letter-spacing: -0.01em; }
+html.look-kertas .mk-prices .ld { height: 4px; background: repeating-linear-gradient(90deg, var(--muted) 0 4px, transparent 4px 14px); }
+html.look-kertas .mk-prices .was s { height: 3px; }
+html.look-panggung .mk-prices .nm { font-weight: 700; }
+html.look-panggung .mk-prices .ld { height: 8px; background: color-mix(in srgb, var(--ink) 30%, var(--g)); }
+html.look-panggung .mk-prices .pr { padding: 0 20px; background: var(--ink); color: var(--g); }
+html.look-panggung .mk-prices .was, html.look-panggung .mk-prices .note { color: var(--ink); }
+html.look-panggung .mk-prices .was s { background: var(--ink); height: 6px; }
+
+/* ---------- numbers ---------- */
+.mk-numbers .head { margin-bottom: 68px; }
+.mk-numbers .rows { width: 100%; display: flex; flex-direction: column; }
+.mk-numbers .hr { display: block; width: 100%; height: 6px; background: var(--line); transform-origin: 0 50%; }
+.mk-numbers .num { font-family: var(--fd), sans-serif; font-weight: var(--wd); letter-spacing: -0.03em; line-height: 0.98; white-space: nowrap; color: var(--mk-accent-ink); }
+.mk-numbers .lr { display: flex; align-items: flex-start; gap: 18px; margin-top: 14px; }
+.mk-numbers .lr i { display: none; flex: none; width: 18px; height: 18px; background: var(--mark); }
+.mk-numbers .lab { font-weight: 600; color: var(--ink); }
+html.look-warnet .mk-numbers .num { color: var(--ink); }
+html.look-warnet .mk-numbers .lr i { display: block; }
+html.look-warnet .mk-numbers .lab { color: var(--muted); }
+html.look-kertas .mk-numbers .hr { height: 3px; background: var(--ink); }
+html.look-kertas .mk-numbers .lab { font-family: var(--fd), serif; font-weight: 600; letter-spacing: -0.01em; }
+html.look-panggung .mk-numbers .hr { height: 8px; background: var(--ink); }
+html.look-panggung .mk-numbers .num { color: var(--ink); }
+html.look-panggung .mk-numbers .lab { font-weight: 700; }
+
+/* ---------- info ---------- */
+.mk-info .rows { width: 100%; display: flex; flex-direction: column; }
+.mk-info .hr { display: block; width: 100%; height: 6px; background: var(--line); transform-origin: 0 50%; }
+.mk-info .lb { display: flex; align-items: center; gap: 18px; line-height: 1.2; font-weight: 600; color: var(--muted); margin-bottom: 14px; transform-origin: 0 50%; }
+.mk-info .lb i { flex: none; display: block; width: 18px; height: 18px; background: var(--mark); }
+.mk-info .tx2 { font-weight: 700; color: var(--ink); }
+html.look-kertas .mk-info .hr { height: 3px; background: var(--ink); }
+html.look-kertas .mk-info .lb { color: var(--mk-accent-ink); font-family: var(--fd), serif; font-style: italic; font-weight: 500; }
+html.look-kertas .mk-info .lb i { display: none; }
+html.look-kertas .mk-info .tx2 { font-family: var(--fd), serif; font-weight: 600; letter-spacing: var(--trk); }
+html.look-panggung .mk-info .hr { height: 8px; background: var(--ink); }
+html.look-panggung .mk-info .lb { display: inline-flex; padding: 8px 20px 10px; background: var(--ink); color: var(--g); font-weight: 700; margin-bottom: 18px; }
+html.look-panggung .mk-info .lb i { display: none; }
+html.look-panggung .mk-info .tx2 { font-family: var(--fd), sans-serif; font-weight: 900; letter-spacing: var(--trk); }
+
 /* ---------- steps ---------- */
 .mk-steps .rail { position: relative; width: 100%; display: flex; flex-direction: column; gap: 64px; }
 .mk-steps .st { position: relative; display: flex; align-items: flex-start; gap: 36px; }

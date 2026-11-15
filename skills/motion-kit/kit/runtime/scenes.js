@@ -107,6 +107,97 @@
     });
   });
 
+  // ---------- prices: a menu or price list, each name led across to its price ----------
+  MK.define("prices", (c) => {
+    const s = c.s, n = s.rows.length;
+    const hd = head(c, s.heading);
+    const note = s.note ? MK.text("p", "note", flag(c, MK.fit(s.note, "body", [42, 38], c.W, 2), "the small line"), 1.3) : null;
+    const tall = c.H - Number(hd.dataset.h) - 68 - (note ? Number(note.dataset.h) + 48 : 0);
+    const role = K ? "display" : "body";
+    // One size for every name and one for every price. Of the pairs at which each name takes at
+    // most two lines beside the widest price and every row fits under the heading, the one that
+    // wraps the fewest names wins.
+    const pick = fewest([[66, 70], [60, 64], [56, 58], [52, 54], [48, 50], [44, 46], [40, 42], [36, 38]], 48, ([a, b]) => {
+      const small = Math.round(b * 0.62);
+      const wide = Math.max(...s.rows.map((r) => MK.width(r.price, "display", b) + (P ? 40 : 0) + (r.was ? MK.width(r.was, "body", small) + 24 : 0)));
+      const room = c.W - wide - 20 - 70; // the price, the gap before it, and the shortest leader
+      const names = s.rows.map((r) => MK.fit(r.name, role, [a], room, 2));
+      const lh = Math.round(a * 1.22);
+      const used = names.reduce((sum, f) => sum + f.lines.length * lh, 0);
+      // Rows sit closer when there are many, and take the height that is left when there are few.
+      const gap = Math.round(Math.max(a * 0.5, Math.min(a * 1.3, (tall - used) / Math.max(1, n - 1) - 4)));
+      return { a, b, small, names, lh, gap, ok: room > 240 && names.every((f) => f.ok) && used + (n - 1) * a * 0.5 <= tall, lines: names.reduce((sum, f) => sum + f.lines.length, 0) };
+    });
+    if (!pick.ok) MK.problem(c, "the price list (shorten the longest name, or take a row out)");
+    const lis = s.rows.map((r, i) => {
+      const nm = MK.text("p", "nm", pick.names[i], 1.22);
+      nm.style.lineHeight = pick.lh + "px";
+      const lns = lines(nm), ld = h("i", "ld");
+      lns[lns.length - 1].classList.add("last");
+      lns[lns.length - 1].append(ld);
+      const pr = MK.plain("b", "pr", r.price);
+      pr.style.fontSize = pick.b + "px";
+      pr.style.lineHeight = pick.lh + "px";
+      let was = null;
+      if (r.was) {
+        was = h("span", "was", [MK.plain("span", null, r.was), h("s")]);
+        was.style.fontSize = pick.small + "px";
+        was.style.lineHeight = pick.lh + "px";
+        was.setAttribute("data-layout-allow-occlusion", "");
+      }
+      return h("li", null, [nm, was, pr]);
+    });
+    const ol = h("ol", null, lis);
+    ol.style.gap = pick.gap + "px";
+    safe(c, [hd, ol, note]);
+    M.lines(c.tl, lines(hd), c.T.head);
+    lis.forEach((li, i) => {
+      const t = c.T.rows[i];
+      M.lines(c.tl, lines(li.querySelector(".nm")), t);
+      M.grow(c.tl, li.querySelector(".ld"), t + 0.12, 0.4);
+      M.pop(c.tl, li.querySelector(".pr"), t + 0.2);
+      const was = li.querySelector(".was");
+      if (was) {
+        M.pop(c.tl, was, t + 0.12);
+        M.grow(c.tl, was.querySelector("s"), t + 0.45, 0.3);
+      }
+    });
+    if (note) M.lines(c.tl, lines(note), c.T.note);
+  });
+
+  // ---------- info: the facts of a date or a place, each under its own label ----------
+  MK.define("info", (c) => {
+    const s = c.s, n = s.rows.length;
+    const hd = head(c, s.heading);
+    const tall = c.H - Number(hd.dataset.h) - 68;
+    const lab = P ? 44 : 40, gap = K ? 44 : 40; // the label's size; the room above and below a rule
+    // Two facts can be set large and wrap; four are kept to a line each where they can be.
+    const pick = fewest(n < 4 ? [88, 80, 72, 66, 60, 54, 50, 46] : [72, 66, 60, 54, 50, 46, 42], n < 3 ? 72 : n < 4 ? 64 : 56, (size) => {
+      const fits = s.rows.map((r) => MK.fit(r.text, K || P ? "display" : "body", [size], c.W, 2));
+      const lh = P ? 1.04 : 1.14;
+      const total = fits.reduce((sum, f) => sum + (P ? 76 : 62) + f.lines.length * size * lh, 0) + (n - 1) * (gap * 2 + 6);
+      return { fits, lh, ok: fits.every((f) => f.ok) && total <= tall, lines: fits.reduce((sum, f) => sum + f.lines.length, 0) };
+    });
+    const rows = s.rows.map((r, i) => {
+      const lb = h("p", "lb", [h("i"), MK.plain("span", null, r.label)]);
+      lb.style.fontSize = lab + "px";
+      const tx = MK.text("p", "tx2", flag(c, pick.fits[i], "the line under \"" + r.label + "\""), pick.lh);
+      const hr = i ? h("i", "hr") : null;
+      if (hr) hr.style.marginBottom = gap + "px";
+      return h("div", "row", [hr, lb, tx]);
+    });
+    const box = h("div", "rows", rows);
+    box.style.gap = gap + "px";
+    safe(c, [hd, box]);
+    M.lines(c.tl, lines(hd), c.T.head);
+    rows.forEach((row, i) => {
+      const t = c.T.rows[i];
+      if (row.querySelector(".hr")) M.grow(c.tl, row.querySelector(".hr"), t - 0.1, 0.45);
+      M.pop(c.tl, row.querySelector(".lb"), t);
+      M.lines(c.tl, lines(row.querySelector(".tx2")), t + 0.1);
+    });
+  });
+
   // ---------- steps: numbered steps on a line, lit one after another ----------
   MK.define("steps", (c) => {
     const s = c.s, n = s.steps.length;
@@ -144,23 +235,77 @@
     });
   });
 
-  // ---------- stat: one number, counted up, and what it means ----------
-  MK.define("stat", (c) => {
-    const s = c.s, boxed = c.v === 1;
-    const m = /^(.*?)(\d[\d.,]*\d|\d)(.*)$/.exec(s.value) || [null, "", "0", s.value];
+  // How a number reads part of the way through its count: `counter("Rp8.500.000")(0.5)` is
+  // "Rp4.250.000". The marks that split thousands and decimals are read from the number itself.
+  const counter = (value) => {
+    const m = /^(.*?)(\d[\d.,]*\d|\d)(.*)$/.exec(value) || [null, "", "0", value];
     const [, pre, digits, post] = m;
-    // Which mark splits thousands and which splits decimals, read from the number itself.
     const lastSep = Math.max(digits.lastIndexOf("."), digits.lastIndexOf(","));
     const tail = lastSep < 0 ? 0 : digits.length - lastSep - 1;
     const decSep = lastSep >= 0 && tail !== 3 ? digits[lastSep] : "";
     const groupSep = digits.replace(decSep || "\u0000", "").match(/[.,]/) ? (decSep === "," ? "." : decSep === "." ? "," : digits[lastSep]) : "";
     const decimals = decSep ? tail : 0;
     const end = Number(digits.split(groupSep || "\u0000").join("").replace(",", "."));
-    const show = (v) => {
-      const [int, frac] = v.toFixed(decimals).split(".");
+    return (p) => {
+      if (p >= 1) return value;
+      const [int, frac] = (end * MK.m.count(p)).toFixed(decimals).split(".");
       const grouped = groupSep ? int.replace(/\B(?=(\d{3})+(?!\d))/g, groupSep) : int;
       return pre + grouped + (frac ? decSep + frac : "") + post;
     };
+  };
+
+  // ---------- numbers: two to four numbers, each counted up over its label ----------
+  MK.define("numbers", (c) => {
+    const s = c.s, n = s.items.length;
+    const hd = head(c, s.heading);
+    const tall = c.H - Number(hd.dataset.h) - 68;
+    const gap = n > 3 ? 30 : 40;
+    let pick = null;
+    for (const v of n < 3 ? [240, 210, 190, 170, 150, 132, 116, 100] : n < 4 ? [190, 170, 150, 132, 116, 100, 88] : [150, 132, 116, 100, 88, 76]) {
+      const l = v >= 170 ? 56 : v >= 132 ? 50 : 46;
+      const wide = Math.max(...s.items.map((x) => MK.width(x.value, "display", v)));
+      const labs = s.items.map((x) => MK.fit(x.label, "body", [l], c.W - (K || P ? 0 : 36), 2));
+      const total = labs.reduce((sum, f) => sum + v * 0.98 + 14 + f.lines.length * l * 1.22, 0) + (n - 1) * (gap * 2 + 6);
+      pick = { v, l, labs, ok: wide <= c.W && labs.every((f) => f.ok) && total <= tall };
+      if (pick.ok) break;
+    }
+    if (!pick.ok) MK.problem(c, "the numbers (shorten the longest label, or take one out)");
+    const rows = s.items.map((x, i) => {
+      const num = MK.plain("div", "num", x.value);
+      num.style.fontSize = pick.v + "px";
+      if (/[gjpqy]/.test(x.value)) num.style.paddingBottom = "0.13em";
+      const lab = MK.text("p", "lab", pick.labs[i], 1.22);
+      const hr = i ? h("i", "hr") : null;
+      if (hr) hr.style.marginBottom = gap + "px";
+      const mark = h("i");
+      mark.style.marginTop = Math.round((pick.l * 1.22 - 18) / 2) + "px";
+      return h("div", "row", [hr, num, h("div", "lr", [mark, lab])]);
+    });
+    const box = h("div", "rows", rows);
+    box.style.gap = gap + "px";
+    safe(c, [hd, box]);
+    M.lines(c.tl, lines(hd), c.T.head);
+    const shows = s.items.map((x) => counter(x.value));
+    rows.forEach((row, i) => {
+      const t = c.T.items[i];
+      if (row.querySelector(".hr")) M.grow(c.tl, row.querySelector(".hr"), t.count0 - 0.15, 0.45);
+      M.block(c.tl, row.querySelector(".num"), t.count0 - 0.1);
+      M.pop(c.tl, row.querySelector(".lr i"), t.count1 - 0.3);
+      M.lines(c.tl, lines(row.querySelector(".lab")), t.count1 - 0.3);
+    });
+    drive(c, (t) => {
+      rows.forEach((row, i) => {
+        const at = c.T.items[i], num = row.querySelector(".num");
+        const text = shows[i](clamp((t - at.count0) / (at.count1 - at.count0)));
+        if (num.textContent !== text) num.textContent = text;
+      });
+    });
+  });
+
+  // ---------- stat: one number, counted up, and what it means ----------
+  MK.define("stat", (c) => {
+    const s = c.s, boxed = c.v === 1;
+    const show = counter(s.value);
     const sizes = P ? [460, 400, 350, 300, 260, 220, 190, 160, 136] : [380, 340, 300, 260, 220, 190, 160, 132, 112];
     const fitted = flag(c, MK.fit(s.value.replace(/\s+/g, " "), "display", sizes, c.W - (boxed ? 88 : 0), 1), "the number");
     const num = MK.plain("div", "num", s.value);
@@ -175,7 +320,7 @@
     else M.grow(c.tl, bar, c.T.count0, c.T.count1 - c.T.count0);
     drive(c, (t) => {
       const p = clamp((t - c.T.count0) / (c.T.count1 - c.T.count0));
-      const text = p >= 1 ? s.value : show(end * MK.m.count(p));
+      const text = show(p);
       if (num.textContent !== text) num.textContent = text;
     });
     M.lines(c.tl, lines(lab), c.T.label);

@@ -122,6 +122,12 @@ scenes.forEach((s, i) => {
   }
   if (!FIELDS[type]) return say(`scene ${n} has type "${type}", which the kit does not have. The scenes are: ${list(Object.keys(FIELDS))}.`);
   checkFields(n, type, s, FIELDS[type]);
+  if (type === "prices" && Array.isArray(s.rows)) s.rows.forEach((row, k) => {
+    for (const key of ["price", "was"]) if (row && typeof row[key] === "string" && row[key].trim() && !/\d/.test(row[key]) && !/^(gratis|free)$/i.test(row[key].trim())) say(`scene ${n} (prices) "rows" item ${k + 1} "${key}" must hold a price from the brief, such as "Rp15.000". A row without a price belongs in a list scene.`);
+  });
+  if (type === "numbers" && Array.isArray(s.items)) s.items.forEach((item, k) => {
+    if (item && typeof item.value === "string" && item.value.trim() && !/\d/.test(item.value)) say(`scene ${n} (numbers) "items" item ${k + 1} "value" must hold a number from the brief, such as "340" or "Rp8.500.000". A line without a number belongs in a list scene.`);
+  });
   if (type === "stat" && typeof s.value === "string" && !/\d/.test(s.value)) say(`scene ${n} (stat) "value" must hold a number from the brief, such as "87%" or "Rp15.000".`);
   for (const k of ["address"]) if (typeof s[k] === "string" && /^https?:|\s/.test(s[k])) say(`scene ${n} (${type}) "${k}" must be the address alone: no "https://" and no spaces.`);
 });

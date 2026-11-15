@@ -1,0 +1,16 @@
+{
+  "recipe": "menu",
+  "look": "kertas",
+  "lang": "id",
+  "scenes": [
+    { "type": "title", "kicker": "Kedai Teh Bu Wening", "headline": "Menu sarapan mulai pukul enam", "sub": "Dimasak pagi itu juga, habis sebelum siang" },
+    { "type": "prices", "heading": "Menu sarapan", "rows": [
+      { "name": "Bubur ayam", "price": "Rp11.000" },
+      { "name": "Lontong sayur", "price": "Rp12.000" },
+      { "name": "Teh poci", "price": "Rp6.000" } ], "note": "Harga per porsi" },
+    { "type": "info", "heading": "Mampir ke kedai", "rows": [
+      { "label": "Buka", "text": "Setiap hari, 06.00 sampai 11.00" },
+      { "label": "Tempat", "text": "Jalan Pandan 4, Salatiga" } ] },
+    { "type": "end", "line": "Pesan untuk dibungkus", "name": "Kedai Teh Bu Wening", "address": "@kedaitehbuwening", "button": "Chat kami" }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "recipe": "recap",
+  "look": "warnet",
+  "lang": "id",
+  "scenes": [
+    { "type": "title", "kicker": "Kelas Sore Pak Darto", "headline": "Satu semester belajar web", "sub": "Kelas gratis untuk remaja kampung, tiap Selasa dan Kamis" },
+    { "type": "numbers", "heading": "Semester ini", "items": [
+      { "value": "18", "label": "murid ikut sampai akhir" },
+      { "value": "32", "label": "pertemuan" },
+      { "value": "18", "label": "halaman web terbit" } ] },
+    { "type": "list", "heading": "Yang mereka buat", "items": ["Halaman profil kampung", "Daftar harga warung orang tua", "Undangan acara tujuh belasan"] },
+    { "type": "end", "line": "Daftar untuk semester depan", "name": "Kelas Sore Pak Darto", "address": "kelassore.pages.dev", "button": "Buka halamannya" }
+  ]
+}
