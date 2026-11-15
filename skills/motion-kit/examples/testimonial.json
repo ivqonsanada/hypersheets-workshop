@@ -1,0 +1,11 @@
+{
+  "recipe": "testimonial",
+  "look": "kertas",
+  "lang": "en",
+  "scenes": [
+    { "type": "title", "kicker": "A customer story", "headline": "Warung Bu Yati's order form", "sub": "A lunch stall in Solo that now takes orders from one page" },
+    { "type": "quote", "text": "I used to write orders on paper and lose them. Now they arrive in one list, and I cook from it.", "name": "Yati Suryani", "role": "Owner, Warung Bu Yati" },
+    { "type": "stat", "value": "2 weeks", "label": "from the first sketch to the form going live", "note": "Built by Studio Kenanga" },
+    { "type": "end", "line": "See how we work", "name": "Studio Kenanga", "address": "studiokenanga.pages.dev", "button": "Open the page" }
+  ]
+}

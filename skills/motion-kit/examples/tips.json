@@ -1,0 +1,10 @@
+{
+  "recipe": "tips",
+  "look": "warnet",
+  "lang": "id",
+  "scenes": [
+    { "type": "title", "kicker": "Sebelum menerbitkan", "headline": "Tiga hal yang perlu dicek", "sub": "Supaya halamanmu enak dibuka orang lain" },
+    { "type": "list", "heading": "Cek ini dulu", "items": ["Buka di layar HP", "Baca ulang semua teks", "Coba setiap tautan"] },
+    { "type": "end", "line": "Baca catatan lainnya", "name": "Catatan Web", "address": "catatan-web.pages.dev", "button": "Buka catatannya" }
+  ]
+}

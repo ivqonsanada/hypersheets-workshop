@@ -13,7 +13,7 @@ You make ONE video by writing ONE file, `storyboard.json`. The kit turns it into
 
 1. **Facts only.** Every name, number, price, date, quote and address comes from the brief, the user's files or the user's answer. Never invent one. If a scene needs a fact you do not have, ask the user once, or leave that scene out.
 2. **Only `storyboard.json` is yours.** Never edit anything inside `video/` or inside this skill's folder. To change the video, change the storyboard and build again.
-3. **Three commands, nothing else**, one per Bash call, exactly as written in the steps: the build, the stills, the render. Never chain with `&&`, `;` or `|`. Never `init`, `preview`, `npm install`, or another HyperFrames version.
+3. **Bash runs three commands and nothing else**, one per call, exactly as written in the steps: the build, the stills, the render. Never chain with `&&`, `;` or `|`. Never `init`, `preview`, `npm install`, or another HyperFrames version. You are already in the user's folder, so no `pwd`, `cd` or `ls`: to see which files are here use Glob, to open one use Read, and write `storyboard.json` and `REVIEW.md` with Write.
 4. **Write the video's words in the language of the brief** and set `"lang"` to `"id"` or `"en"`. Copy names and addresses letter for letter.
 5. **Short lines.** When a line is too long, either cut it before a joining word and keep the words before it (`yang`, `dengan`, `untuk`, `supaya`, `tanpa`; `that`, `with`, `so`, `because`, `without`), or write the whole line again, shorter. Never take single words out of the middle.
 6. No emoji. No dash as punctuation. Sentence case, no ALL CAPS.
@@ -32,7 +32,7 @@ Work in the user's folder (for a page, the one with its `index.html`).
 6. **Stills:** `node "<Base directory>/kit/stills.mjs"`
    Then open `video/sheet.png` with Read. Each frame has a number, a time and a sentence that says what it should show. Compare every frame with its own sentence.
 7. **If a frame is wrong** (a word cut off, words on top of each other, a red strip that says DOES NOT FIT, a wrong or misspelled fact), fix the words in `storyboard.json`, then repeat steps 4 and 6. At most three rounds. The colours, the marker, the motion and the layout belong to the kit: never try to change them.
-8. **Write `video/REVIEW.md`:** one line per frame with its number, what you see in it, and `ok` or what you changed.
+8. **Write `video/REVIEW.md`** in the user's language, one line per frame: `Frame 1:` then what you see in the picture, in your own words, then `ok` or what you changed. For a page frame, name one thing you can read inside the page's window.
 9. **Render:** `npx hyperframes@0.9.51 render video --quality standard --workers 1 -o video/video.mp4`
 10. **Tell the user**, in their language: where `video/video.mp4` is, how many seconds it runs, that it has no sound unless they gave music, and to watch it once on a phone.
 
@@ -71,15 +71,15 @@ A promo for a page, in Indonesian:
   "lang": "id",
   "accent": "page",
   "scenes": [
-    { "type": "title", "kicker": "Halo, aku", "headline": "Rina Lestari", "sub": "Guru SD di Yogyakarta yang sedang belajar membuat web" },
-    { "type": "page", "title": "Ini halamanku", "address": "rina-lestari.pages.dev", "file": "index.html" },
-    { "type": "list", "heading": "Yang sedang kupelajari", "items": ["HTML dan CSS dasar", "Menulis perintah untuk Claude Code", "Menerbitkan halaman di Cloudflare Pages"] },
-    { "type": "end", "line": "Mampir ke halamanku", "name": "Rina Lestari", "address": "rina-lestari.pages.dev", "button": "Buka halamannya" }
+    { "type": "title", "kicker": "Halo, saya", "headline": "Wayan Sudiarta", "sub": "Pemandu wisata di Ubud yang sedang belajar membuat web" },
+    { "type": "page", "title": "Ini halaman saya", "address": "wayan-sudiarta.pages.dev", "file": "index.html" },
+    { "type": "list", "heading": "Yang ada di sana", "items": ["Tiga rute jalan kaki di Ubud", "Harga per orang", "Cara memesan lewat pesan"] },
+    { "type": "end", "line": "Mampir ke halaman saya", "name": "Wayan Sudiarta", "address": "wayan-sudiarta.pages.dev", "button": "Buka halamannya" }
   ]
 }
 ```
 
-More examples are in `examples/`. Read one only if you are unsure of the shape.
+`examples/` holds one finished storyboard per recipe (`examples/tips.json`, `examples/coding.json`, and so on). Read the one for your recipe only if you are unsure of the shape, and never copy its words: they belong to made-up people.
 
 ## When you are stuck
 

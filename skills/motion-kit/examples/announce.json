@@ -1,0 +1,14 @@
+{
+  "recipe": "announce",
+  "look": "panggung",
+  "lang": "id",
+  "scenes": [
+    { "type": "title", "kicker": "Mulai bulan depan", "headline": "Kelas menjahit dibuka lagi", "sub": "Untuk pemula, setiap Minggu pagi di Jahit Laras" },
+    { "type": "image", "file": "kelas.jpg", "caption": "Ruang kelas dengan enam mesin jahit", "title": "Tempatnya" },
+    { "type": "steps", "heading": "Cara daftar", "steps": [
+      { "title": "Buka halaman kami", "detail": "Lihat jadwal dan biayanya" },
+      { "title": "Isi formulir", "detail": "Nama dan nomor yang bisa dihubungi" },
+      { "title": "Datang hari Minggu", "detail": "Kain dan benang kami siapkan" } ] },
+    { "type": "end", "line": "Daftar kelas menjahit", "name": "Jahit Laras", "address": "jahitlaras.pages.dev", "button": "Buka halamannya" }
+  ]
+}

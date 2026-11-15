@@ -1,0 +1,12 @@
+{
+  "recipe": "before-after",
+  "look": "panggung",
+  "lang": "id",
+  "accent": "#1d4ed8",
+  "scenes": [
+    { "type": "title", "kicker": "Perpustakaan Desa Sukamaju", "headline": "Cara pinjam buku berubah", "sub": "Mulai bulan ini, buku dipesan dari halaman perpustakaan" },
+    { "type": "compare", "heading": "Yang berubah", "left": { "label": "Dulu", "text": "Datang, lalu menulis di buku besar" }, "right": { "label": "Sekarang", "text": "Pesan dari halaman, ambil di meja depan" } },
+    { "type": "list", "heading": "Yang bisa dipinjam", "items": ["Buku pelajaran", "Novel dan komik", "Majalah lama"] },
+    { "type": "end", "line": "Pesan buku dari rumah", "name": "Perpustakaan Sukamaju", "address": "perpus-sukamaju.pages.dev", "button": "Buka halamannya" }
+  ]
+}

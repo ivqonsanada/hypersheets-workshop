@@ -1,0 +1,12 @@
+{
+  "recipe": "promo",
+  "look": "kertas",
+  "lang": "id",
+  "accent": "page",
+  "scenes": [
+    { "type": "title", "kicker": "Halo, saya", "headline": "Wayan Sudiarta", "sub": "Pemandu wisata di Ubud yang sedang belajar membuat web" },
+    { "type": "page", "title": "Ini halaman saya", "address": "wayan-sudiarta.pages.dev", "file": "index.html" },
+    { "type": "list", "heading": "Yang ada di sana", "items": ["Tiga rute jalan kaki di Ubud", "Harga per orang", "Cara memesan lewat pesan"] },
+    { "type": "end", "line": "Mampir ke halaman saya", "name": "Wayan Sudiarta", "address": "wayan-sudiarta.pages.dev", "button": "Buka halamannya" }
+  ]
+}

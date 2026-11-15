@@ -1,0 +1,11 @@
+{
+  "recipe": "coding",
+  "look": "warnet",
+  "lang": "en",
+  "scenes": [
+    { "type": "title", "kicker": "JavaScript for beginners", "headline": "What does map do?", "sub": "It makes a new list by changing every item of an old one" },
+    { "type": "code", "caption": "Write every name in capitals", "lang": "JavaScript", "lines": ["const names = [\"ana\", \"budi\"];", "const loud = names.map(", "  (name) => name.toUpperCase());", "console.log(loud); // ANA, BUDI"], "highlight": 3 },
+    { "type": "compare", "heading": "Why use it", "left": { "label": "Before", "text": "A loop that pushes into a second list" }, "right": { "label": "After", "text": "One call that returns the new list" } },
+    { "type": "end", "line": "Practice it in a lesson", "address": "kelas-js.pages.dev", "button": "Open the lesson" }
+  ]
+}

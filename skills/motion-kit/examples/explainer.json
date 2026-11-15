@@ -1,0 +1,14 @@
+{
+  "recipe": "explainer",
+  "look": "warnet",
+  "lang": "en",
+  "scenes": [
+    { "type": "title", "kicker": "CSS in 20 seconds", "headline": "How a grid makes columns", "sub": "One rule on the parent, and the cards line up by themselves" },
+    { "type": "steps", "heading": "How it works", "steps": [
+      { "title": "Turn the parent into a grid", "detail": "Its children become the cells" },
+      { "title": "Say how wide a column is", "detail": "Here, three equal columns" },
+      { "title": "Add space between them", "detail": "gap sets it for rows and columns" } ] },
+    { "type": "code", "caption": "The three lines", "lang": "CSS", "lines": [".cards {", "  display: grid;", "  grid-template-columns: repeat(3, 1fr);", "  gap: 16px;", "}"], "highlight": 3 },
+    { "type": "end", "line": "Try it on your own page", "address": "kelas-grid.pages.dev", "button": "Open the lesson" }
+  ]
+}
