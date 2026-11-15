@@ -47,7 +47,12 @@ Indonesian pages speak either as `aku` (casual) or as `saya` (polite). Use the s
 | visit.html | `address-again` | same as `address` | same | same | 34 |
 | visit.html | `button` | `Buka halamannya` | `Buka halamannya` | `Open my page` | 18 |
 
-When a line from the page is longer than its slot, keep its main idea in a short, correct sentence: drop the extra words, never glue the rest into broken grammar. For example, "Belajar membuat formulir pendaftaran yang mudah diisi di HP" becomes "Membuat formulir pendaftaran", not "Formulir daftar mudah HP".
+When a line from the page is longer than its slot, shorten it in one of these two ways, and only these:
+
+- **Cut it before a joining word and keep everything before it, word for word.** Joining words: `yang`, `tanpa`, `dengan`, `untuk`, `supaya`, `agar`, `sambil` in Indonesian; `that`, `which`, `without`, `with`, `so`, `while`, `because` in English. "Belajar membuat formulir pendaftaran yang mudah diisi di HP" becomes "Belajar membuat formulir pendaftaran" (cut before `yang`). "Writing tests for my shop API so it never breaks again" becomes "Writing tests for my shop API" (cut before `so`).
+- **Or write the whole line again** as a new short sentence that says the same thing.
+
+Never take single words out of the middle of a line and keep the rest: "Formulir pendaftaran mudah HP" and "Writing tests shop API never breaks" are wrong. Before you save a shortened line, read it aloud: if a person would not say it that way, cut it before a joining word instead.
 
 If the page has no list of things they are learning, use three other short facts from the page and change `list-title` to fit (for example `Tentang aku`, `Tentang saya` or `About me`). If you cannot find the page address, ask the learner once. Never make one up.
 
