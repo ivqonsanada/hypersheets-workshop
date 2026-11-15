@@ -319,5 +319,5 @@ docs/SOUND.md                     the sound layer: voices and their licences rea
 
 - The `.js` files next to each scene in `template/compositions/` are the video's timeline. They run inside HyperFrames' headless browser while it checks, snapshots and renders. From v0.2 the page scene also reads the learner's copied page in `video/assets/page/`, in an unseen second frame, to take its colour and to find where the name and the list sit; nothing leaves the computer.
 - `claude plugin validate .` checks both manifests.
-- `main` holds 0.5.0 (`plugin.json`) and has no `v0.5.0` tag yet: its Haiku trial missed its aim by one run of thirty (`docs/MOTION-KIT.md`, "The use-case trial for 0.5.0"). The install lines above keep `v0.4.0` until that tag exists.
+- `main` holds 0.5.0 (`plugin.json`) and has no `v0.5.0` tag yet: its Haiku trial of 46 runs did not reach twelve in a row without a C (`docs/MOTION-KIT.md`, "The use-case trial for 0.5.0"). The install lines above keep `v0.4.0` until that tag exists.
 - A new release: raise `version` in `.claude-plugin/plugin.json`, tag the commit `vX.Y.Z`, and change the tag in the track guides. Claude Code replaces an installed copy only when that version changes.
