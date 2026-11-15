@@ -390,7 +390,8 @@
     // The largest size at which the widest line, indentation included, fits the card.
     const room = c.W - 76 - 28 - 16;
     let size = 32, fitsCard = false;
-    for (const sz of [46, 42, 38, 36, 34, 32]) {
+    // A short snippet is set large enough to read on a phone; one line of forty characters still gets 32.
+    for (const sz of [60, 54, 50, 46, 42, 38, 36, 34, 32]) {
       size = sz;
       if (Math.max(...s.lines.map((line) => MK.width(line, "mono", sz))) <= room) { fitsCard = true; break; }
     }

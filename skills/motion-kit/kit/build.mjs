@@ -88,7 +88,7 @@ function checkFields(n, type, s, fields) {
     if (rule.kind === "text") checkText(where, v, rule);
     else if (rule.kind === "texts") {
       if (!Array.isArray(v)) { say(`${where} must be a list: ["…", "…"].`); continue; }
-      if (v.length < rule.min || v.length > rule.most) say(`${where} has ${v.length} lines; it holds ${rule.min} to ${rule.most}. Keep the ones that matter most.`);
+      if (v.length < rule.min || v.length > rule.most) say(`${where} has ${v.length} ${v.length === 1 ? "line" : "lines"}; it holds ${rule.min} to ${rule.most}. Keep the ones that matter most.`);
       v.forEach((t, i) => checkText(`${tag} "${k}" line ${i + 1}`, t, rule));
     } else if (rule.kind === "object" || rule.kind === "objects") {
       const many = rule.kind === "objects";

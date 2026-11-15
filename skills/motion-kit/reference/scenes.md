@@ -186,7 +186,7 @@ Real code, typed line by line in a code card. Only for code that runs as written
 | Field | Limit | |
 |---|---|---|
 | `caption` | 44 | needed. What the code does |
-| `lines` | 40 each, 2 to 9 lines | needed. One string per line of code; keep the spaces at the start of a line. Break a longer line in two where the language allows |
+| `lines` | 40 each, 1 to 9 lines | needed. One string per line of code, copied as the user wrote it; keep the spaces at the start of a line. A one-line snippet stays one line. Break a line in two only when it is longer than 40 characters, and only where the language allows |
 | `highlight` | | the number of the line to mark, counted from 1 |
 | `lang` | 12 | "CSS", "HTML", "JavaScript" |
 

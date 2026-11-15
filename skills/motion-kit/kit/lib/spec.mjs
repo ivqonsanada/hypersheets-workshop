@@ -63,7 +63,7 @@ export const FIELDS = {
     left: { kind: "object", req: true, of: { label: text(14, true), text: text(56, true) } },
     right: { kind: "object", req: true, of: { label: text(14, true), text: text(56, true) } },
   },
-  code: { caption: text(44, true), lang: text(12), lines: { kind: "texts", min: 2, most: 9, max: 40, req: true, raw: true }, highlight: { kind: "int" } },
+  code: { caption: text(44, true), lang: text(12), lines: { kind: "texts", min: 1, most: 9, max: 40, req: true, raw: true }, highlight: { kind: "int" } },
   end: { line: text(30, true), name: text(26), address: text(34, true), button: text(20, true) },
 };
 
