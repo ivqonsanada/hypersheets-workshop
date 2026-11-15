@@ -41,5 +41,5 @@ claude -p "$(cat "$prompt_file")" \
   --max-turns "$turns" \
   --no-session-persistence \
   > "$run_dir/stream.jsonl" 2> "$run_dir/stderr.log" || echo "claude exited $?" >> "$run_dir/stderr.log"
-grep '^{"type":"result"' "$run_dir/stream.jsonl" | tail -1 > "$run_dir/result.json" || true
+grep '"type":"result"' "$run_dir/stream.jsonl" | tail -1 > "$run_dir/result.json" || true
 echo "seconds=$(( $(date +%s) - start ))" > "$run_dir/time.txt"
