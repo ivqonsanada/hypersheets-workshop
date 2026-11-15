@@ -1,0 +1,330 @@
+{
+  "note": "Every download the sound kit can make, with its size, checksum and licence. install.mjs refuses a file whose checksum differs.",
+  "runtime": {
+    "name": "sherpa-onnx 1.13.8",
+    "licence": "Apache-2.0",
+    "home": "https://github.com/k2-fsa/sherpa-onnx",
+    "why": "1.13.8 is the last release that turns text into sounds for Piper, Kitten and Kokoro voices by itself; 2.0.0 removed that.",
+    "base": "https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.8/",
+    "program": "bin/sherpa-onnx-offline-tts",
+    "builds": {
+      "darwin-arm64": {
+        "file": "sherpa-onnx-v1.13.8-osx-arm64-shared.tar.bz2",
+        "bytes": 20314448,
+        "sha256": "b10e5c7e2c30ea03de9c442655d14860d9edc475c6251d58a8f5f06e913a1d56",
+        "tested": true
+      },
+      "darwin-x64": {
+        "file": "sherpa-onnx-v1.13.8-osx-x64-shared.tar.bz2",
+        "bytes": 22846038,
+        "sha256": "54aad64acee9d2d596535a6080d6f22602a720af5460e1d50461b1e1b06bee40",
+        "tested": false
+      },
+      "win32-x64": {
+        "file": "sherpa-onnx-v1.13.8-win-x64-shared-MT-Release.tar.bz2",
+        "bytes": 24805859,
+        "sha256": "6dffdc715a4465b989446a6105265d2cb345e7101591a17d35534b6758f6e8df",
+        "tested": false
+      },
+      "win32-arm64": {
+        "file": "sherpa-onnx-v1.13.8-win-arm64-shared-MT-Release.tar.bz2",
+        "bytes": 23341583,
+        "sha256": "455ea18dc44aea188b4f7976037dea3d77e3f8d7afe0760f34244a7a0db53c4c",
+        "tested": false
+      },
+      "linux-x64": {
+        "file": "sherpa-onnx-v1.13.8-linux-x64-shared.tar.bz2",
+        "bytes": 28156791,
+        "sha256": "c0bdb7907d3a74bba1d55d22bf4d9fa75586cf1530614ebe88a27b9118e015c4",
+        "tested": false
+      },
+      "linux-arm64": {
+        "file": "sherpa-onnx-v1.13.8-linux-aarch64-shared-cpu.tar.bz2",
+        "bytes": 28091778,
+        "sha256": "4e3734f82bc1379fd91f219f5869c7e9d03b7a4f7561907d8abca4849c51a789",
+        "tested": false
+      }
+    }
+  },
+  "tiers": {
+    "id": {
+      "ringan": "piper-id",
+      "bagus": "elevenlabs"
+    },
+    "en": {
+      "ringan": "kitten",
+      "bagus": "elevenlabs"
+    }
+  },
+  "voices": {
+    "piper-id": {
+      "name": "Piper news_tts",
+      "says": "Indonesian, a woman",
+      "lang": [
+        "id"
+      ],
+      "kind": "vits",
+      "parts": [
+        {
+          "file": "vits-piper-id_ID-news_tts-medium-int8.tar.bz2",
+          "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-id_ID-news_tts-medium-int8.tar.bz2",
+          "bytes": 21046435,
+          "sha256": "d7315f6bf6b61e75cc4397a934b3372fd7a8223bccb96ed817f7283649eebd89",
+          "unpack": "voices"
+        }
+      ],
+      "dir": "vits-piper-id_ID-news_tts-medium-int8",
+      "model": "id_ID-news_tts-medium.onnx",
+      "licence": "No licence is documented for this voice. Its model card says \"License: See URL\" and the URL is an unrelated Kaggle notebook; it was fine-tuned from the lessac voice, whose recordings are licensed for research only; and Piper's own commercial-use list leaves it out. Its name matches the Indonesian News TTS recordings (CC BY-NC-SA 4.0), which the card does not confirm. Program: sherpa-onnx, Apache-2.0.",
+      "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/id/id_ID/news_tts/medium/MODEL_CARD",
+      "use": "practice",
+      "notice": {
+        "id": "Suara ini untuk latihan dan pemakaian non-komersial. Untuk video yang dijual atau dipakai klien, pakai suaramu sendiri atau ElevenLabs.",
+        "en": "This voice is for practice and non-commercial use. For videos you sell or make for a client, use your own voice or ElevenLabs."
+      }
+    },
+    "kitten": {
+      "name": "KittenTTS nano 0.8",
+      "says": "US English, 4 men and 4 women",
+      "lang": [
+        "en"
+      ],
+      "kind": "kitten",
+      "parts": [
+        {
+          "file": "kitten-nano-en-v0_8-int8.tar.bz2",
+          "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/kitten-nano-en-v0_8-int8.tar.bz2",
+          "bytes": 31220690,
+          "sha256": "6fa5be852612ce761094ba74ee6123b4fc4acfefa79bf64dc63acae4a83af2fd",
+          "unpack": "voices"
+        }
+      ],
+      "dir": "kitten-nano-en-v0_8-int8",
+      "model": "model.int8.onnx",
+      "speaker": 0,
+      "licence": "Model: Apache-2.0 (KittenML). Program: sherpa-onnx, Apache-2.0.",
+      "source": "https://huggingface.co/KittenML/kitten-tts-nano-0.8",
+      "speakers": {
+        "2-m": 0,
+        "2-f": 1,
+        "3-m": 2,
+        "3-f": 3,
+        "4-m": 4,
+        "4-f": 5,
+        "5-m": 6,
+        "5-f": 7
+      },
+      "use": "any"
+    },
+    "kokoro": {
+      "name": "Kokoro 82M v1.0",
+      "says": "US and British English, 28 voices",
+      "lang": [
+        "en"
+      ],
+      "kind": "kokoro",
+      "parts": [
+        {
+          "file": "kokoro-multi-lang-v1_0.tar.bz2",
+          "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/kokoro-multi-lang-v1_0.tar.bz2",
+          "bytes": 349886476,
+          "sha256": "60703707bc05ccd48d60e1eb723f38b07d6e474795a0b6a588d7220400e0f7a4",
+          "unpack": "voices"
+        }
+      ],
+      "dir": "kokoro-multi-lang-v1_0",
+      "model": "model.onnx",
+      "speaker": 3,
+      "speakers": {
+        "af_heart": 3,
+        "af_bella": 2,
+        "af_nicole": 6,
+        "af_sarah": 9,
+        "am_adam": 11,
+        "am_michael": 16,
+        "am_puck": 18,
+        "bf_emma": 21,
+        "bm_george": 26
+      },
+      "licence": "Model and voices: Apache-2.0 (hexgrad). Program: sherpa-onnx, Apache-2.0.",
+      "source": "https://huggingface.co/hexgrad/Kokoro-82M",
+      "use": "any"
+    },
+    "kristin": {
+      "name": "Piper Kristin",
+      "says": "US English, a woman",
+      "lang": [
+        "en"
+      ],
+      "kind": "vits",
+      "parts": [
+        {
+          "file": "vits-piper-en_US-kristin-medium.tar.bz2",
+          "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-en_US-kristin-medium.tar.bz2",
+          "bytes": 67259230,
+          "sha256": "c2206f572df2956c50b1ae3367eebce3853c663e890cba8048cd62b1e4dbe6c7",
+          "unpack": "voices"
+        }
+      ],
+      "dir": "vits-piper-en_US-kristin-medium",
+      "model": "en_US-kristin-medium.onnx",
+      "licence": "Voice: public domain (LibriVox recordings, trained from scratch). Program: sherpa-onnx, Apache-2.0.",
+      "source": "https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/kristin/medium/MODEL_CARD",
+      "use": "any"
+    },
+    "elevenlabs": {
+      "name": "ElevenLabs, on your own account",
+      "says": "Indonesian and English (the service lists 29 languages for its default model), made on elevenlabs.io or through its API with your own key",
+      "lang": [
+        "id",
+        "en"
+      ],
+      "use": "plan",
+      "kind": "elevenlabs",
+      "parts": [],
+      "model": "eleven_multilingual_v2",
+      "notice": {
+        "id": "Paket gratis ElevenLabs hanya untuk pemakaian non-komersial dan wajib menulis \"elevenlabs.io\" di judul; untuk video yang dijual atau dipakai klien perlu paket berbayar.",
+        "en": "ElevenLabs' free plan is for non-commercial use only and needs \"elevenlabs.io\" in the title; videos you sell or make for a client need a paid plan."
+      },
+      "licence": "ElevenLabs Terms of Service (updated 9 October 2026): a free user \"may only use the Services for non-commercial purposes\"; a paid user may use them commercially. Its help centre adds that free-plan content, when published, must carry \"elevenlabs.io\" or \"11.ai\" in the title. Free plan: 10,000 credits a month (about 10 minutes of speech); Starter: 6 US dollars a month, 30,000 credits, commercial licence.",
+      "source": "https://elevenlabs.io/terms-of-use"
+    },
+    "supertonic-ringan": {
+      "name": "Supertonic 3, 8-bit weights",
+      "says": "Indonesian and English (31 languages), 5 women and 5 men",
+      "lang": [
+        "id",
+        "en"
+      ],
+      "kind": "supertonic",
+      "parts": [
+        {
+          "file": "sherpa-onnx-supertonic-3-tts-int8-2026-05-11.tar.bz2",
+          "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/sherpa-onnx-supertonic-3-tts-int8-2026-05-11.tar.bz2",
+          "bytes": 128774318,
+          "sha256": "82fa96f91c4ef8abaae3a14a3f4153facf88bed821d1f7331cec2700f432c427",
+          "unpack": "voices"
+        }
+      ],
+      "dir": "sherpa-onnx-supertonic-3-tts-int8-2026-05-11",
+      "suffix": ".int8",
+      "speaker": 0,
+      "steps": 5,
+      "speakers": {
+        "F1": 0,
+        "F2": 1,
+        "F3": 2,
+        "F4": 3,
+        "F5": 4,
+        "M1": 5,
+        "M2": 6,
+        "M3": 7,
+        "M4": 8,
+        "M5": 9
+      },
+      "licence": "Voice model: BigScience OpenRAIL-M (Supertone Inc.). Commercial use is allowed; its Attachment A forbids, among other things, publishing the output without saying it is machine generated, and impersonating a person without consent. Program: sherpa-onnx, Apache-2.0.",
+      "source": "https://huggingface.co/Supertone/supertonic-3",
+      "use": "any",
+      "notice": {
+        "id": "Tulis di keterangan video bahwa suaranya dibuat AI (misalnya \"Suara: AI\"): itu syarat lisensi suara ini.",
+        "en": "Say in the video's caption that the voice is AI-made (for example \"Voice: AI\"): this voice's licence requires it."
+      }
+    },
+    "supertonic": {
+      "name": "Supertonic 3, full weights",
+      "says": "Indonesian and English (31 languages), 5 women and 5 men",
+      "lang": [
+        "id",
+        "en"
+      ],
+      "kind": "supertonic",
+      "parts": [
+        {
+          "file": "sherpa-onnx-supertonic-3-tts-int8-2026-05-11.tar.bz2",
+          "url": "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/sherpa-onnx-supertonic-3-tts-int8-2026-05-11.tar.bz2",
+          "bytes": 128774318,
+          "sha256": "82fa96f91c4ef8abaae3a14a3f4153facf88bed821d1f7331cec2700f432c427",
+          "unpack": "voices"
+        },
+        {
+          "file": "vector_estimator.onnx",
+          "url": "https://huggingface.co/Supertone/supertonic-3/resolve/main/onnx/vector_estimator.onnx",
+          "alt": "https://huggingface.co/supertone-oss-archive/supertonic-3/resolve/main/onnx/vector_estimator.onnx",
+          "bytes": 256534781,
+          "sha256": "883ac868ea0275ef0e991524dc64f16b3c0376efd7c320af6b53f5b780d7c61c",
+          "to": "voices/supertonic-3-full"
+        },
+        {
+          "file": "vocoder.onnx",
+          "url": "https://huggingface.co/Supertone/supertonic-3/resolve/main/onnx/vocoder.onnx",
+          "alt": "https://huggingface.co/supertone-oss-archive/supertonic-3/resolve/main/onnx/vocoder.onnx",
+          "bytes": 101424195,
+          "sha256": "085de76dd8e8d5836d6ca66826601f615939218f90e519f70ee8a36ed2a4c4ba",
+          "to": "voices/supertonic-3-full"
+        }
+      ],
+      "dir": "sherpa-onnx-supertonic-3-tts-int8-2026-05-11",
+      "full": "supertonic-3-full",
+      "speaker": 0,
+      "steps": 8,
+      "speakers": {
+        "F1": 0,
+        "F2": 1,
+        "F3": 2,
+        "F4": 3,
+        "F5": 4,
+        "M1": 5,
+        "M2": 6,
+        "M3": 7,
+        "M4": 8,
+        "M5": 9
+      },
+      "licence": "Voice model: BigScience OpenRAIL-M (Supertone Inc.). Commercial use is allowed; its Attachment A forbids, among other things, publishing the output without saying it is machine generated, and impersonating a person without consent. Program: sherpa-onnx, Apache-2.0.",
+      "source": "https://huggingface.co/Supertone/supertonic-3",
+      "use": "any",
+      "notice": {
+        "id": "Tulis di keterangan video bahwa suaranya dibuat AI (misalnya \"Suara: AI\"): itu syarat lisensi suara ini.",
+        "en": "Say in the video's caption that the voice is AI-made (for example \"Voice: AI\"): this voice's licence requires it."
+      }
+    },
+    "say": {
+      "name": "macOS system voice",
+      "says": "Indonesian (Damayanti) and English (Samantha), already on a Mac",
+      "lang": [
+        "id",
+        "en"
+      ],
+      "kind": "say",
+      "parts": [],
+      "voiceFor": {
+        "id": "Damayanti",
+        "en": "Samantha"
+      },
+      "licence": "Not for publishing: the macOS licence (section 2F) allows system voices only \"for your personal, non-commercial use\" and forbids use \"in a profit, non-profit, public sharing or commercial context\".",
+      "source": "https://www.apple.com/legal/sla/",
+      "use": "draft",
+      "notice": {
+        "id": "Suara bawaan Mac ini hanya untuk mengecek tempo, bukan untuk video yang dipublikasikan.",
+        "en": "This Mac system voice is only for checking timing, not for a video you publish."
+      }
+    }
+  },
+  "whisper": {
+    "name": "Whisper small, 5-bit weights (for whisper.cpp)",
+    "licence": "MIT (OpenAI Whisper weights, ggml conversion by whisper.cpp)",
+    "parts": [
+      {
+        "file": "ggml-small-q5_1.bin",
+        "url": "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small-q5_1.bin",
+        "bytes": 190085487,
+        "sha256": "ae85e4a935d7a567bd102fe55afc16bb595bdb618e11b2fc7591bc08120411bb",
+        "to": "whisper"
+      }
+    ],
+    "source": "https://huggingface.co/ggerganov/whisper.cpp"
+  },
+  "localBest": {
+    "en": "kokoro"
+  }
+}
