@@ -159,7 +159,8 @@ scenes.forEach((s, i) => {
   // A page address or a handle has no spaces; a street address or a phone number, given by a shop with no page, may.
   if (type === "title" && typeof s.kicker === "string" && typeof s.headline === "string") {
     const flat = (t) => t.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
-    if (flat(s.kicker).length >= 4 && flat(s.headline).includes(flat(s.kicker))) say(`scene ${n} (title) "kicker" repeats words of the headline ("${s.kicker}"). The kicker adds who, where or when (the shop's name, the place, the day), or it is left out.`);
+    if (/^(selamat datang|welcome)\b/i.test(s.kicker.trim())) say(`scene ${n} (title) "kicker" is a greeting ("${s.kicker}"). The kicker adds who, where or when (the shop's name, the place, the day), or it is left out.`);
+    else if (flat(s.kicker).length >= 4 && flat(s.headline).includes(flat(s.kicker))) say(`scene ${n} (title) "kicker" repeats words of the headline ("${s.kicker}"). The kicker adds who, where or when (the shop's name, the place, the day), or it is left out.`);
   }
   for (const k of ["address"]) if (typeof s[k] === "string") {
     const v = s[k], web = /^@|[a-z0-9-]\.[a-z]{2,}(\/|$)/i.test(v.replace(/\s+/g, ""));

@@ -6,8 +6,8 @@
   // characters [from, to) of the line after `pad` spaces. The first row keeps the line's own
   // indentation; the rows under it hang two spaces deeper, as an editor's soft wrap does. A row
   // ends at a space, by choice after a comma or an opening bracket, or before && or ||. Without
-  // a space it ends before a dot that starts a name or after a bracket, and in the middle of a
-  // word only when nothing else is left.
+  // a space it ends before a dot that starts a name (never inside "?." or "...") or after a
+  // bracket, and in the middle of a word only when nothing else is left.
   function wrap(line, cols, care) {
     const text = String(line);
     const indent = /^\s*/.exec(text)[0].length;
@@ -28,7 +28,7 @@
       // No space to break at: before a dot that starts a name (a chain of calls), or after a bracket or a comma.
       let soft = -1;
       if (cut < 0 && care > 0) for (let i = end; i > low; i--) {
-        if ((text[i] === "." && /[A-Za-z_$]/.test(text[i + 1] || "") && !/\d/.test(text[i - 1])) || (/[,([{]/.test(text[i - 1]) && text.slice(i - 2, i) !== "${")) { soft = i; break; }
+        if ((text[i] === "." && /[A-Za-z_$]/.test(text[i + 1] || "") && !/[\d?.]/.test(text[i - 1])) || (/[,([{]/.test(text[i - 1]) && text.slice(i - 2, i) !== "${")) { soft = i; break; }
       }
       if (cut >= 0) { rows.push({ from, to: cut, pad }); from = cut + 1; }
       else if (soft >= 0) { rows.push({ from, to: soft, pad }); from = soft; }

@@ -469,17 +469,19 @@
   };
   // The size for some code and how each line is laid at it. Every row must fit the card's width
   // `room` and all rows its height `tall`. A line too long for one row wraps under itself
-  // (wrap.js). Of the sizes that fit, the one that wraps the fewest rows wins, then the largest;
-  // wrapped code is set at 44 px at most, so a wrap never comes from setting the code too large.
+  // (wrap.js). Of the sizes that fit, the one that wraps the fewest rows wins, then the one with
+  // the fewest breaks that are not at a space, then the largest; wrapped code is set at 44 px at
+  // most, so a wrap never comes from setting the code too large.
   const codeFit = (all, room, tall) => {
     let best = null, last = null;
     for (const size of [60, 54, 50, 46, 42, 38, 36, 34, 32]) {
       const cols = Math.floor((room * 10) / MK.width("0000000000", "mono", size));
       const rows = all.map((line) => window.MKWrap(line, cols));
       const extra = rows.reduce((sum, r) => sum + r.length - 1, 0);
+      const rough = rows.reduce((sum, r) => sum + r.filter((row, k) => k && row.from === r[k - 1].to).length, 0);
       const high = rows.reduce((sum, r) => sum + r.length * 1.3 + 0.3, 0) * size;
-      last = { size, rows, extra, ok: high <= tall && rows.every((r) => r.length <= 3) && (!extra || size <= 44) };
-      if (last.ok && (!best || extra < best.extra)) best = last;
+      last = { size, rows, extra, rough, ok: high <= tall && rows.every((r) => r.length <= 3) && (!extra || size <= 44) };
+      if (last.ok && (!best || extra < best.extra || (extra === best.extra && rough < best.rough))) best = last;
     }
     return best || last;
   };

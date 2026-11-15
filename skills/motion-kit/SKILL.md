@@ -13,7 +13,7 @@ You make ONE video by writing ONE file, `storyboard.json`. The kit turns it into
 
 1. **Facts only.** Every name, number, price, date, quote and address comes from the brief, the user's files or the user's answer. Never invent one. If a scene needs a fact you do not have, ask the user once, or leave that scene out.
    - **Ask once, briefly.** At most four short questions in everyday words, and only for what the video cannot do without: who or what it is, and an address, a handle or a number for the end card. When the brief already has those, do not ask: make the video.
-   - **A fact stays whole.** A date keeps its year, `paling lambat` stays `paling lambat`, an offer keeps its limits ("gratis ongkir se-Bekasi Timur", not "gratis ongkir"). When a fact does not fit a field, move it to a field that holds it (the title's `sub` holds 80 characters, a list line 48). Never shorten a fact into another fact.
+   - **A fact stays whole.** A date keeps its year, `paling lambat` stays `paling lambat`, an offer keeps its limits ("gratis ongkir se-Bekasi Timur", not "gratis ongkir"). When a fact does not fit a field, move it to a field that holds it (the title's `sub` holds 80 characters, a list line 48). Never shorten a fact into another fact, and never make initials of a long name: the whole name goes in the `sub`.
    - **Too little for a video.** A video needs a title, at least one scene of content and an end card. When the brief has nothing true for the middle (one tip, one sentence), ask the user for one or two more facts: a reason, an example, the steps. Never write tips, reasons, steps or praise of your own to fill a scene.
    - **Never build an address.** A phone or WhatsApp number is written as the brief writes it (`0811-0000-142`), never turned into a `wa.me` link. An address inside a piece of code is not the user's address.
 2. **Only `storyboard.json` is yours.** Never edit anything inside `video/` or inside this skill's folder. To change the video, change the storyboard and build again.
@@ -33,7 +33,7 @@ You make ONE video by writing ONE file, `storyboard.json`. The kit turns it into
 
 Work in the user's folder (for a page, the one with its `index.html`).
 
-1. **Read the brief and the files it names** (the page's `index.html`, a picture). Write down the facts you may use: who or what it is, the address, the numbers, the quotes and who said them, the list of things.
+1. **Read the brief and the files it names** (the page's `index.html`, a picture); to see what is in the folder, use Glob with `*`, never `ls`. Write down the facts you may use: who or what it is, the address, the numbers, the quotes and who said them, the list of things.
 2. **Pick the recipe and the look** from the two tables below.
 3. **Write `storyboard.json`.** Open `reference/scenes.md` for the fields and limits of the scenes you use, and `reference/writing.md` for how the lines should read. The example below shows the shape. Say each fact once: a price, a date or a place belongs to one scene (the address also goes on the end card). A scene with two true lines is better than one filled up with lines that repeat another scene. If the user asks for a voice or for a silent video, open `reference/sound.md` too.
 4. **Build:** `node "<Base directory>/kit/build.mjs" storyboard.json`

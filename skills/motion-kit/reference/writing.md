@@ -13,7 +13,7 @@ The video is read on a phone, in a few seconds per scene. Every line must be tru
 
 The first frame is the cover: its headline decides whether anyone watches the rest.
 
-- Say what the video is about in the fewest words: the offer ("Diskon 25% semua kemeja batik"), the news ("Kelas baru mulai 5 Januari 2027"), the question ("Ini true atau false?"), the result ("Sepatu putih kusam, bersih lagi").
+- Say what the video is about in the fewest words: the offer ("Diskon 25% semua kemeja batik"), the news ("Kelas baru mulai 5 Januari 2027"), the question ("Ini true atau false?"), the result ("Sepatu putih kusam, bersih lagi"). For a customer's words, what they got, taken from their own words ("120 kotak, datang tepat waktu").
 - A name alone is a headline only when the video introduces that person or shop and the brief gives nothing more pointed. Otherwise the name goes in the `kicker` and on the end card.
 - The `kicker` adds something the headline does not say: who, where or when ("Laundry Kinclong", "Sabtu, 13 Desember 2026"). Not the headline's own words again, and not a greeting ("Selamat datang di"). `Halo, aku` and `Hi, I am` go only above a person's name.
 - The `sub` adds one more fact. It is not a list of what the video will show.

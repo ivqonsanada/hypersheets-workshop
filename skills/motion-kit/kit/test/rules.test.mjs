@@ -50,6 +50,7 @@ const of = (cues, n, type) => cues.filter((q) => q.scene === n && q.type === typ
 
 test("a promo needs no page and no picture", () => {
   refused(build({ ...sb(LIST), scenes: [{ type: "title", kicker: "Flash sale 12.12", headline: "Flash sale 12.12, cuma sehari" }, LIST, END] }), /scene 1 \(title\) "kicker" repeats words of the headline \("Flash sale 12\.12"\)\. The kicker adds who, where or when/);
+  refused(build({ ...sb(LIST), scenes: [{ type: "title", kicker: "Selamat datang di", headline: "Warung Bu Lastri" }, LIST, END] }), /scene 1 \(title\) "kicker" is a greeting \("Selamat datang di"\)/);
   const r = ok(build(sb(LIST)));
   assert.deepEqual(r.plan.scenes.map((s) => s.type), ["title", "list", "end"]);
   clean(r);
@@ -166,6 +167,8 @@ test("a long line of code wraps in its card, and the builder counts the rows the
   assert.deepEqual(show("  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));", 41), ["  grid-template-columns: repeat(auto-fit,", "    minmax(200px, 1fr));"]);
   assert.deepEqual(show("    document.querySelector(\".tombol\").addEventListener(\"click\", kirim);", 41), ["    document.querySelector(\".tombol\")", "      .addEventListener(\"click\", kirim);"]);
   assert.deepEqual(show("  if (umur >= 17 && punyaKtp || didampingiOrangTua) {", 36), ["  if (umur >= 17 && punyaKtp", "    || didampingiOrangTua) {"]);
+  for (let cols = 24; cols <= 44; cols++) for (const row of show("console.log(user.address?.city); // undefined", cols).slice(0, -1)) assert.doesNotMatch(row, /\?$/, `at ${cols} columns a row ends between ? and .`);
+  assert.deepEqual(show("console.log(user.address?.city); // undefined", 34), ["console.log(user.address?.city);", "  // undefined"]);
   for (const line of ["const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);", "x".repeat(72)]) for (const row of show(line, 40)) assert.ok(row.length <= 40, row);
   assert.deepEqual([CODE.max, CODE.cols], [110, 40]);
   assert.equal(show("  const url = `https://api.tokocontoh.test/produk?kategori=${kategori}&halaman=${halaman}&per=${perHalaman}`;", 40).length, 3, "a line of 109 characters takes three rows");
