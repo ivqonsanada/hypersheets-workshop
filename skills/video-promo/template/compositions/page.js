@@ -131,23 +131,56 @@
       if (plan.boxB) plan.boxB[0] = Math.max(2, list.getBoundingClientRect().left - 14); // clear of the numbers or bullets
     }
 
-    // A cut through a line of text at a window edge looks broken: each resting point moves
-    // a little until both edges fall between lines (failing that, the bottom edge).
-    function clean(e) { return !lines.some((q) => q[0] < e - 1 && q[1] > e + 1); }
-    const settle = (want, span) => {
-      let best = null;
-      for (let d = 0; d <= span; d++) {
-        for (const y of d ? [want - d, want + d] : [want]) {
-          if (y < 0 || y > maxY) continue;
-          if (clean(y) && clean(y + VP)) return y;
-          if (best === null && clean(y + VP)) best = y;
-        }
+    // A cut through a line of text at a window edge looks broken. The lines become bands
+    // (lines on one row merge). An edge may sit up to 1 px into the top of a band, which is
+    // empty above the letters, and must stay half a pixel below its bottom, where the
+    // descenders end. A stop is the point nearest to where it wants to be that keeps both
+    // edges clear of the bands (failing that, the bottom edge), a little further from them
+    // where the gap allows.
+    lines.sort((p, q) => p[0] - q[0]);
+    const bands = [];
+    for (const q of lines) {
+      const last = bands[bands.length - 1];
+      if (last && q[0] < last[1]) last[1] = Math.max(last[1], q[1]);
+      else bands.push([q[0], q[1]]);
+    }
+    function settle(want, lo, hi) {
+      lo = Math.max(0, lo);
+      hi = Math.min(maxY, Math.max(lo, hi));
+      lo = Math.min(lo, hi);
+      want = Math.min(hi, Math.max(lo, want));
+      let best = null, s = lo, fromBand = false;
+      // The point of the clear stretch [s, t] nearest want, 1.5 px further from a band if it fits.
+      function take(t, toBand) {
+        const a = s + (fromBand ? 1.5 : 0), z = t - (toBand ? 1.5 : 0);
+        const y = a <= z ? Math.min(z, Math.max(a, want)) : (s + t) / 2;
+        if (best === null || Math.abs(y - want) < Math.abs(best - want)) best = y;
       }
-      return best === null ? Math.min(maxY, Math.max(0, want)) : best;
-    };
-    plan.yA = settle(0, 24);
-    const want = target ? (head || target).getBoundingClientRect().top - 24 : VP * 0.6;
-    plan.yB = Math.max(plan.yA, settle(Math.min(maxY, Math.max(0, Math.round(want))), 60));
+      // Both edges first (the top at y, the bottom at y + VP), then the bottom edge alone.
+      for (const edges of [[0, VP], [VP]]) {
+        best = null; s = lo; fromBand = false;
+        const cuts = [];
+        for (const b of bands) for (const off of edges) cuts.push([b[0] + 1 - off, b[1] + 0.5 - off]);
+        cuts.sort((m, n) => m[0] - n[0]);
+        for (const c of cuts) {
+          if (c[1] <= s) continue;
+          if (c[0] >= hi) break;
+          if (c[0] >= s) take(c[0], true);
+          s = c[1];
+          fromBand = true;
+        }
+        if (s <= hi) take(hi, false);
+        if (best !== null) return best;
+      }
+      return want;
+    }
+    // The first stop stays near the top and keeps the whole name in view for the marker.
+    const a = plan.boxA;
+    plan.yA = settle(0, a ? a[3] + 6 - VP : 0, a ? Math.min(48, a[1] - 6) : 48);
+    // The second stop puts the list's heading near the top, never above it.
+    const headTop = target ? (head || target).getBoundingClientRect().top : null;
+    const want = Math.min(maxY, Math.max(0, headTop !== null ? Math.round(headTop - 24) : VP * 0.6));
+    plan.yB = Math.max(plan.yA, settle(want, Math.max(plan.yA, want - 60), headTop !== null ? Math.min(want + 60, headTop - 4) : want + 60));
   }
 
   // ---------- every frame ----------
