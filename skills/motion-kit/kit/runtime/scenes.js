@@ -161,7 +161,7 @@
       const grouped = groupSep ? int.replace(/\B(?=(\d{3})+(?!\d))/g, groupSep) : int;
       return pre + grouped + (frac ? decSep + frac : "") + post;
     };
-    const sizes = P ? [460, 400, 350, 300, 260, 220, 190, 160] : [380, 340, 300, 260, 220, 190, 160, 132];
+    const sizes = P ? [460, 400, 350, 300, 260, 220, 190, 160, 136] : [380, 340, 300, 260, 220, 190, 160, 132, 112];
     const fitted = flag(c, MK.fit(s.value.replace(/\s+/g, " "), "display", sizes, c.W - (boxed ? 88 : 0), 1), "the number");
     const num = MK.plain("div", "num", s.value);
     num.style.fontSize = fitted.size + "px";

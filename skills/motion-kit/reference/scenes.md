@@ -83,7 +83,7 @@ One number, counted up, and what it means. Only for a real number from the brief
 
 | Field | Limit | |
 |---|---|---|
-| `value` | 10 | needed. The number as it should read: "1.250", "87%", "Rp15.000", "3x" |
+| `value` | 12 | needed. The number as it should read: "1.250", "87%", "Rp15.000", "Rp1.250.000", "3x" |
 | `label` | 44 | needed. What the number counts |
 | `note` | 48 | where the number comes from, or since when |
 

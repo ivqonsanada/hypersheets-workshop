@@ -18,7 +18,7 @@ export const NARRATORS = ["ringan", "kokoro", "bagus", "sendiri", "draft"];
 
 // Which scenes a recipe needs and may hold. Every video opens on `title` and closes on `end`.
 export const RECIPES = {
-  promo: { need: [["page", "image"]], may: ["page", "image", "list", "steps", "stat", "quote"], about: "a person, page, shop or product" },
+  promo: { need: [], may: ["page", "image", "list", "steps", "stat", "quote"], about: "a person, page, shop or product" },
   announce: { need: [], may: ["image", "page", "stat", "list", "steps", "compare"], about: "something new: a feature, an opening, a date" },
   explainer: { need: [["steps"]], may: ["steps", "code", "image", "compare", "list"], about: "how something works, in steps" },
   tips: { need: [["list"]], may: ["list", "stat", "quote", "image"], about: "a short list of tips or reasons" },
@@ -34,7 +34,7 @@ export const FIELDS = {
   image: { title: text(26), caption: text(64, true), file: { kind: "file", req: true, ext: ["png", "jpg", "jpeg", "webp"] } },
   list: { heading: text(30, true), items: { kind: "texts", min: 2, most: 4, max: 48, req: true } },
   steps: { heading: text(30, true), steps: { kind: "objects", min: 2, most: 4, req: true, of: { title: text(28, true), detail: text(56) } } },
-  stat: { value: { ...text(10, true), how: "keep only the number and its unit here, as the brief writes it (\"Rp15.000\", \"87%\", \"3 days\"); the words that explain it go in \"label\"" }, label: text(44, true), note: text(48) },
+  stat: { value: { ...text(12, true), how: "keep only the number and its unit here, as the brief writes it (\"Rp15.000\", \"87%\", \"3 days\"); the words that explain it go in \"label\"" }, label: text(44, true), note: text(48) },
   quote: { text: text(150, true), name: text(28, true), role: text(40) },
   compare: {
     heading: text(30),

@@ -51,7 +51,7 @@ Work in the user's folder (for a page, the one with its `index.html`).
 
 | The brief is about | `recipe` | Scenes, in this order |
 |---|---|---|
-| a person, a page, a shop, a product | `promo` | title, then page or image, then one or two of list, steps, stat, quote, then end |
+| a person, a page, a shop, a product, a service | `promo` | title, then page or image when there is one, then one or two of list, steps, stat, quote, then end |
 | something new: a feature, an opening, a date | `announce` | title, then one to three of image, page, stat, list, steps, compare, then end |
 | how something works | `explainer` | title, steps, then optionally code, image, compare or list, then end |
 | tips or reasons | `tips` | title, list, then optionally stat, quote or image, then end |
