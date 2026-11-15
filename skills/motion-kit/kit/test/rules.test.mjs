@@ -411,3 +411,81 @@ test("an end card address taken out of the code builds, and the builder says to 
   assert.doesNotMatch(own.out, /CHECK THE ADDRESS/);
   clean(lifted, own);
 });
+
+test("a fact said in two scenes builds, and the builder names it, both places and the one to keep", () => {
+  const title = (more) => ({ type: "title", kicker: "Toko Roti Sari Gandum", headline: "Cabang baru di Malang", ...more });
+  const end = { type: "end", line: "Mampir ke cabang baru kami", name: "Toko Roti Sari Gandum", address: "@sarigandum.mlg", button: "Lihat IG kami" };
+  const info = { type: "info", heading: "Promo pembuka", rows: [{ label: "Promo", text: "Roti sobek gratis" }, { label: "Untuk", text: "50 pembeli pertama" }] };
+  const video = (scenes) => ({ recipe: "announce", look: "kertas", lang: "id", scenes });
+  // The line under the headline says what a later scene says: the later scene keeps it.
+  const sub = ok(build(video([title({ sub: "50 pembeli pertama dapat roti sobek gratis" }), info, end])));
+  assert.match(sub.out, /CHECK WHAT IS SAID TWICE before the sheet\. A viewer needs each thing once:\n  - "Roti sobek gratis", "50 pembeli pertama": keep them in scene 2, and take them out of scene 1 \("sub"\)\.\nTake out only the words that are said again, and keep what else that line says\./);
+  assert.match(sub.out, /Never put a new fact in its place\. Then build again\. Do this once: if a line is still listed after that build, leave it and go on\./);
+  // The headline is the hook: it keeps its words, and the later row loses them.
+  const head = ok(build(video([title({ headline: "Roti sobek gratis di cabang baru" }), info, end])));
+  assert.match(head.out, /  - "Roti sobek gratis": keep it in scene 1, and take it out of scene 2 \("rows"\)\./);
+  // A date leaf keeps its date, whoever else says it.
+  const leaf = { type: "when", label: "Buka perdana", date: "20", month: "Desember 2026", lines: ["Mulai pukul 07.00"] };
+  const date = ok(build(video([title({ headline: "Cabang baru, buka 20 Desember" }), leaf, end])));
+  assert.match(date.out, /  - "20 Desember": keep it in scene 2, and take it out of scene 1 \("headline"\)\./);
+  // One line for a thing that three scenes say.
+  const three = ok(build({ recipe: "coding", look: "warnet", lang: "id", scenes: [
+    { type: "title", headline: "Lupa menulis satuan", sub: "Angka tanpa satuan tidak mengubah lebar kotak" },
+    { type: "fix", caption: "Angka tanpa satuan tidak dibaca browser", lang: "CSS", wrong: [".kotak {", "  width: 200;", "}"], right: [".kotak {", "  width: 200px;", "}"] },
+    { type: "list", heading: "Kenapa lebarnya tetap", items: ["Angka tanpa satuan diabaikan browser", "Jadi lebar kotak tetap seperti semula"] },
+    { type: "end", line: "Belajar CSS lebih lanjut", address: "learnhypersheets.com", button: "Buka situsnya" }] }));
+  assert.match(three.out, /  - "Angka tanpa satuan": keep it in scene 3, and take it out of scene 1 \("sub"\) and scene 2 \("caption"\)\./);
+  assert.equal(three.out.match(/Angka tanpa satuan": keep/g).length, 1);
+
+  // What may be said again: the name and the address on the end card and wherever else they stand, a thing a
+  // later heading names, two words inside two longer sentences, a customer's words in the headline, a price in a price list.
+  const fine = [
+    video([title({ sub: "Di Jl. Anggrek 14, Malang" }), { type: "info", heading: "Cari kami", rows: [{ label: "Akun", text: "@sarigandum.mlg" }, { label: "Toko", text: "Toko Roti Sari Gandum" }] }, end]),
+    { recipe: "menu", look: "kertas", lang: "id", scenes: [title({ headline: "Tiga paket nasi kotak" }), { type: "prices", heading: "Harga per kotak", rows: [{ name: "Paket Hemat", price: "Rp18.000" }, { name: "Paket Lengkap", price: "Rp25.000" }] }, { type: "list", heading: "Isi Paket Lengkap", items: ["Nasi dan ayam bakar", "Sayur, sambal, kerupuk"] }, end] },
+    video([title({ sub: "Fungsi ini mengambil daftar produk dari internet, langkah demi langkah" }), { type: "steps", heading: "Yang dilakukan", steps: [{ title: "Susun alamat", detail: "Dari kategori dan halaman" }, { title: "Pilih isinya", detail: "Hasilnya daftar produk baru" }] }, end]),
+    { recipe: "testimonial", look: "kertas", lang: "id", scenes: [title({ headline: "Kanopi tidak bocor walau hujan deras" }), { type: "quote", text: "Kanopi warung saya dipasang dua hari, rapi, dan sampai sekarang tidak bocor walau hujan deras.", name: "Bu Ratih Kusuma" }, end] },
+    { recipe: "testimonial", look: "kertas", lang: "id", scenes: [title({ headline: "Formulir pesanan Warung Bu Yati" }), { type: "quote", text: "Pesanan sekarang masuk dalam satu daftar, dan saya memasak dari situ.", name: "Yati Suryani", role: "Pemilik Warung Bu Yati" }, { type: "list", heading: "Yang dibuat", items: ["Satu halaman untuk Warung Bu Yati", "Selesai dalam dua minggu"] }, end] },
+    { recipe: "menu", look: "kertas", lang: "id", scenes: [title({ sub: "Semua roti Rp12.000 minggu ini" }), { type: "prices", heading: "Roti minggu ini", rows: [{ name: "Roti sobek", price: "Rp12.000", was: "Rp15.000" }, { name: "Roti keju", price: "Rp12.000" }] }, end] },
+  ].map((s) => ok(build(s)));
+  for (const r of fine) assert.doesNotMatch(r.out, /CHECK WHAT IS SAID TWICE/, r.out);
+
+  // The end card saying its own name twice.
+  const twice = ok(build(video([title({}), info, { ...end, line: "Tanya Pak Bambang", name: "Pak Bambang" }])));
+  assert.match(twice.out, /  - The end card says "Pak Bambang" twice, in "line" and in "name"\. Write the "line" as the reason to act or the deadline, without the name\./);
+  clean(sub, head, date, three, twice, ...fine);
+});
+
+test("capitals that are the first letters of a name the video shows whole are named, and the build goes on", () => {
+  const video = (kicker, sub) => ({ recipe: "announce", look: "panggung", lang: "id", scenes: [
+    { type: "title", kicker, headline: "Lomba desain web untuk pelajar", sub },
+    { type: "info", heading: "Yang perlu kamu tahu", rows: [{ label: "Biaya", text: "Rp50.000 per tim" }, { label: "Hadiah", text: "Total hadiah Rp3.000.000" }] },
+    { type: "end", line: "Ayo daftarkan timmu", address: "hmsi-utb.pages.dev/lomba", button: "Daftar sekarang" }] });
+  const r = ok(build(video("HMSI Sistem Informasi", "Himpunan Mahasiswa Sistem Informasi Universitas Tirta Buana")));
+  assert.match(r.out, /CHECK THE INITIALS before the sheet\. Scene 1 \("kicker"\) holds "HMSI", the first letters of "Himpunan Mahasiswa Sistem Informasi", which scene 1 shows whole\. Initials are only for a name the brief itself writes that way\. If the brief does not write "HMSI", take it out and build again: the whole name is already on screen\./);
+  // Capitals that stand for nothing the video shows, and common ones beside other words, pass.
+  const plain = ok(build(video("Untuk siswa SMA dan SMK", "Himpunan Mahasiswa Sistem Informasi Universitas Tirta Buana")));
+  assert.doesNotMatch(plain.out, /CHECK THE INITIALS/);
+  clean(r, plain);
+});
+
+test("a headline that is only the name the end card shows is named, and nothing else about the title is said in that build", () => {
+  const video = (headline, more = {}) => ({ recipe: "promo", look: "kertas", lang: "id", scenes: [
+    { type: "title", kicker: "Di Madiun", headline, sub: "Servis rutin, ganti oli, dan tambal ban", ...more },
+    { type: "list", heading: "Yang kami kerjakan", numbered: false, items: ["Servis rutin", "Ganti oli", "Tambal ban"] },
+    { type: "end", line: "Hubungi lewat WhatsApp", name: "Bengkel Motor Pak Slamet", address: "0811-0000-846", button: "Chat sekarang" }] });
+  const r = ok(build(video("Bengkel Motor Pak Slamet")));
+  assert.match(r.out, /CHECK THE HEADLINE before the sheet\. The headline is only the name \("Bengkel Motor Pak Slamet"\), and the end card shows the name again\. A headline tells the viewer what they get\. Put the name in "kicker" and write the headline with words the brief or the user's answer already has: what is sold or done there, or what the customer got in the customer's own words\. Never praise, and never add a claim the brief does not make\. If the brief has nothing but the name, leave the headline as it is\. Then build again\./);
+  assert.doesNotMatch(r.out, /CHECK WHAT IS SAID TWICE/, "one thing at a time for the title");
+  // A person's own page opens on the person's name: the page scene shows what they do.
+  const person = ok(build({ recipe: "promo", look: "kertas", lang: "id", scenes: [
+    { type: "title", kicker: "Halo, saya", headline: "Wayan Sudiarta", sub: "Pemandu wisata di Ubud" },
+    { type: "page", title: "Ini halaman saya", address: "wayan-sudiarta.pages.dev", file: "index.html" },
+    { type: "end", line: "Mampir ke halaman saya", name: "Wayan Sudiarta", address: "wayan-sudiarta.pages.dev", button: "Buka halamannya" }] }, { "index.html": "<!doctype html><html lang=\"id\"><body><h1>Wayan Sudiarta</h1><ul><li>Satu</li><li>Dua</li></ul></body></html>" }));
+  assert.doesNotMatch(person.out, /CHECK THE HEADLINE/);
+  clean(person);
+  // With the headline written from what the place does, the list that says it again is named next.
+  const next = ok(build(video("Servis rutin, ganti oli, tambal ban", { kicker: "Bengkel Motor Pak Slamet", sub: "Di Madiun" })));
+  assert.doesNotMatch(next.out, /CHECK THE HEADLINE/);
+  assert.match(next.out, /  - "Servis rutin", "Ganti oli", "Tambal ban": keep them in scene 1, and take them out of scene 2 \("items"\)\./);
+  clean(r, next);
+});

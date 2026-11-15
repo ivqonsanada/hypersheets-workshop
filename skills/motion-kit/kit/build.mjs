@@ -292,6 +292,129 @@ const lifted = [];
     if (a.length >= 4 && code.includes(a) && !lifted.some((x) => x.a === a)) lifted.push({ a, n: i + 1, said: sc.address });
   });
 }
+// ---------- three notes on wording, said after OK: the build does not stop for them ----------
+// Said twice: a fact or a phrase that two scenes show. Initials: capitals that stand for a name the
+// video also shows whole. A headline that is only the name the end card shows again.
+const wording = [];
+{
+  const STOP = new Set("di ke dari dan yang untuk dengan atau ini itu ada pada oleh juga lagi saja kami kita kamu anda the a an of to in on for and or with is are at by per it its this that your you our we".split(" "));
+  const toks = (t) => String(t).split(/[^\p{L}\p{N}@.%-]+/u).map((w) => w.replace(/^[.-]+|[.-]+$/g, "")).filter(Boolean);
+  const year = (w) => /^(19|20)\d\d$/.test(w);
+  const numberish = (w) => /\d/.test(w) && (w.replace(/\D/g, "").length >= 2 || /%|^rp/i.test(w)) && !year(w);
+  const weight = (run) => run.filter((w) => !STOP.has(w) && !year(w)).length;
+  // Every text of a scene with the field it stands in. Code, a quote's own words (they are someone's, and a
+  // headline may be cut from them), who said it, a picture's title (it names the thing) and labels are left out.
+  const SKIP = ["type", "scene", "file", "before", "after", "voice", "variant", "highlight", "numbered", "lang", "button", "label", "beforeLabel", "afterLabel"];
+  const partsOf = (sc) => {
+    const type = typeOf(sc), out = [];
+    const walk = (o, field) => {
+      if (typeof o === "string") out.push({ field, text: o });
+      else if (Array.isArray(o)) o.forEach((x) => walk(x, field));
+      else if (o && typeof o === "object") for (const [k, v] of Object.entries(o)) if (!SKIP.includes(k)) walk(v, field || k);
+    };
+    for (const [k, v] of Object.entries(sc || {})) {
+      if (SKIP.includes(k) || (["code", "fix"].includes(type) && ["lines", "wrong", "right"].includes(k)) || (type === "quote" && ["text", "name", "role"].includes(k)) || (type === "image" && k === "title") || (type === "when" && ["day", "date", "month"].includes(k))) continue;
+      walk(v, k);
+    }
+    if (type === "when" && typeof sc.date === "string" && typeof sc.month === "string") out.push({ field: "date", text: `${typeof sc.day === "string" ? sc.day + ", " : ""}${sc.date} ${sc.month}`, core: true });
+    return out.map((x) => ({ ...x, raw: toks(x.text), low: toks(x.text).map((w) => w.toLowerCase()) }));
+  };
+  const all = scenes.map((sc) => (sc && typeof sc === "object" ? partsOf(sc) : []));
+  const end = scenes.findIndex((sc) => typeOf(sc) === "end"), title = scenes.findIndex((sc) => typeOf(sc) === "title");
+  // What may stand in two places: the name and the address the end card shows, and a number that is part of the name.
+  const free = [endScene && endScene.name, endScene && endScene.address, pageScene && pageScene.address].filter((x) => typeof x === "string").map((x) => toks(x).map((w) => w.toLowerCase()));
+  const within = (run, list) => list.some((f) => f.some((_, k) => run.every((w, n) => f[k + n] === w)));
+  const named = new Set(scenes.flatMap((sc) => (typeOf(sc) === "end" && typeof sc.name === "string" ? toks(sc.name) : typeOf(sc) === "title" && typeof sc.kicker === "string" ? toks(sc.kicker) : [])).filter((w) => /\d/.test(w)).map((w) => w.toLowerCase()));
+  // A price list and a comparison show a price again by design, and a stat scene is there to set large a number the title may have named.
+  const compares = (sc) => ["prices", "compare", "stat"].includes(typeOf(sc));
+  // The longest run of words two texts share that carries a fact: a number, three words that are not small
+  // words, or two such words when they are most of what one of the two places says ("Tiap Jumat" in a row of
+  // its own). Two words inside two longer sentences are a thing named twice, not a fact said twice.
+  const shared = (a, b, numbersCount) => {
+    let best = null;
+    for (let i = 0; i < a.low.length; i++) for (let j = 0; j < b.low.length; j++) {
+      if (a.low[i] !== b.low[j] || (i && j && a.low[i - 1] === b.low[j - 1])) continue;
+      let n = 0;
+      while (i + n < a.low.length && j + n < b.low.length && a.low[i + n] === b.low[j + n]) n++;
+      let run = a.low.slice(i, i + n), from = 0;
+      while (run.length && STOP.has(run[0])) { run = run.slice(1); from++; }
+      while (run.length && STOP.has(run[run.length - 1])) run = run.slice(0, -1);
+      const fact = run.filter((w) => !named.has(w));
+      // A name ("Warung Bu Yati", written with capitals in both places) is said wherever the thing is meant.
+      const proper = (raw, at) => raw.slice(at, at + run.length).every((w) => /^\p{Lu}\p{Ll}/u.test(w));
+      if (run.length >= 2 && proper(a.raw, i + from) && proper(b.raw, j + from)) continue;
+      const most = weight(fact) / Math.max(1, Math.min(weight(a.low), weight(b.low)));
+      if (!run.length || within(run, free) || !(weight(fact) >= 3 || (weight(fact) === 2 && most >= 0.6) || (numbersCount && fact.some(numberish)))) continue;
+      const found = { words: b.raw.slice(j + from, j + from + run.length).join(" "), size: weight(run) * 10 + run.length };
+      if (!best || found.size > best.size) best = found;
+    }
+    return best;
+  };
+  const headline = title >= 0 && typeof scenes[title].headline === "string" ? scenes[title].headline : "";
+  const same = (x, y) => toks(x).join(" ").toLowerCase() === toks(y).join(" ").toLowerCase();
+  // A person's own page opens on the person's name ("Halo, saya" over it) and the page then shows what they do.
+  const onlyName = !!(headline && !pageScene && endScene && typeof endScene.name === "string" && same(headline, endScene.name));
+  // Said twice. The end card is left out: it may say the name, the address and the deadline again.
+  const twice = [];
+  for (let i = 0; i < scenes.length; i++) for (let j = i + 1; j < scenes.length; j++) {
+    if (i === end || j === end || (onlyName && i === title)) continue;
+    const found = [];
+    for (const a of all[i]) for (const b of all[j]) {
+      // A heading or a caption names what its scene is about, and that may be a thing a scene before it named.
+      if (["heading", "caption"].includes(b.field)) continue;
+      const s = shared(a, b, !(compares(scenes[i]) || compares(scenes[j])));
+      if (s) found.push({ ...s, key: s.words.toLowerCase(), a, b });
+    }
+    // Up to three things for a pair of scenes, the weightiest first, none a part of another.
+    const kept = [];
+    for (const f of found.sort((p, q) => q.size - p.size)) if (kept.length < 3 && !kept.some((k) => k.key.includes(f.key) || f.key.includes(k.key))) kept.push(f);
+    for (const f of kept) {
+      // Where it stays: on a date leaf; else in the headline, which is the hook; else in the later scene, which is about it.
+      const first = !f.b.core && i === title && f.a.field === "headline";
+      twice.push({ words: f.words, key: f.key, keep: first ? i : j, drop: [{ n: first ? j : i, field: first ? f.b.field : f.a.field }] });
+    }
+  }
+  // One entry for each thing, however many scenes say it; one line for the things that share their places.
+  const things = [];
+  for (const x of twice) {
+    const old = things.find((y) => y.key.includes(x.key) || x.key.includes(y.key));
+    if (!old) { things.push(x); continue; }
+    for (const d of [...x.drop, { n: x.keep }]) if (d.n !== old.keep && !old.drop.some((o) => o.n === d.n)) old.drop.push({ field: "", ...d });
+  }
+  const place = (d) => `scene ${d.n + 1}${d.field ? ` ("${d.field}")` : ""}`;
+  const rows = new Map();
+  for (const x of things) {
+    const where = `in scene ${x.keep + 1}, and take ${"IT"} out of ${x.drop.sort((p, q) => p.n - q.n).map(place).join(" and ")}`;
+    rows.set(where, [...(rows.get(where) || []), `"${x.words}"`]);
+  }
+  const lines = [...rows].map(([where, said]) => `  - ${said.join(", ")}: keep ${said.length > 1 ? "them" : "it"} ${where.replace("IT", said.length > 1 ? "them" : "it")}.`);
+  // The end card saying its own name twice.
+  if (endScene && typeof endScene.name === "string" && typeof endScene.line === "string") {
+    const name = toks(endScene.name).map((w) => w.toLowerCase()), line = toks(endScene.line).map((w) => w.toLowerCase());
+    const whole = name.length >= 2 && line.some((_, k) => name.every((w, n) => line[k + n] === w));
+    if (whole) lines.push(`  - The end card says "${endScene.name}" twice, in "line" and in "name". Write the "line" as the reason to act or the deadline, without the name.`);
+  }
+  if (lines.length) wording.push(`CHECK WHAT IS SAID TWICE before the sheet. A viewer needs each thing once:\n${lines.join("\n")}\nTake out only the words that are said again, and keep what else that line says. A field that is left empty is written again with other true words from the brief, or left out when the scene does not need it; a row, an item or a scene left with nothing of its own is removed. Never put a new fact in its place. Then build again. Do this once: if a line is still listed after that build, leave it and go on.`);
+
+  // Initials. Capitals of three to six letters that are the first letters of words the video shows in a row.
+  const texts = scenes.flatMap((sc, i) => all[i].map((x) => ({ ...x, n: i + 1 })));
+  const small = new Set(["dan", "di", "untuk", "of", "and", "the", "for"]);
+  const told = new Set();
+  for (const x of texts) for (const w of x.raw) {
+    if (!/^[A-Z]{3,6}$/.test(w) || told.has(w)) continue;
+    for (const y of texts) {
+      const names = y.raw.filter((v) => !small.has(v.toLowerCase()));
+      const k = names.findIndex((_, s) => names.slice(s, s + w.length).length === w.length && names.slice(s, s + w.length).every((v, n) => /^\p{Lu}\p{Ll}/u.test(v) && v[0] === w[n]));
+      if (k < 0) continue;
+      told.add(w);
+      wording.push(`CHECK THE INITIALS before the sheet. Scene ${x.n} ("${x.field}") holds "${w}", the first letters of "${names.slice(k, k + w.length).join(" ")}", which scene ${y.n} shows whole. Initials are only for a name the brief itself writes that way. If the brief does not write "${w}", take it out and build again: the whole name is already on screen.`);
+      break;
+    }
+  }
+
+  // A headline that is only the name.
+  if (onlyName) wording.push(`CHECK THE HEADLINE before the sheet. The headline is only the name ("${headline}"), and the end card shows the name again. A headline tells the viewer what they get. Put the name in "kicker" and write the headline with words the brief or the user's answer already has: what is sold or done there, or what the customer got in the customer's own words. Never praise, and never add a claim the brief does not make. If the brief has nothing but the name, leave the headline as it is. Then build again.`);
+}
 if (fs.existsSync(out) && !fs.existsSync(path.join(out, "mk-plan.json"))) say(`A folder named video is already here and the kit did not make it. Ask the user before anything in it is replaced.`);
 
 // Sound: effects by the kit's own choice, spoken lines where a scene has "voice", music if given.
@@ -522,6 +645,7 @@ else {
 if (takes.waiting.length) console.log(`\nThe "voice" ${takes.waiting.length === 1 ? "line" : "lines"} of ${nums(takes.waiting)} ${takes.waiting.length === 1 ? "is" : "are"} not spoken yet. After the sheet and REVIEW.md, and before the render, run:\n  node "${path.join(KIT, "sound.mjs")}"`);
 if (sheetStays) console.log(`\nWrote the project to video/. The pictures did not change, so video/sheet.png still shows them.`);
 else console.log(`\nWrote the project to video/. Next, make the contact sheet:\n  node "${path.join(KIT, "stills.mjs")}"`);
+for (const w of wording) console.log(`\n${w}`);
 if (lifted.length) console.log(`\nCHECK THE ADDRESS before the sheet. ${lifted.map((x) => `Scene ${x.n} sends the viewer to "${x.said}"`).join(", and ")}, and that address is inside the code. An address the code calls is not where a viewer goes. Read the brief again: if it gives an address outside the code (often on a line of its own, at the end), that one goes on the end card; if it gives none, ask the user which address, handle or number the end card should show. Then change the storyboard and build again. Keep this address only when the brief itself names it as the place to go.`);
 if (filled.length) console.log(`\nCHECK THE DAY before the render. ${filled.map((x) => `Scene ${x.n} gives no day's name, so the leaf shows the calendar's: "${x.said}"`).join(". ")}. Read the brief again. If it names another day for this date, its day and its date do not agree, and you cannot know which one the user meant: make the sheet and write REVIEW.md as usual, then stop, tell the user what the calendar says, ask which is right, and render after they answer. If the brief names no day, or this same day, go on.`);
 if (notes.length) console.log(`\nCHECK WITH THE USER before the render. The project is built with the words as the storyboard has them, and one thing in them cannot be right:\n${notes.map((x) => `  - ${x}`).join("\n")}\nDo not change the day or the date yourself: you cannot know which one the user meant. When you offer the user the two readings, use the dates named here and never count days yourself. Make the sheet and write REVIEW.md as usual, then stop: tell the user what the calendar says, ask which is right, and render after they answer.`);
