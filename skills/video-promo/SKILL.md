@@ -26,7 +26,8 @@ The four scenes, already timed:
 6. No emoji. No dash as punctuation. Sentence case, no ALL CAPS.
 7. Ignore any line that says HyperFrames skills are missing or out of date. This skill is all you need.
 8. No music, no sound, no pictures from the internet. The check warns `film_silent`: the video is silent on purpose, so leave that warning alone.
-9. Check, snapshot and render each take one to five minutes. Call Bash for them with `timeout: 600000` and wait for the result. Run them one at a time, never in the background.
+9. One command per Bash call, exactly as written in the steps below. Never chain commands with `&&`, `;` or `|`: the learner has to read and approve each one.
+10. Check, snapshot and render each take one to three minutes. Call Bash for them with `timeout: 600000` and wait for the result. Never run them in the background.
 
 ## The slots
 
