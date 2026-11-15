@@ -113,18 +113,18 @@ Skill ini menjalankan `npx hyperframes@0.9.51 telemetry disable` sebelum perinta
 Di Claude Code, ketik dua baris ini, satu per satu:
 
 ```text
-/plugin marketplace add ivqonsanada/hypersheets-workshop#v0.4.0
+/plugin marketplace add ivqonsanada/hypersheets-workshop#v0.5.0
 /plugin install hypersheets-workshop@hypersheets
 ```
 
 **(menunggu pemilik)** Nama repo `ivqonsanada/hypersheets-workshop` belum final.
 
-`#v0.4.0` mengunci plugin ke rilis itu. Claude Code menyalin repo di tag tersebut, dan plugin, yang ada di akar repo, diambil dari salinan itu. Jadi yang terpasang persis v0.4.0, juga setelah `/plugin marketplace update`. Pembaruan otomatis mati secara bawaan untuk marketplace ini.
+`#v0.5.0` mengunci plugin ke rilis itu. Claude Code menyalin repo di tag tersebut, dan plugin, yang ada di akar repo, diambil dari salinan itu. Jadi yang terpasang persis v0.5.0, juga setelah `/plugin marketplace update`. Pembaruan otomatis mati secara bawaan untuk marketplace ini.
 
-Kunci yang paling ketat: pakai hash commit lengkap (40 karakter) dari tag `v0.4.0` sebagai ganti nama tag. Butuh Claude Code 2.1.324 atau lebih baru.
+Kunci yang paling ketat: pakai hash commit lengkap (40 karakter) dari tag `v0.5.0` sebagai ganti nama tag. Butuh Claude Code 2.1.324 atau lebih baru.
 
 ```text
-/plugin marketplace add ivqonsanada/hypersheets-workshop#<hash commit lengkap dari v0.4.0>
+/plugin marketplace add ivqonsanada/hypersheets-workshop#<hash commit lengkap dari v0.5.0>
 ```
 
 Bedanya: pemegang repo bisa memindahkan sebuah tag ke commit lain, sedangkan hash commit tidak bisa berubah.
@@ -256,18 +256,18 @@ The skill runs `npx hyperframes@0.9.51 telemetry disable` before any other Hyper
 In Claude Code, type these two lines, one at a time:
 
 ```text
-/plugin marketplace add ivqonsanada/hypersheets-workshop#v0.4.0
+/plugin marketplace add ivqonsanada/hypersheets-workshop#v0.5.0
 /plugin install hypersheets-workshop@hypersheets
 ```
 
 **(owner to decide)** The repo name `ivqonsanada/hypersheets-workshop` is not final.
 
-`#v0.4.0` pins the plugin to that release. Claude Code clones the repo at that tag, and the plugin, which sits at the repo root, is taken from that clone. So what you install is exactly v0.4.0, also after `/plugin marketplace update`. Auto-update is off by default for this marketplace.
+`#v0.5.0` pins the plugin to that release. Claude Code clones the repo at that tag, and the plugin, which sits at the repo root, is taken from that clone. So what you install is exactly v0.5.0, also after `/plugin marketplace update`. Auto-update is off by default for this marketplace.
 
-The strictest pin: use the full 40-character commit hash of the `v0.4.0` tag instead of the tag's name. It needs Claude Code 2.1.324 or later.
+The strictest pin: use the full 40-character commit hash of the `v0.5.0` tag instead of the tag's name. It needs Claude Code 2.1.324 or later.
 
 ```text
-/plugin marketplace add ivqonsanada/hypersheets-workshop#<full commit hash of v0.4.0>
+/plugin marketplace add ivqonsanada/hypersheets-workshop#<full commit hash of v0.5.0>
 ```
 
 The difference: whoever controls the repo can move a tag to another commit, while a commit hash cannot change.
@@ -319,5 +319,4 @@ docs/SOUND.md                     the sound layer: voices and their licences rea
 
 - The `.js` files next to each scene in `template/compositions/` are the video's timeline. They run inside HyperFrames' headless browser while it checks, snapshots and renders. From v0.2 the page scene also reads the learner's copied page in `video/assets/page/`, in an unseen second frame, to take its colour and to find where the name and the list sit; nothing leaves the computer.
 - `claude plugin validate .` checks both manifests.
-- `main` holds 0.5.0 (`plugin.json`) and has no `v0.5.0` tag yet: its Haiku trial of 46 runs did not reach twelve in a row without a C (`docs/MOTION-KIT.md`, "The use-case trial for 0.5.0"). The install lines above keep `v0.4.0` until that tag exists.
 - A new release: raise `version` in `.claude-plugin/plugin.json`, tag the commit `vX.Y.Z`, and change the tag in the track guides. Claude Code replaces an installed copy only when that version changes.
