@@ -86,6 +86,45 @@
     if (line) lines.push(line);
     return { lines, over };
   }
+  // Where to break `words` into exactly `n` lines of at most `room` px. Of every way that fits, it takes the
+  // one whose lines are most even, and it would rather end a line at a comma than after a joining word
+  // ("di", "dan", "with") or between a number and the word it counts ("12 / Desember", "3 / hari").
+  const JOIN = /^(di|ke|dari|dan|yang|untuk|dengan|atau|pada|per|a|an|the|of|to|in|on|at|for|and|or|with|by)$/i;
+  function breaks(words, font, size, room, n) {
+    const w = words.map((x) => measure(x, font, size));
+    const space = measure("a b", font, size) - measure("ab", font, size);
+    let best = null, bestCost = Infinity;
+    const ends = [];
+    const walk = (start, left, widths) => {
+      if (left === 1) {
+        let last = 0;
+        for (let i = start; i < words.length; i++) last += w[i] + (i > start ? space : 0);
+        if (last > room) return;
+        const all = widths.concat(last), widest = Math.max(...all);
+        let cost = all.reduce((a, x) => a + ((widest - x) / room) ** 2, 0);
+        for (const e of ends) {
+          const end = words[e - 1], next = words[e];
+          if (/[,.:;!?]$/.test(end)) cost -= 0.05;
+          else if (JOIN.test(end)) cost += 0.06;
+          else if (/^\d+$/.test(end) && /^[A-Za-z]/.test(next)) cost += 0.06;
+        }
+        if (cost < bestCost) { bestCost = cost; best = ends.slice(); }
+        return;
+      }
+      let width = 0;
+      for (let end = start + 1; end <= words.length - (left - 1); end++) {
+        width += w[end - 1] + (end - 1 > start ? space : 0);
+        if (width > room) break;
+        ends.push(end);
+        walk(end, left - 1, widths.concat(width));
+        ends.pop();
+      }
+    };
+    walk(0, n, []);
+    if (!best) return null;
+    const cuts = [0, ...best, words.length];
+    return cuts.slice(1).map((e, i) => words.slice(cuts[i], e).join(" "));
+  }
   // The largest of `sizes` at which `text` takes at most `most` lines of `room` px. When even
   // the smallest fails, it is used and the scene is flagged, so the still shows the problem.
   MK.fit = (text, role, sizes, room, most) => {
@@ -96,16 +135,13 @@
       last = { size, lines: r.lines, ok: !r.over && r.lines.length <= most };
       if (last.ok) break;
     }
-    // Two to four lines are evened out: the narrowest room that keeps the same number of
-    // lines, so a last line is never one stray word.
+    // Two to four lines are broken again, by the whole line: as even as they can be, so a last
+    // line is never one stray word, and at a comma before anywhere else.
     const n = last.lines.length;
     if (last.ok && n > 1 && n <= 4) {
-      let lo = 0, hi = room * 0.97;
-      for (let i = 0; i < 14; i++) {
-        const mid = (lo + hi) / 2, r = flow(text, font, last.size, mid);
-        if (!r.over && r.lines.length <= n) hi = mid; else lo = mid;
-      }
-      last.lines = flow(text, font, last.size, hi).lines;
+      const words = String(text).trim().split(/\s+/).filter(Boolean);
+      const lines = words.length <= 28 ? breaks(words, font, last.size, room * 0.97, n) : null;
+      if (lines && lines.every((l) => measure(l, font, last.size) <= room)) last.lines = lines;
     }
     return last;
   };

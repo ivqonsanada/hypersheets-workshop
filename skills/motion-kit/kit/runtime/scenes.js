@@ -15,15 +15,34 @@
     fn(0);
   };
   const clamp = (v) => Math.max(0, Math.min(1, v));
-  // Like MK.fit, but the lines must also fit `tall` px at line height `lh`.
+  // Like MK.fit, but the lines must also fit `tall` px at line height `lh`. A size that leaves
+  // a word of one to three letters alone on a line ("Bu", "di") is passed over when one of
+  // the next three sizes sets the same words without it.
   const fitTall = (text, role, sizes, room, most, lh, tall) => {
-    let last = null;
+    const alone = (f) => f.lines.length > 2 && f.lines.some((l) => l.length <= 3);
+    let last = null, kept = null, tries = 0;
     for (const size of sizes) {
       last = MK.fit(text, role, [size], room, most);
-      if (last.ok && last.lines.length * size * lh <= tall) break;
+      if (!(last.ok && last.lines.length * size * lh <= tall)) continue;
+      if (!alone(last)) return last;
+      kept = kept || last;
+      if (++tries > 3) break;
     }
-    return last;
+    return kept || last;
   };
+  // Of the sizes at which everything fits, the largest wins, unless a smaller one at or above
+  // `floor` wraps fewer lines: "Tanggal 12 Desember 2026" on one line at 58 px reads better
+  // than on two at 68. `at(size)` returns { ok, lines, … } for one size.
+  const fewest = (sizes, floor, at) => {
+    let best = null, last = null;
+    for (const size of sizes) {
+      if (best && sizeOf(size) < floor) break;
+      last = at(size);
+      if (last.ok && (!best || last.lines < best.lines)) best = last;
+    }
+    return best || last;
+  };
+  const sizeOf = (size) => (Array.isArray(size) ? size[0] : size);
   const head = (c, text) => MK.text("h2", "head", flag(c, MK.fit(text, "display", P ? [128, 112, 100, 88, 76] : [96, 88, 80, 72, 64], c.W, 2), "the heading"), P ? 1.02 : 1.1);
 
   // ---------- title: the opening statement, whole from the first frame ----------
@@ -72,13 +91,11 @@
     const hd = head(c, s.heading);
     const room = c.W - (K ? 92 + 30 : 96 + 36);
     const avail = c.H - Number(hd.dataset.h) - 68;
-    let rows = null;
-    for (const size of [68, 62, 58, 54, 50, 46, 42]) {
+    const rows = fewest([68, 62, 58, 54, 50, 46, 42], 54, (size) => {
       const fits = s.items.map((t) => MK.fit(t, "body", [size], room, 2));
       const total = fits.reduce((a, f) => a + Math.max(96, f.lines.length * size * 1.22) + (K ? 88 : 56), 0);
-      rows = fits;
-      if (fits.every((f) => f.ok) && total <= avail) break;
-    }
+      return { fits, ok: fits.every((f) => f.ok) && total <= avail, lines: fits.reduce((a, f) => a + f.lines.length, 0) };
+    }).fits;
     rows.forEach((f, i) => flag(c, f, "list item " + (i + 1)));
     const lis = rows.map((f, i) => h("li", null, [h("b", "chip", String(i + 1)), MK.text("p", "it", f, 1.22), i < rows.length - 1 ? h("i", "hr") : null]));
     safe(c, [hd, h("ol", null, lis)]);
@@ -98,14 +115,12 @@
     // One size for every step's title and one for every detail: the largest pair at which
     // each text takes at most two lines and the whole rail fits under the heading.
     const tall = c.H - Number(hd.dataset.h) - 68;
-    let pick = null;
-    for (const [a, b] of n < 4 ? [[66, 46], [60, 42], [54, 40], [50, 38], [46, 36]] : [[56, 40], [52, 38], [48, 36], [44, 34]]) {
+    const pick = fewest(n < 4 ? [[66, 46], [60, 42], [54, 40], [50, 38], [46, 36]] : [[56, 40], [52, 38], [48, 36], [44, 34]], 50, ([a, b]) => {
       const tts = s.steps.map((st) => MK.fit(st.title, "body", [a], room, 2));
       const dts = s.steps.map((st) => (st.detail ? MK.fit(st.detail, "body", [b], room, 2) : null));
       const total = tts.reduce((sum, f, i) => sum + Math.max(88, 6 + f.lines.length * a * 1.16 + (dts[i] ? 14 + dts[i].lines.length * b * 1.26 : 0)), 0) + (n - 1) * 64;
-      pick = { tts, dts };
-      if (tts.every((f) => f.ok) && dts.every((f) => !f || f.ok) && total <= tall) break;
-    }
+      return { tts, dts, ok: tts.every((f) => f.ok) && dts.every((f) => !f || f.ok) && total <= tall, lines: tts.concat(dts).reduce((sum, f) => sum + (f ? f.lines.length : 0), 0) };
+    });
     const sts = s.steps.map((st, i) => {
       const tt = MK.text("p", "tt", flag(c, pick.tts[i], "step " + (i + 1)), 1.16);
       const dt = pick.dts[i] ? MK.text("p", "dt", flag(c, pick.dts[i], "the detail of step " + (i + 1)), 1.26) : null;
