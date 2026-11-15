@@ -21,7 +21,7 @@ The video takes its colour from the learner's page by itself (the colour of thei
 ## Rules
 
 1. Run HyperFrames only as `npx hyperframes@0.9.51 ...`. Never another version. Never `init`, `preview`, `skills`, `npm install`.
-2. In the files under `video/compositions/`, change only the text between the tags that carry `data-slot`. Never touch `<style>`, `<script>`, `data-start`, `data-duration`, sizes, colours or fonts. Never edit `video/index.html`.
+2. In the `.html` files under `video/compositions/`, change only the text between the tags that carry `data-slot`. Never touch `<style>`, `<script>`, `data-start`, `data-duration`, sizes, colours or fonts. Never edit `video/index.html` or the `.js` files: they are the video's motion, and you do not need to read them.
 3. Stay under each slot's `data-max` (characters, spaces included). Shorter is better.
 4. Only facts from the learner's page. Never invent a job, a skill or an address.
 5. Write in the page's language (look at `<html lang>` and the words). Copy the spelling from the page.

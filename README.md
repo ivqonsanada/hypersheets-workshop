@@ -10,7 +10,7 @@ Plugin Claude Code untuk jalur-jalur Workshop di [learnhypersheets.com/workshop]
 
 ### Isinya
 
-- **Satu skill, `video-promo`.** Petunjuk teks yang dibaca Claude Code saat kamu meminta video promo untuk halamanmu, ditambah templat video yang Claude Code salin ke folder halamanmu: berkas HTML dan CSS, satu berkas JSON, dan huruf Finlandica. Hasilnya video tegak 20 detik (1080 x 1920, MP4) yang dibuat dengan [HyperFrames](https://hyperframes.heygen.com) 0.9.51.
+- **Satu skill, `video-promo`.** Petunjuk teks yang dibaca Claude Code saat kamu meminta video promo untuk halamanmu, ditambah templat video yang Claude Code salin ke folder halamanmu: berkas HTML, CSS, dan JavaScript, satu berkas JSON, dan huruf Finlandica. Hasilnya video tegak 20 detik (1080 x 1920, MP4) yang dibuat dengan [HyperFrames](https://hyperframes.heygen.com) 0.9.51.
 - **Tidak ada hook, server MCP, perintah, agen, atau folder `bin/`.** Plugin ini tidak menjalankan apa pun sendiri. Claude Code membaca skill-nya hanya saat kamu meminta video, dan setiap perintah yang ia jalankan tetap melewati permintaan izin Claude Code.
 - **Folder `dev/` dan `docs/`** berisi alat uji dan laporan uji untuk pengelola. Karena plugin ini ada di akar repo, kedua folder itu ikut tersalin saat dipasang, tapi Claude Code tidak memuat atau menjalankannya, dan kamu tidak perlu menjalankannya.
 
@@ -79,7 +79,7 @@ A Claude Code plugin for the Workshop tracks on [learnhypersheets.com/workshop](
 
 ### What it contains
 
-- **One skill, `video-promo`.** Text instructions Claude Code reads when you ask for a promo video of your page, plus a video template Claude Code copies into your page folder: HTML and CSS files, one JSON file and the Finlandica typeface. The result is a 20-second vertical video (1080 x 1920, MP4) made with [HyperFrames](https://hyperframes.heygen.com) 0.9.51.
+- **One skill, `video-promo`.** Text instructions Claude Code reads when you ask for a promo video of your page, plus a video template Claude Code copies into your page folder: HTML, CSS and JavaScript files, one JSON file and the Finlandica typeface. The result is a 20-second vertical video (1080 x 1920, MP4) made with [HyperFrames](https://hyperframes.heygen.com) 0.9.51.
 - **No hooks, MCP servers, commands, agents or `bin/` folder.** The plugin runs nothing by itself. Claude Code reads the skill only when you ask for a video, and every command it runs still goes through Claude Code's permission prompts.
 - **The `dev/` and `docs/` folders** hold the maintainers' trial tools and trial report. Because the plugin sits at the repo root, both are copied when you install it, but Claude Code never loads or runs them, and you never need to run them.
 
@@ -153,6 +153,6 @@ dev/                              the Haiku trial tools (learners never run them
 docs/TRIAL-2026-11-15.md          the trial report: rubric, runs, tokens and cost
 ```
 
-- The `<script>` blocks in the template are the video's timeline. They run inside HyperFrames' headless browser while it checks, snapshots and renders. From v0.2 the page scene also reads the learner's copied page in `video/assets/page/`, in an unseen second frame, to take its colour and to find where the name and the list sit; nothing leaves the computer.
+- The `.js` files next to each scene in `template/compositions/` are the video's timeline. They run inside HyperFrames' headless browser while it checks, snapshots and renders. From v0.2 the page scene also reads the learner's copied page in `video/assets/page/`, in an unseen second frame, to take its colour and to find where the name and the list sit; nothing leaves the computer.
 - `claude plugin validate .` checks both manifests.
 - A new release: raise `version` in `.claude-plugin/plugin.json`, tag the commit `vX.Y.Z`, and change the tag in the track guides. Claude Code replaces an installed copy only when that version changes.
