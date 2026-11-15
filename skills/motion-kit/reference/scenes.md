@@ -11,7 +11,7 @@ The opening statement, whole from the first frame.
 | Field | Limit | |
 |---|---|---|
 | `headline` | 44 | needed. The one thing the video is about: a name, a promise, a question |
-| `kicker` | 28 | a short line above it: "Halo, aku", "Baru di toko kami", "CSS in 20 seconds" |
+| `kicker` | 28 | a short line above it: "Halo, aku", "Baru di toko kami", "CSS, step by step" |
 | `sub` | 80 | one sentence under it that says who or what |
 
 ```json
@@ -53,7 +53,7 @@ A heading and two to four lines that land one by one.
 | Field | Limit | |
 |---|---|---|
 | `heading` | 30 | needed |
-| `items` | 44 each, 2 to 4 lines | needed. Each line stands alone and starts the same way (all nouns, or all verbs) |
+| `items` | 48 each, 2 to 4 lines | needed. Each line stands alone and starts the same way (all nouns, or all verbs) |
 
 ```json
 { "type": "list", "heading": "Yang bisa dipesan", "items": ["Roti tawar gandum", "Sourdough polos dan kismis", "Kue kering untuk hantaran"] }

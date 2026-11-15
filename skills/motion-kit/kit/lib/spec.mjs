@@ -24,7 +24,7 @@ export const FIELDS = {
   title: { kicker: text(28), headline: text(44, true), sub: text(80) },
   page: { title: text(26, true), address: text(34, true), file: { kind: "file", req: true, ext: ["html", "htm"] } },
   image: { title: text(26), caption: text(64, true), file: { kind: "file", req: true, ext: ["png", "jpg", "jpeg", "webp"] } },
-  list: { heading: text(30, true), items: { kind: "texts", min: 2, most: 4, max: 44, req: true } },
+  list: { heading: text(30, true), items: { kind: "texts", min: 2, most: 4, max: 48, req: true } },
   steps: { heading: text(30, true), steps: { kind: "objects", min: 2, most: 4, req: true, of: { title: text(28, true), detail: text(56) } } },
   stat: { value: { ...text(10, true), how: "keep only the number and its unit here, as the brief writes it (\"Rp15.000\", \"87%\", \"3 days\"); the words that explain it go in \"label\"" }, label: text(44, true), note: text(48) },
   quote: { text: text(150, true), name: text(28, true), role: text(40) },

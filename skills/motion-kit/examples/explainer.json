@@ -3,7 +3,7 @@
   "look": "warnet",
   "lang": "en",
   "scenes": [
-    { "type": "title", "kicker": "CSS in 20 seconds", "headline": "How a grid makes columns", "sub": "One rule on the parent, and the cards line up by themselves" },
+    { "type": "title", "kicker": "CSS, step by step", "headline": "How a grid makes columns", "sub": "One rule on the parent, and the cards line up by themselves" },
     { "type": "steps", "heading": "How it works", "steps": [
       { "title": "Turn the parent into a grid", "detail": "Its children become the cells" },
       { "title": "Say how wide a column is", "detail": "Here, three equal columns" },
