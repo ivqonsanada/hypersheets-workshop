@@ -1,0 +1,11 @@
+{
+  "name": "hypersheets",
+  "owner": { "name": "Hyper Sheets" },
+  "plugins": [
+    {
+      "name": "hypersheets-workshop",
+      "source": "./",
+      "description": "Skills for the Hyper Sheets Workshop tracks."
+    }
+  ]
+}

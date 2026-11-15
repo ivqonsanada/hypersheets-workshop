@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        /* LOCKED: do not edit the style. Change only the text inside the tags marked data-slot. */
+        @font-face { font-family: "Finlandica"; src: url("assets/fonts/finlandica.woff2") format("woff2"); font-weight: 400 700; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212, U+FEFF, U+FFFD; }
+        @font-face { font-family: "Finlandica"; src: url("assets/fonts/finlandica-ext.woff2") format("woff2"); font-weight: 400 700; unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+20A0-20AB, U+2C60-2C7F, U+A720-A7FF; }
+        #root { position: absolute; inset: 0; font-family: "Finlandica", sans-serif; color: #f4ede4; }
+        #root .wrap { position: absolute; left: 120px; right: 140px; top: 240px; bottom: 270px; display: flex; flex-direction: column; justify-content: center; }
+        #root .title { font-size: 72px; font-weight: 700; line-height: 1.1; margin-bottom: 72px; }
+        #root .item { display: flex; align-items: flex-start; gap: 32px; margin-bottom: 56px; }
+        #root .num { flex: none; width: 72px; font-family: "JetBrains Mono", monospace; font-size: 44px; color: #c2b5a6; line-height: 1.6; }
+        #root .txt { font-size: 60px; font-weight: 500; line-height: 1.2; }
+      </style>
+      <div id="root" data-composition-id="learning" data-width="1080" data-height="1920">
+        <div class="wrap" id="learning-in">
+          <h2 class="title" id="learning-title" data-layout-allow-safe-zone data-slot="list-title" data-max="26">Yang sedang kupelajari</h2>
+          <div class="item" id="learning-1"><span class="num" data-layout-allow-safe-zone>01</span><p class="txt" data-layout-allow-safe-zone data-slot="item-1" data-max="40">TODO-item-1</p></div>
+          <div class="item" id="learning-2"><span class="num" data-layout-allow-safe-zone>02</span><p class="txt" data-layout-allow-safe-zone data-slot="item-2" data-max="40">TODO-item-2</p></div>
+          <div class="item" id="learning-3"><span class="num" data-layout-allow-safe-zone>03</span><p class="txt" data-layout-allow-safe-zone data-slot="item-3" data-max="40">TODO-item-3</p></div>
+        </div>
+      </div>
+      <script>
+        (() => {
+          // LOCKED: the title, then one line at a time; each line then holds still.
+          const tl = gsap.timeline({ paused: true });
+          tl.from("#learning-title", { opacity: 0, y: 24, duration: 0.5, ease: "power2.out" }, 0.1);
+          tl.from("#learning-1", { opacity: 0, y: 28, duration: 0.5, ease: "power2.out" }, 0.7);
+          tl.from("#learning-2", { opacity: 0, y: 28, duration: 0.5, ease: "power2.out" }, 1.6);
+          tl.from("#learning-3", { opacity: 0, y: 28, duration: 0.5, ease: "power2.out" }, 2.5);
+          tl.to("#learning-in", { opacity: 0, duration: 0.3, ease: "power1.in" }, 5.65);
+          window.__timelines["learning"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

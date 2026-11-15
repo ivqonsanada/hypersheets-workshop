@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        /* LOCKED: do not edit the style. Change only the text inside the tags marked data-slot. */
+        @font-face { font-family: "Finlandica"; src: url("assets/fonts/finlandica.woff2") format("woff2"); font-weight: 400 700; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212, U+FEFF, U+FFFD; }
+        @font-face { font-family: "Finlandica"; src: url("assets/fonts/finlandica-ext.woff2") format("woff2"); font-weight: 400 700; unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+20A0-20AB, U+2C60-2C7F, U+A720-A7FF; }
+        #root { position: absolute; inset: 0; font-family: "Finlandica", sans-serif; color: #f4ede4; }
+        #root .wrap { position: absolute; left: 120px; right: 140px; top: 240px; bottom: 270px; display: flex; flex-direction: column; justify-content: center; }
+        #root .hello { font-size: 64px; font-weight: 500; color: #c2b5a6; line-height: 1.2; }
+        #root .name { font-size: 120px; font-weight: 700; line-height: 1.04; margin-top: 12px; overflow-wrap: anywhere; }
+        #root .px-row b { display: block; width: 24px; height: 24px; background: #f4ede4; }
+        #root .role { font-size: 56px; font-weight: 400; color: #c2b5a6; line-height: 1.25; margin-top: 44px; }
+        #root .px-row { display: flex; gap: 12px; margin-top: 72px; }
+        #root .px-row i { display: block; width: 24px; height: 24px; background: #4a4038; }
+      </style>
+      <div id="root" data-composition-id="hello" data-width="1080" data-height="1920">
+        <div class="wrap" id="hello-in">
+          <p class="hello" data-layout-allow-safe-zone data-slot="hello" data-max="24">Halo, aku</p>
+          <h1 class="name" data-layout-allow-safe-zone data-slot="name" data-max="20">TODO-name</h1>
+          <p class="role" data-layout-allow-safe-zone data-slot="role" data-max="60">TODO-role</p>
+          <div class="px-row" id="hello-px"><i></i><i></i><i></i><i></i><i></i><i></i><b id="hello-cursor"></b></div>
+        </div>
+      </div>
+      <script>
+        (() => {
+          // LOCKED: the timing is already right. The words are whole from frame 0 (the cover).
+          const tl = gsap.timeline({ paused: true });
+          tl.from("#hello-px i", { opacity: 0, duration: 0.15, stagger: 0.15, ease: "none" }, 0.2);
+          tl.to("#hello-cursor", { opacity: 0, duration: 0.4, repeat: 5, yoyo: true, ease: "steps(1)" }, 1.2);
+          tl.to("#hello-in", { opacity: 0, duration: 0.3, ease: "power1.in" }, 3.65);
+          window.__timelines["hello"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <template>
+      <style>
+        /* LOCKED: do not edit the style. Change only the text inside the tags marked data-slot. */
+        @font-face { font-family: "Finlandica"; src: url("assets/fonts/finlandica.woff2") format("woff2"); font-weight: 400 700; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212, U+FEFF, U+FFFD; }
+        @font-face { font-family: "Finlandica"; src: url("assets/fonts/finlandica-ext.woff2") format("woff2"); font-weight: 400 700; unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+20A0-20AB, U+2C60-2C7F, U+A720-A7FF; }
+        #root { position: absolute; inset: 0; font-family: "Finlandica", sans-serif; color: #f4ede4; }
+        #root .title { position: absolute; left: 120px; right: 140px; top: 250px; font-size: 72px; font-weight: 700; line-height: 1.1; }
+        #root .win { position: absolute; left: 120px; top: 420px; width: 840px; height: 1160px; background: #221d19; border: 6px solid #3a322b; box-shadow: 16px 16px 0 #0b0908; }
+        #root .bar { height: 84px; display: flex; align-items: center; gap: 14px; padding: 0 24px; border-bottom: 6px solid #3a322b; }
+        #root .bar i { flex: none; display: block; width: 20px; height: 20px; background: #4a4038; }
+        #root .addr { margin-left: 14px; font-family: "JetBrains Mono", monospace; font-size: 36px; color: hsl(217 91% 72%); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #root .view { position: absolute; left: 0; right: 0; top: 90px; bottom: 0; overflow: hidden; background: #ffffff; }
+        #root .shot { position: absolute; left: 0; top: 0; width: 414px; height: 1400px; border: 0; transform-origin: 0 0; }
+      </style>
+      <div id="root" data-composition-id="page" data-width="1080" data-height="1920">
+        <div id="page-in">
+          <h2 class="title" id="page-title" data-layout-allow-safe-zone data-slot="page-title" data-max="24">Ini halamanku</h2>
+          <div class="win" id="page-win">
+            <div class="bar"><i></i><i></i><i></i><span class="addr" data-layout-allow-safe-zone data-slot="address" data-max="28">TODO-address</span></div>
+            <div class="view"><iframe class="shot" id="page-shot" data-layout-allow-overflow src="assets/page/index.html" scrolling="no" title="page"></iframe></div>
+          </div>
+        </div>
+      </div>
+      <script>
+        (() => {
+          // LOCKED: the window opens in pixel steps, then the real page scrolls slowly.
+          const tl = gsap.timeline({ paused: true });
+          gsap.set("#page-shot", { scale: 2 });
+          tl.from("#page-title", { opacity: 0, y: 24, duration: 0.5, ease: "power2.out" }, 0.05);
+          tl.fromTo("#page-win", { clipPath: "inset(0% 0% 100% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.6, ease: "steps(8)" }, 0.3);
+          tl.to("#page-shot", { y: -320, duration: 5.4, ease: "sine.inOut" }, 1.2);
+          tl.to("#page-in", { opacity: 0, duration: 0.3, ease: "power1.in" }, 6.65);
+          window.__timelines["page"] = tl;
+        })();
+      </script>
+    </template>
+  </body>
+</html>
