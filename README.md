@@ -153,6 +153,6 @@ dev/                              the Haiku trial tools (learners never run them
 docs/TRIAL-2026-11-15.md          the trial report: rubric, runs, tokens and cost
 ```
 
-- The `<script>` blocks in the template are the video's timeline. They run inside HyperFrames' headless browser while it checks, snapshots and renders.
+- The `<script>` blocks in the template are the video's timeline. They run inside HyperFrames' headless browser while it checks, snapshots and renders. From v0.2 the page scene also reads the learner's copied page in `video/assets/page/`, in an unseen second frame, to take its colour and to find where the name and the list sit; nothing leaves the computer.
 - `claude plugin validate .` checks both manifests.
 - A new release: raise `version` in `.claude-plugin/plugin.json`, tag the commit `vX.Y.Z`, and change the tag in the track guides. Claude Code replaces an installed copy only when that version changes.

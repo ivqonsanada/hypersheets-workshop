@@ -11,10 +11,12 @@ The four scenes, already timed:
 
 | Time | File | What it shows |
 |---|---|---|
-| 0 to 4 s | `compositions/hello.html` | greeting, name, one line about them |
-| 4 to 11 s | `compositions/page.html` | their real page in a window, scrolling |
-| 11 to 17 s | `compositions/learning.html` | three short lines from the page |
-| 17 to 20 s | `compositions/visit.html` | name, page address, a button |
+| 0 to 3.6 s | `compositions/hello.html` | greeting, their name on a band of their page's colour, one line about them |
+| 3.6 to 11 s | `compositions/page.html` | their real page in a window: the address types itself, a marker lands on their name, the page scrolls to their list |
+| 11 to 16.6 s | `compositions/learning.html` | three short lines from the page |
+| 16.6 to 20 s | `compositions/visit.html` | name, page address, a button, on their page's colour |
+
+The video takes its colour from the learner's page by itself (the colour of their name or of the band behind it). You never set a colour.
 
 ## Rules
 
@@ -66,7 +68,7 @@ Work in the learner's page folder (the one with their `index.html`).
    If a `video` folder already exists, stop and ask the learner first.
 3. Copy the page into the video, so scene 2 shows the real page:
    `cp index.html video/assets/page/index.html`
-   If the page uses local pictures or a CSS file, copy them into `video/assets/page/` too, keeping their names.
+   If the page uses local pictures or a CSS file, copy them into `video/assets/page/` too, keeping their names. Scene 2 and the video's colour come from these files.
 4. Fill every slot with Edit, one at a time. Then search `video/compositions` for `TODO-`. There must be none left.
 5. Turn off HyperFrames' usage data before any other HyperFrames command:
    `npx hyperframes@0.9.51 telemetry disable`
