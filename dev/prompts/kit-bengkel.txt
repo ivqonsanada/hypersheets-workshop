@@ -1,0 +1,1 @@
+Pakai skill motion-kit. Buat video sebelum dan sesudah untuk Bengkel Boni di Pematangsiantar: dulu pelanggan harus telepon dulu untuk tanya jadwal, sekarang jadwal servis dipesan dari halaman bengkel. Yang bisa dipesan: servis rutin, ganti oli, dan cek rem. Warna merek kami #0f766e. Alamat halamannya bengkel-boni.pages.dev. Kerjakan sampai videonya selesai dirender.
