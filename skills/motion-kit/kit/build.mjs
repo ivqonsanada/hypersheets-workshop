@@ -264,13 +264,18 @@ scenes.forEach((sc, i) => {
       for (const L of ["id", "en"]) {
         const day = `(${DAYS[L].join("|")}|jum'at|ahad)`, month = `(${MONTHS[L].join("|")})`;
         const found = [...t.matchAll(new RegExp(`\\b${day},?\\s+(\\d{1,2})\\s+${month}\\s+(\\d{4})\\b`, "gi"))].map((m) => ({ said: m[0], day: m[1], d: +m[2], month: m[3], y: +m[4] }));
-        if (L === "en") found.push(...[...t.matchAll(new RegExp(`\\b${day},?\\s+${month}\\s+(\\d{1,2}),?\\s+(\\d{4})\\b`, "gi"))].map((m) => ({ said: m[0], day: m[1], d: +m[3], month: m[2], y: +m[4] })));
+        if (L === "en") found.push(...[...t.matchAll(new RegExp(`\\b${day},?\\s+${month}\\s+(\\d{1,2}),?\\s+(\\d{4})\\b`, "gi"))].map((m) => ({ said: m[0], day: m[1], d: +m[3], month: m[2], y: +m[4], monthFirst: true })));
         for (const f of found) {
           const name = f.day.toLowerCase().replace("jum'at", "jumat").replace("ahad", "minggu");
           const date = new Date(Date.UTC(f.y, MONTHS[L].indexOf(f.month.toLowerCase()), f.d));
           if (date.getUTCDate() !== f.d) { if (!told.has(f.said)) notes.push(`scene ${i + 1} says "${f.said}", and that month has no day ${f.d}.`); told.add(f.said); continue; }
           const real = DAYS[L][date.getUTCDay()];
-          if (real !== name && !told.has(f.said)) notes.push(`scene ${i + 1} says "${f.said}", and on the calendar that date is a ${real[0].toUpperCase() + real.slice(1)}.`);
+          if (real !== name && !told.has(f.said)) {
+            // The other reading, worked out here so the model never counts days: the date nearest to this one that falls on the day the words name.
+            const ahead = (DAYS[L].indexOf(name) - date.getUTCDay() + 7) % 7, near = new Date(date.getTime() + (ahead <= 3 ? ahead : ahead - 7) * 86400000);
+            const cap = (w) => w[0].toUpperCase() + w.slice(1), month = cap(MONTHS[L][near.getUTCMonth()]);
+            notes.push(`scene ${i + 1} says "${f.said}", and on the calendar that date is a ${cap(real)}. The nearest ${cap(name)} is ${f.monthFirst ? `${month} ${near.getUTCDate()}, ${near.getUTCFullYear()}` : `${near.getUTCDate()} ${month} ${near.getUTCFullYear()}`}.`);
+          }
           told.add(f.said);
         }
       }
@@ -519,4 +524,4 @@ if (sheetStays) console.log(`\nWrote the project to video/. The pictures did not
 else console.log(`\nWrote the project to video/. Next, make the contact sheet:\n  node "${path.join(KIT, "stills.mjs")}"`);
 if (lifted.length) console.log(`\nCHECK THE ADDRESS before the sheet. ${lifted.map((x) => `Scene ${x.n} sends the viewer to "${x.said}"`).join(", and ")}, and that address is inside the code. An address the code calls is not where a viewer goes. Read the brief again: if it gives an address outside the code (often on a line of its own, at the end), that one goes on the end card; if it gives none, ask the user which address, handle or number the end card should show. Then change the storyboard and build again. Keep this address only when the brief itself names it as the place to go.`);
 if (filled.length) console.log(`\nCHECK THE DAY before the render. ${filled.map((x) => `Scene ${x.n} gives no day's name, so the leaf shows the calendar's: "${x.said}"`).join(". ")}. Read the brief again. If it names another day for this date, its day and its date do not agree, and you cannot know which one the user meant: make the sheet and write REVIEW.md as usual, then stop, tell the user what the calendar says, ask which is right, and render after they answer. If the brief names no day, or this same day, go on.`);
-if (notes.length) console.log(`\nCHECK WITH THE USER before the render. The project is built with the words as the storyboard has them, and one thing in them cannot be right:\n${notes.map((x) => `  - ${x}`).join("\n")}\nDo not change the day or the date yourself: you cannot know which one the user meant. Make the sheet and write REVIEW.md as usual, then stop: tell the user what the calendar says, ask which is right, and render after they answer.`);
+if (notes.length) console.log(`\nCHECK WITH THE USER before the render. The project is built with the words as the storyboard has them, and one thing in them cannot be right:\n${notes.map((x) => `  - ${x}`).join("\n")}\nDo not change the day or the date yourself: you cannot know which one the user meant. When you offer the user the two readings, use the dates named here and never count days yourself. Make the sheet and write REVIEW.md as usual, then stop: tell the user what the calendar says, ask which is right, and render after they answer.`);

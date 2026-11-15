@@ -149,12 +149,13 @@ test("a day that does not match its date still builds, and the builder says to a
   // 13 December 2026 is a Sunday.
   const wrong = ok(build(sb({ type: "info", heading: "Catat harinya", rows: [{ label: "Hari", text: "Sabtu, 13 Desember 2026" }, { label: "Jam", text: "09.00 sampai selesai" }] })));
   assert.match(wrong.out, /CHECK WITH THE USER before the render\./);
-  assert.match(wrong.out, /scene 2 says "Sabtu, 13 Desember 2026", and on the calendar that date is a Minggu\./);
+  assert.match(wrong.out, /scene 2 says "Sabtu, 13 Desember 2026", and on the calendar that date is a Minggu\. The nearest Sabtu is 12 Desember 2026\./);
+  assert.match(wrong.out, /use the dates named here and never count days yourself\./);
   assert.match(wrong.out, /Do not change the day or the date yourself.*then stop: tell the user what the calendar says, ask which is right, and render after they answer\./);
   const right = ok(build(sb({ type: "info", heading: "Catat harinya", rows: [{ label: "Hari", text: "Minggu, 13 Desember 2026" }, { label: "Jam", text: "09.00 sampai selesai" }] })));
   assert.doesNotMatch(right.out, /CHECK WITH THE USER/);
   const en = ok(build(sb({ type: "info", heading: "Save the date", rows: [{ label: "When", text: "Friday, December 13, 2026" }, { label: "Time", text: "9 am to noon" }] }, { lang: "en" })));
-  assert.match(en.out, /on the calendar that date is a Sunday\./);
+  assert.match(en.out, /on the calendar that date is a Sunday\. The nearest Friday is December 11, 2026\./);
   const none = ok(build(sb({ type: "info", heading: "Catat harinya", rows: [{ label: "Hari", text: "Senin, 31 Februari 2027" }, { label: "Jam", text: "09.00 sampai selesai" }] })));
   assert.match(none.out, /that month has no day 31\./);
   clean(wrong, right, en, none);
@@ -252,7 +253,12 @@ test("when: one loud date, checked against the calendar and counted as one fact"
   assert.doesNotMatch(r.out, /CHECK WITH THE USER/);
 
   const wrong = ok(build(when({ day: "Minggu" })));
-  assert.match(wrong.out, /CHECK WITH THE USER before the render\.[\s\S]*scene 2 says "Minggu, 12 Desember 2026", and on the calendar that date is a Sabtu\./);
+  assert.match(wrong.out, /CHECK WITH THE USER before the render\.[\s\S]*scene 2 says "Minggu, 12 Desember 2026", and on the calendar that date is a Sabtu\. The nearest Minggu is 13 Desember 2026\./);
+  // The other reading is the nearest such day, before or after, across a month's end too.
+  assert.match(ok(build(when({ day: "Senin", date: "5", month: "Januari 2027" }))).out, /on the calendar that date is a Selasa\. The nearest Senin is 4 Januari 2027\./);
+  assert.match(ok(build(when({ day: "Rabu", date: "1", month: "Desember 2026" }))).out, /on the calendar that date is a Selasa\. The nearest Rabu is 2 Desember 2026\./);
+  assert.match(ok(build(when({ day: "Senin", date: "1", month: "Desember 2026" }))).out, /The nearest Senin is 30 November 2026\./);
+  assert.match(ok(build(when({ day: "Friday", date: "12", month: "December 2026", label: "Opening day", lines: ["From 6 am"] }, { lang: "en" }))).out, /scene 2 says "Friday, 12 December 2026", and on the calendar that date is a Saturday\. The nearest Friday is 11 December 2026\./);
   // Without a day's name, the kit writes the calendar's, in the video's language.
   const auto = ok(build(when({ day: undefined })));
   assert.equal(auto.scene(2).s.day, "Sabtu");
