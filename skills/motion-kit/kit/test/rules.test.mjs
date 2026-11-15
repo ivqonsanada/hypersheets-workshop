@@ -137,7 +137,10 @@ test("the same fact in three scenes is refused, and the scenes are named", () =>
   const list = { type: "list", heading: "Hari pertama", items: ["Gratis teh poci 12 Desember 2026", "Bubur ayam hangat"] };
   refused(build({ ...sb([]), scenes: [title, info, list, END] }), /Scenes 1, 2 and 3 all show the same fact \("desember 2026", "12 desember", "12"\)\. A viewer needs it once/);
   const twice = ok(build({ ...sb([]), scenes: [title, info, LIST, END] }));
-  clean(twice);
+  // A number that is part of the name ("RW 05") is said wherever the name is.
+  const rw = { type: "list", heading: "Untuk warga RW 05", items: ["Lapak gratis untuk warga RW 05", "Parkir di halaman masjid"] };
+  const name = ok(build({ ...sb([]), scenes: [{ ...TITLE, kicker: "Bazar RW 05" }, { type: "info", heading: "Catat harinya", rows: [{ label: "Tempat", text: "Lapangan RW 05" }, { label: "Jam", text: "08.00 sampai selesai" }] }, rw, { ...END, name: "Panitia Bazar RW 05" }] }));
+  clean(twice, name);
 });
 
 test("a day that does not match its date still builds, and the builder says to ask the user", () => {

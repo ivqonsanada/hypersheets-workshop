@@ -244,7 +244,7 @@
     const mo = MK.text("p", "mo", flag(c, MK.fit(s.month, "display", P ? [150, 132, 116, 100, 88, 76] : [120, 108, 96, 84, 72, 64], inner, 1), "the month"), 1.05);
     // The leaves the number rolls through: the three days before it, or after it early in a month.
     const day = parseInt(s.date, 10);
-    const seq = T.roll ? [3, 2, 1, 0].map((k) => String(day > 3 ? day - k : day + k).padStart(s.date.length, "0")) : [s.date];
+    const seq = T.roll ? [3, 2, 1, 0].map((k) => String(day > 3 ? day - k : day + k).padStart(/^0/.test(s.date) ? 2 : 1, "0")) : [s.date];
     seq[seq.length - 1] = s.date;
     // The number takes the height the other lines leave, and never more than the leaf is wide.
     const rest = (label ? 54 * 1.2 + 40 : 0) + (band ? 112 : 0) + Number(mo.dataset.h) + 2 * pad + 12 + (end ? Number(end.dataset.h) + 36 : 0) + (notes.length ? 44 + 46 + notes.reduce((sum, n) => sum + Number(n.dataset.h) + 14, 0) : 0);
@@ -268,7 +268,8 @@
       M.grow(c.tl, band.firstChild, T.top + 0.15, P ? 0.3 : 0.5);
       c.tl.fromTo(band.lastChild, { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "none" }, T.top + 0.3);
     }
-    if (T.roll) c.tl.fromTo(strip, { y: 0 }, { y: -high * (seq.length - 1), duration: T.num1 - T.num0, ease: P ? "power4.out" : K ? "power3.inOut" : "steps(" + (seq.length - 1) + ")" }, T.num0);
+    // The leaves turn one whole number at a time in every look, so no frame shows half a number.
+    if (T.roll) c.tl.fromTo(strip, { y: 0 }, { y: -high * (seq.length - 1), duration: T.num1 - T.num0, ease: "steps(" + (seq.length - 1) + ")" }, T.num0);
     else M.block(c.tl, num, T.num0);
     M.lines(c.tl, lines(mo), T.month);
     if (end) M.lines(c.tl, lines(end), T.end);
@@ -619,14 +620,19 @@
     const ease = P ? "power4.inOut" : K ? "power3.inOut" : MK.steps(12, "power2.inOut");
     const wipe = (from, to, at, d, first) => {
       c.tl.fromTo(after, { clipPath: `inset(0% 0% 0% ${from}%)` }, { clipPath: `inset(0% 0% 0% ${to}%)`, duration: d, ease, immediateRender: first }, at);
-      c.tl.fromTo(bar, { x: (wide * from) / 100 }, { x: (wide * to) / 100 - (to ? 0 : 24), duration: d, ease, immediateRender: first }, at);
+      // Before the first wipe and after the last, the line waits outside the frame.
+      c.tl.fromTo(bar, { x: (wide * from) / 100 + (from === 100 ? 24 : 0) }, { x: (wide * to) / 100 - (to ? 0 : 24), duration: d, ease, immediateRender: first }, at);
     };
     wipe(100, 50, T.half0, T.half1 - T.half0, true);
     wipe(50, 0, T.full0, T.full1 - T.full0, false);
     M.pop(c.tl, tagB, T.half1 - 0.1);
     // Both pictures push in together, so they stay in register along the line.
     c.tl.fromTo([was, now], { scale: 1.0 }, { scale: 1.06, duration: c.dur, ease: "none" }, 0);
-    if (cap) M.lines(c.tl, lines(cap), T.cap);
+    if (cap) {
+      // The caption's rule waits for the caption: it says what was done, after the result is seen.
+      c.tl.fromTo(cap, { opacity: 0 }, { opacity: 1, duration: 0.01, ease: "none" }, T.cap);
+      M.lines(c.tl, lines(cap), T.cap);
+    }
   });
 
   // ---------- end: where to go, typed out, and one press of the button ----------

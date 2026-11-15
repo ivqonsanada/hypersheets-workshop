@@ -54,7 +54,9 @@ pngs.forEach((f, i) => fs.copyFileSync(path.join(frames, f), path.join(sheet, "a
 const n = plan.stills.length;
 const cols = n <= 3 ? n : n <= 6 ? 3 : 4;
 const rows = Math.ceil(n / cols);
-const FW = 420, FH = 747, GAP = 28, CAP = 214;
+// Under each frame: its number, then its sentence. The room is set by the longest sentence, so none runs into the frame below.
+const longest = Math.max(...plan.stills.map((s) => `Should show: ${s.expect}`.length));
+const FW = 420, FH = 747, GAP = 28, CAP = Math.max(214, 62 + Math.ceil(longest / 33) * 27);
 const W = cols * FW + (cols + 1) * GAP, H = rows * (FH + CAP) + (rows + 1) * GAP;
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const cells = plan.stills.map((s, i) => {

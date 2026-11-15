@@ -36,8 +36,8 @@ export const RECIPES = {
   explainer: { need: [["steps"]], may: ["steps", "code", "fix", "image", "compare", "list", "info", "qa"], about: "how something works, in steps" },
   tips: { need: [["list"]], may: ["list", "stat", "quote", "image", "info", "numbers", "qa"], about: "a short list of tips or reasons" },
   coding: { need: [["code", "fix"]], may: ["code", "fix", "compare", "steps", "list", "qa"], about: "a piece of code and what it does, or a mistake and its fix" },
-  testimonial: { need: [["quote"]], may: ["quote", "stat", "page", "image", "list", "numbers", "swap"], about: "what a real person said" },
-  "before-after": { need: [["compare", "swap", "fix"]], may: ["compare", "swap", "fix", "list", "stat", "image", "numbers", "prices", "quote"], about: "a change: before and after, wrong and right" },
+  testimonial: { need: [["quote"]], may: ["quote", "stat", "page", "image", "list", "numbers", "swap", "qa"], about: "what a real person said" },
+  "before-after": { need: [["compare", "swap", "fix"]], may: ["compare", "swap", "fix", "list", "stat", "image", "numbers", "prices", "quote", "qa"], about: "a change: before and after, wrong and right" },
 };
 
 // The few words the kit itself puts on screen, in the video's language.

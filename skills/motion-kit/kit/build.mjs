@@ -201,6 +201,8 @@ const strings = (o, got = [], top = true) => {
 {
   const words = (t) => t.toLowerCase().split(/[^\p{L}\p{N}@.%-]+/u).map((w) => w.replace(/^[.-]+|[.-]+$/g, "")).filter(Boolean);
   const number = (w) => /\d/.test(w) && (w.replace(/\D/g, "").length >= 2 || /%|^rp/.test(w)) && !/^(19|20)\d\d$/.test(w);
+  // A number inside the name itself ("RW 05", "Toko 99") is said wherever the name is: that is not a repeat.
+  const named = new Set(scenes.flatMap((sc) => (typeOf(sc) === "end" && typeof sc.name === "string" ? words(sc.name) : typeOf(sc) === "title" && typeof sc.kicker === "string" ? words(sc.kicker) : [])).filter((w) => /\d/.test(w)));
   const at = new Map();
   scenes.forEach((sc, i) => {
     if (!sc || typeof sc !== "object") return;
@@ -208,8 +210,9 @@ const strings = (o, got = [], top = true) => {
     for (const t of strings(sc)) {
       const w = words(t);
       w.forEach((x, k) => {
+        if (named.has(x)) return;
         if (number(x)) here.add(x);
-        if (k + 1 < w.length && (/\d/.test(x) || /\d/.test(w[k + 1])) && x.length + w[k + 1].length >= 5) here.add(`${x} ${w[k + 1]}`);
+        if (k + 1 < w.length && !named.has(w[k + 1]) && (/\d/.test(x) || /\d/.test(w[k + 1])) && x.length + w[k + 1].length >= 5) here.add(`${x} ${w[k + 1]}`);
       });
     }
     for (const h of here) at.set(h, [...(at.get(h) || []), i + 1]);
