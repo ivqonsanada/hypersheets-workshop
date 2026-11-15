@@ -155,6 +155,52 @@ test("a day that does not match its date still builds, and the builder says to a
   clean(wrong, right, en, none);
 });
 
+test("a long line of code wraps in its card, and the builder counts the rows the browser will lay", async () => {
+  const { wrapCode, CODE } = await import("../lib/spec.mjs");
+  const show = (line, cols) => wrapCode(line, cols).map((r) => " ".repeat(r.pad) + line.slice(r.from, r.to));
+  assert.deepEqual(show("console.log(0.1 + 0.2 === 0.3);", 40), ["console.log(0.1 + 0.2 === 0.3);"]);
+  assert.deepEqual(show("  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));", 41), ["  grid-template-columns: repeat(auto-fit,", "    minmax(200px, 1fr));"]);
+  assert.deepEqual(show("    document.querySelector(\".tombol\").addEventListener(\"click\", kirim);", 41), ["    document.querySelector(\".tombol\")", "      .addEventListener(\"click\", kirim);"]);
+  assert.deepEqual(show("  if (umur >= 17 && punyaKtp || didampingiOrangTua) {", 36), ["  if (umur >= 17 && punyaKtp", "    || didampingiOrangTua) {"]);
+  for (const line of ["const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);", "x".repeat(72)]) for (const row of show(line, 40)) assert.ok(row.length <= 40, row);
+  assert.deepEqual([CODE.max, CODE.cols], [72, 40]);
+
+  const code = (lines, more = {}) => ({ recipe: "coding", look: "warnet", lang: "en", scenes: [{ type: "title", headline: "Columns that follow the screen" }, { type: "code", caption: "One line does it", lang: "css", lines, ...more }, { type: "end", line: "Try it in your editor", address: "@kelassore", button: "Follow the class" }] });
+  const long = "  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));";
+  const r = ok(build(code([".galeri {", "  display: grid;", long, "}"], { highlight: 3 })));
+  assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /none cut off at the card's edge \(a long line continues on a second row, set in a little\); line 3 is marked/);
+  assert.match(readFileSync(join(r.dir, "video", "index.html"), "utf8"), /assets\/kit\/mk\.js"><\/script>\n\s+<script src="assets\/kit\/wrap\.js"><\/script>\n\s+<script src="assets\/kit\/scenes\.js">/);
+  refused(build(code(["x".repeat(73)])), /"lines" line 1 is 73 characters; a line of code holds 72\./);
+  const two = ok(build(code(Array(9).fill("const a = [" + "1, ".repeat(19) + "2];"))));
+  refused(build(code(Array(9).fill(long))), /scene 2 \(code\) takes 27 rows on screen \(a line longer than 40 characters wraps onto a second row\), and a code card holds 18\./);
+  clean(r, two);
+});
+
+test("fix: the wrong code, then the right code with the changed line marked", () => {
+  const fix = (more = {}, top = {}) => ({ recipe: "coding", look: "kertas", lang: "id", ...top, scenes: [{ type: "title", headline: "Kenapa hasilnya 150002000?" }, { type: "fix", caption: "Angka dalam tanda kutip itu teks", lang: "js", wrong: ["const harga = \"15000\";", "const total = harga + 2000;"], right: ["const harga = Number(\"15000\");", "const total = harga + 2000;"], ...more }, { type: "end", line: "Coba di editor kamu", address: "@kelassore", button: "Ikuti kelasnya" }] });
+  const r = ok(build(fix()));
+  const T = r.scene(2).T;
+  assert.deepEqual(T.marks, { wrong: [0], right: [0] });
+  assert.ok(T.markW < T.dim && T.dim < T.rIn && T.rIn < T.right[0].t && T.right[1].t < T.hl, "wrong is typed and marked, steps back, then right is typed and marked");
+  assert.equal(of(r.cues, 2, "type").length, 2);
+  assert.equal(of(r.cues, 2, "marker").length, 2);
+  assert.equal(of(r.cues, 2, "land").length, 1);
+  assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /two code cards.*under the label "Salah", the wrong code \(2 lines\), dimmed; below, under "Benar", the right code \(2 lines\), with line 1 marked/);
+  assert.match(readFileSync(join(r.dir, "video", "index.html"), "utf8"), /"words":\{"wrong":"Salah","right":"Benar"\}/);
+
+  const en = ok(build(fix({ highlight: 2 }, { lang: "en" })));
+  assert.deepEqual(en.scene(2).T.marks.right, [1], "\"highlight\" names the line");
+  assert.match(en.plan.stills.find((s) => s.scene === 2).expect, /under the label "Wrong".*under "Right".*with line 2 marked/);
+  const all = ok(build(fix({ wrong: ["a = 1"], right: ["a = 2"] })));
+  assert.deepEqual(all.scene(2).T.marks, { wrong: [], right: [] }, "when every line differs, nothing is marked");
+  assert.equal(all.scene(2).T.hl, null);
+
+  refused(build(fix({ highlight: 3 })), /"highlight" must be the number of one of the lines in "right", counted from 1\./);
+  refused(build(fix({ right: undefined })), /scene 2 \(fix\) needs "right"\./);
+  refused(build(fix({ wrong: Array(4).fill("  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));"), right: Array(4).fill("  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));") })), /scene 2 \(fix\) takes 24 rows on screen .*, and its two cards hold 14\./);
+  clean(r, en, all);
+});
+
 test("a code card holds one line", () => {
   const code = (lines) => ({ recipe: "coding", look: "warnet", lang: "en", scenes: [{ type: "title", headline: "True or false?" }, { type: "code", caption: "What does this print?", lang: "js", lines }, { type: "end", line: "Answer in the comments", address: "@kelassore", button: "Follow for more" }] });
   const one = ok(build(code(["console.log(0.1 + 0.2 === 0.3);"])));

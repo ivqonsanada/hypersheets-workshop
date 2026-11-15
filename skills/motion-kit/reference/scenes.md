@@ -186,12 +186,28 @@ Real code, typed line by line in a code card. Only for code that runs as written
 | Field | Limit | |
 |---|---|---|
 | `caption` | 44 | needed. What the code does |
-| `lines` | 40 each, 1 to 9 lines | needed. One string per line of code, copied as the user wrote it; keep the spaces at the start of a line. A one-line snippet stays one line. Break a line in two only when it is longer than 40 characters, and only where the language allows |
+| `lines` | 72 each, 1 to 9 lines | needed. One string per line of code, copied as the user wrote it; keep the spaces at the start of a line. Never break a line yourself: a line longer than 40 characters continues on a second row in the card, set in a little. Short lines are set larger, so show only the lines the point needs |
 | `highlight` | | the number of the line to mark, counted from 1 |
 | `lang` | 12 | "CSS", "HTML", "JavaScript" |
 
 ```json
 { "type": "code", "caption": "Tiga kolom yang sama lebar", "lang": "CSS", "lines": [".kartu {", "  display: grid;", "  grid-template-columns: repeat(3, 1fr);", "  gap: 16px;", "}"], "highlight": 3 }
+```
+
+## fix
+
+A mistake and its fix: the wrong code is typed in a card and steps back, then the right code is typed in a card under it with the changed line marked. Use it when the brief shows code that goes wrong and the code that puts it right. The kit writes the two labels ("Salah" and "Benar", or "Wrong" and "Right").
+
+| Field | Limit | |
+|---|---|---|
+| `caption` | 44 | needed. What goes wrong, or the rule that fixes it |
+| `wrong` | 72 each, 1 to 4 lines | needed. The code as it was, copied letter for letter, mistake included |
+| `right` | 72 each, 1 to 4 lines | needed. The same code, put right. Keep the lines that did not change exactly as they are in `wrong`, so the kit marks only the line that did |
+| `highlight` | | the number of the line in `right` to mark, counted from 1. Leave it out and the kit marks the lines that changed |
+| `lang` | 12 | "CSS", "HTML", "JavaScript" |
+
+```json
+{ "type": "fix", "caption": "Angka dalam tanda kutip itu teks", "lang": "JavaScript", "wrong": ["const harga = \"15000\";", "const total = harga + 2000;"], "right": ["const harga = Number(\"15000\");", "const total = harga + 2000;"] }
 ```
 
 ## end (always the last scene)

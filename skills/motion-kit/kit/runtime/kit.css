@@ -253,7 +253,10 @@ html.look-panggung .mk-compare .pt { font-weight: 700; }
 .mk-code .top span { margin-left: auto; font: 600 34px/1 var(--fm), monospace; color: var(--muted); }
 /* Code is shown letter for letter: no ligature turns === or != into one glyph. */
 .mk-code ol { list-style: none; padding: 34px 0 38px; font-family: var(--fm), monospace; font-weight: 500; font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
-.mk-code li { position: relative; display: flex; padding: 0 28px 0 0; white-space: pre; }
+/* A line is 1.6 em tall; the rows of a wrapped line sit closer together than two lines do. */
+.mk-code li { position: relative; display: flex; padding: 0.15em 28px 0.15em 0; line-height: 1.3; white-space: pre; }
+.mk-code li code { display: block; flex: 1 1 auto; min-width: 0; }
+.mk-code .row { display: block; min-height: 1.3em; }
 .mk-code li b { flex: none; width: 76px; padding-right: 24px; text-align: right; font-weight: 400; color: var(--muted); opacity: 0.7; }
 .mk-code li code { font: inherit; color: var(--ink); position: relative; }
 .mk-code li u { position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: var(--mk-accent); opacity: 0.22; transform-origin: 0 50%; text-decoration: none; }
@@ -278,6 +281,31 @@ html.look-panggung .mk-code li code { color: var(--g); }
 html.look-panggung .mk-code .c1 { color: color-mix(in srgb, var(--g) 60%, var(--ink)); }
 html.look-panggung .mk-code .c2, html.look-panggung .mk-code .c3 { color: var(--mk-pop); }
 html.look-panggung .mk-code li u, html.look-panggung .mk-code li em { background: var(--g); }
+
+/* ---------- fix: two code cards (the scene also carries .mk-code) ---------- */
+.mk-fix .cap { margin-bottom: 44px; }
+.mk-fix .top { height: 70px; padding: 0 22px 0 18px; }
+.mk-fix .top span { font-size: 32px; }
+.mk-fix ol { padding: 26px 0 30px; }
+.mk-fix .lb { position: relative; flex: none; padding: 8px 18px 10px; background: var(--line); color: var(--ink); font: 700 36px/1 var(--fb), sans-serif; }
+.mk-fix .lb s { position: absolute; left: -6px; right: -6px; top: 50%; height: 5px; margin-top: -2px; display: block; background: var(--ink); transform-origin: 0 50%; text-decoration: none; }
+.mk-fix .b { border-color: var(--mk-accent); }
+.mk-fix .b .lb { background: var(--mk-accent); color: var(--mk-on-accent); }
+.mk-fix .a { box-shadow: none; }
+.mk-fix .a li u { background: var(--muted); }
+.mk-fix .a li em { background: var(--muted); }
+.mk-fix .arrow { height: 84px; width: 100%; display: flex; align-items: center; justify-content: center; }
+.mk-fix .arrow i { display: block; width: 52px; height: 40px; background: var(--mark); clip-path: polygon(30% 0, 70% 0, 70% 45%, 100% 45%, 50% 100%, 0 45%, 30% 45%); }
+html.look-kertas .mk-fix .lb { background: #4a4339; color: #f3ede2; }
+html.look-kertas .mk-fix .lb s { background: #f3ede2; }
+html.look-kertas .mk-fix .b { border-color: var(--mk-accent-ink); }
+html.look-kertas .mk-fix .b .lb { background: var(--mk-accent); color: var(--mk-on-accent); }
+html.look-kertas .mk-fix .a li u, html.look-kertas .mk-fix .a li em { background: #b5aa9a; }
+html.look-panggung .mk-fix .lb { padding: 5px 14px 7px; background: none; border: 4px solid var(--g); color: var(--g); }
+html.look-panggung .mk-fix .lb s { background: var(--g); }
+html.look-panggung .mk-fix .b .lb { background: var(--g); color: var(--ink); }
+html.look-panggung .mk-fix .a li u, html.look-panggung .mk-fix .a li em { background: var(--g); }
+html.look-panggung .mk-fix .a li u { opacity: 0.14; }
 
 /* ---------- image ---------- */
 .mk-image .fr { position: relative; width: 100%; height: 980px; border: var(--bw) solid var(--line); background: var(--panel); box-shadow: var(--sh) var(--sh) 0 var(--deep); overflow: hidden; }

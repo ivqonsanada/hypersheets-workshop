@@ -56,11 +56,11 @@ Work in the user's folder (for a page, the one with its `index.html`).
 | something new: a feature, an opening, an event, a sale, a vacancy | `announce` | title, then one to three of info, image, page, stat, prices, list, steps, compare, then end |
 | a menu, a price list, packages with prices | `menu` | title, prices, then optionally image, info, list or quote, then end |
 | a year, an event or a project in numbers | `recap` | title, numbers (or stat for one number), then optionally list, quote, image or compare, then end |
-| how something works | `explainer` | title, steps, then optionally code, image, compare or list, then end |
+| how something works | `explainer` | title, steps, then optionally code, fix, image, compare or list, then end |
 | tips or reasons | `tips` | title, list, then optionally stat, quote or image, then end |
-| a piece of code | `coding` | title, code, then optionally compare, steps or list, then end |
+| a piece of code, or a mistake and its fix | `coding` | title, code or fix, then optionally compare, steps or list, then end |
 | what a real person said | `testimonial` | title, quote, then optionally stat, page, image or list, then end |
-| a change: before and after, wrong and right | `before-after` | title, compare, then optionally list, stat or image, then end |
+| a change: before and after, wrong and right | `before-after` | title, compare (or fix for code), then optionally list, stat or image, then end |
 
 Every video opens with `title` and closes with `end`, holds 3 to 6 scenes, and holds one scene of each kind at most, except `image`: up to three pictures, each in its own scene (a before and an after, a few products). Use a `page` scene when there is a page file, an `image` scene when there is a picture file, a `stat` only for a real number, a `quote` only for real words from a named person.
 
@@ -77,6 +77,7 @@ Then pick each scene by what its facts are:
 | before and after, wrong and right | `compare` |
 | a named person's own words | `quote` |
 | code that runs | `code` |
+| code that goes wrong, and the same code put right | `fix` |
 
 ## Pick the look
 

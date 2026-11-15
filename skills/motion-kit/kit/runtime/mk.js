@@ -7,6 +7,8 @@
   const LOOK = CFG.look;
   const MK = (window.MK = { look: LOOK, defs: {} });
   MK.define = (type, fn) => { MK.defs[type] = fn; };
+  // The few words the kit itself puts on screen (the builder sends them in the video's language).
+  MK.words = CFG.words || {};
 
   // ---------- colour ----------
   const CREAM = [244, 237, 228], DARK = [23, 20, 18];

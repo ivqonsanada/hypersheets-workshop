@@ -3,6 +3,16 @@
 // this to check a storyboard and to write the video; the browser gets the times as data, so
 // timing is decided here and nowhere else.
 
+import * as wrapFile from "../runtime/wrap.js";
+
+// How a long line of code wraps in a card: the runtime's own function (runtime/wrap.js), so the
+// builder counts the rows the browser will lay.
+export const wrapCode = (wrapFile.default && wrapFile.default.wrapCode) || wrapFile.wrapCode || globalThis.MKWrap;
+// A line of code holds `max` characters. At the smallest size a row holds `cols`, so a longer line
+// wraps onto a second row; a code card has room for `rows` rows, the two cards of a fix scene for
+// `fixRows` between them.
+export const CODE = { max: 72, cols: 40, rows: 18, fixRows: 14 };
+
 export const LOOKS = ["warnet", "kertas", "panggung"];
 export const LANGS = ["id", "en"];
 export const IN = 0.34; // a scene's cover lifts over its first third of a second
@@ -22,11 +32,17 @@ export const RECIPES = {
   announce: { need: [], may: ["image", "page", "stat", "list", "steps", "compare", "prices", "info", "numbers"], about: "something new: a feature, an opening, a date" },
   menu: { need: [["prices"]], may: ["prices", "image", "page", "list", "info", "quote"], about: "a menu, a price list, packages with prices" },
   recap: { need: [["numbers", "stat"]], may: ["numbers", "stat", "list", "quote", "image", "compare"], about: "a year, an event or a project in numbers" },
-  explainer: { need: [["steps"]], may: ["steps", "code", "image", "compare", "list", "info"], about: "how something works, in steps" },
+  explainer: { need: [["steps"]], may: ["steps", "code", "fix", "image", "compare", "list", "info"], about: "how something works, in steps" },
   tips: { need: [["list"]], may: ["list", "stat", "quote", "image", "info", "numbers"], about: "a short list of tips or reasons" },
-  coding: { need: [["code"]], may: ["code", "compare", "steps", "list"], about: "a piece of code and what it does" },
+  coding: { need: [["code", "fix"]], may: ["code", "fix", "compare", "steps", "list"], about: "a piece of code and what it does, or a mistake and its fix" },
   testimonial: { need: [["quote"]], may: ["quote", "stat", "page", "image", "list", "numbers"], about: "what a real person said" },
-  "before-after": { need: [["compare"]], may: ["compare", "list", "stat", "image", "numbers", "prices"], about: "a change: before and after, wrong and right" },
+  "before-after": { need: [["compare", "fix"]], may: ["compare", "fix", "list", "stat", "image", "numbers", "prices"], about: "a change: before and after, wrong and right" },
+};
+
+// The few words the kit itself puts on screen, in the video's language.
+export const WORDS = {
+  id: { wrong: "Salah", right: "Benar" },
+  en: { wrong: "Wrong", right: "Right" },
 };
 
 const text = (max, req = false) => ({ kind: "text", max, req });
@@ -63,7 +79,13 @@ export const FIELDS = {
     left: { kind: "object", req: true, of: { label: text(14, true), text: text(56, true) } },
     right: { kind: "object", req: true, of: { label: text(14, true), text: text(56, true) } },
   },
-  code: { caption: text(44, true), lang: text(12), lines: { kind: "texts", min: 1, most: 9, max: 40, req: true, raw: true }, highlight: { kind: "int" } },
+  code: { caption: text(44, true), lang: text(12), lines: { kind: "texts", min: 1, most: 9, max: CODE.max, req: true, raw: true }, highlight: { kind: "int", of: "lines" } },
+  fix: {
+    caption: text(44, true), lang: text(12),
+    wrong: { kind: "texts", min: 1, most: 4, max: CODE.max, req: true, raw: true },
+    right: { kind: "texts", min: 1, most: 4, max: CODE.max, req: true, raw: true },
+    highlight: { kind: "int", of: "right" },
+  },
   end: { line: text(30, true), name: text(26), address: text(34, true), button: text(20, true) },
 };
 
@@ -75,8 +97,27 @@ const r2 = (v) => Math.round(v * 100) / 100;
 const cut = (s, n = 36) => (String(s).length > n ? String(s).slice(0, n - 1).trimEnd() + "…" : String(s));
 const q = (s, n) => `"${cut(s, n)}"`;
 
-// plan(scene, a): `a` is when the scene's content may start (0 in the first scene, IN after a
-// cover). Returns the time its last move lands plus a hold (`need`), the times the browser
+// When each line of some code is typed, from `t` on: a line takes longer the longer it is.
+const typed = (lines, t) => {
+  const at = lines.map((line) => {
+    const d = Math.min(0.55, Math.max(0.12, line.length * 0.028));
+    const one = { t: r2(t), d: r2(d) };
+    t += d + 0.07;
+    return one;
+  });
+  return { at, end: r2(t - 0.07) };
+};
+// Which lines of a fix scene are marked, counted from 0: in the right code the line "highlight"
+// names, or else the lines the wrong code does not have; in the wrong code the lines the right
+// code does not have. When every line of a card differs, nothing in it is marked.
+export const fixMarks = (s) => {
+  const W = s.wrong.map((l) => l.trim()), R = s.right.map((l) => l.trim());
+  const not = (mine, theirs) => { const out = mine.map((l, i) => (theirs.includes(l) ? -1 : i)).filter((i) => i >= 0); return out.length === mine.length ? [] : out; };
+  return { wrong: not(W, R), right: s.highlight ? [s.highlight - 1] : not(R, W) };
+};
+
+// plan(scene, a, lang): `a` is when the scene's content may start (0 in the first scene, IN after a
+// cover); `lang` is the video's language, for the kit's own words. Returns the time its last move lands plus a hold (`need`), the times the browser
 // animates at (`T`), what can be heard (`cues`), and the stills to check (`stills`).
 export const PLAN = {
   title(s, a) {
@@ -197,21 +238,38 @@ export const PLAN = {
     };
   },
   code(s, a) {
-    let t = a + 0.5;
-    const lines = s.lines.map((line) => {
-      const d = Math.min(0.55, Math.max(0.12, line.length * 0.028));
-      const at = { t: r2(t), d: r2(d) };
-      t += d + 0.07;
-      return at;
-    });
-    const end = r2(t - 0.07);
+    const { at: lines, end } = typed(s.lines, a + 0.5);
     const hl = s.highlight ? r2(end + 0.35) : null;
     const need = (hl || end) + 2.3;
+    const long = s.lines.some((line) => line.length > CODE.cols);
     return {
       need,
       T: { cap: r2(a), lines, end, hl },
       cues: [{ t: lines[0].t, until: end, type: "type", weight: 1 }, ...(hl ? [{ t: hl, type: "marker", weight: 2 }] : [])],
-      stills: [{ t: r2(need - 0.9), expect: `a code card with ${s.lines.length} numbered lines, all typed out and none cut off${s.highlight ? `; line ${s.highlight} is marked` : ""}; ${q(s.caption)} is above the card` }],
+      stills: [{ t: r2(need - 0.9), expect: `a code card with ${s.lines.length} numbered ${s.lines.length === 1 ? "line" : "lines"}, all typed out and none cut off at the card's edge${long ? " (a long line continues on a second row, set in a little)" : ""}${s.highlight ? `; line ${s.highlight} is marked` : ""}; ${q(s.caption)} is above the card` }],
+    };
+  },
+  fix(s, a, lang) {
+    const marks = fixMarks(s), words = WORDS[lang] || WORDS.id;
+    const w = typed(s.wrong, a + 0.5);
+    const markW = marks.wrong.length ? r2(w.end + 0.3) : null;
+    const dim = r2((markW ?? w.end) + 0.8); // the wrong code is read, then it steps back
+    const rIn = r2(dim + 0.15);
+    const r = typed(s.right, rIn + 0.4);
+    const hl = marks.right.length ? r2(r.end + 0.35) : null;
+    const need = (hl ?? r.end) + 2.4;
+    return {
+      need,
+      T: { cap: r2(a), wrong: w.at, markW, dim, rIn, right: r.at, hl, marks },
+      cues: [
+        { t: w.at[0].t, until: w.end, type: "type", weight: 1 },
+        ...(markW != null ? [{ t: markW, type: "marker", weight: 1 }] : []),
+        { t: r2(rIn - 0.12), type: "whoosh", weight: 1 },
+        { t: rIn, type: "land", weight: 2 },
+        { t: r.at[0].t, until: r.end, type: "type", weight: 1 },
+        ...(hl != null ? [{ t: hl, type: "marker", weight: 2 }] : []),
+      ],
+      stills: [{ t: r2(need - 0.9), expect: `two code cards, every line whole and none cut off at a card's edge: above, under the label "${words.wrong}", the wrong code (${s.wrong.length} ${s.wrong.length === 1 ? "line" : "lines"}), dimmed; below, under "${words.right}", the right code (${s.right.length} ${s.right.length === 1 ? "line" : "lines"})${marks.right.length ? `, with line ${marks.right.map((i) => i + 1).join(" and ")} marked` : ""}; ${q(s.caption)} is above them` }],
     };
   },
   end(s, a) {

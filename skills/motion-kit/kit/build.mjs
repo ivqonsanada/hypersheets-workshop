@@ -14,7 +14,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { LOOKS, LANGS, RECIPES, FIELDS, VARIANTS, PLAN, IN, OUT, voiceRoom, SOUND_DEFAULT, NARRATORS } from "./lib/spec.mjs";
+import { LOOKS, LANGS, RECIPES, FIELDS, VARIANTS, PLAN, IN, OUT, voiceRoom, SOUND_DEFAULT, NARRATORS, CODE, WORDS, wrapCode } from "./lib/spec.mjs";
 import { mixVideo } from "./sound/mix.mjs";
 import { voiceTakes } from "./sound/lib/project.mjs";
 import { lint } from "./sound/lib/text.mjs";
@@ -108,7 +108,7 @@ function checkFields(n, type, s, fields) {
       else if (!fs.existsSync(abs)) say(`${where}: there is no file "${v}" in this folder. Use the real file's name.`);
       else if (!rule.ext.includes(path.extname(abs).slice(1).toLowerCase())) say(`${where} must be a ${list(rule.ext)} file.`);
     } else if (rule.kind === "int") {
-      if (!Number.isInteger(v) || v < 1 || v > (s.lines || []).length) say(`${where} must be the number of one of the code's lines, counted from 1.`);
+      if (!Number.isInteger(v) || v < 1 || v > (s[rule.of] || []).length) say(`${where} must be the number of one of the lines in "${rule.of}", counted from 1.`);
     }
   }
 }
@@ -138,6 +138,13 @@ scenes.forEach((s, i) => {
     if (item && typeof item.value === "string" && item.value.trim() && !/\d/.test(item.value)) say(`scene ${n} (numbers) "items" item ${k + 1} "value" must hold a number from the brief, such as "340" or "Rp8.500.000". A line without a number belongs in a list scene.`);
   });
   if (type === "image" && !s.title && !s.caption) say(`scene ${n} (image) needs a "title" or a "caption": two or three words that name what the picture shows. A caption is only for something the picture does not say by itself, such as its price.`);
+  // Code that would not fit its card even at the smallest size, where a row holds CODE.cols characters and a longer line wraps.
+  if (type === "code" || type === "fix") {
+    const lines = (type === "code" ? [s.lines] : [s.wrong, s.right]).flatMap((x) => (Array.isArray(x) ? x.filter((l) => typeof l === "string") : []));
+    const rows = lines.map((line) => wrapCode(line, CODE.cols).length), total = rows.reduce((sum, x) => sum + x, 0), most = type === "code" ? CODE.rows : CODE.fixRows;
+    if (rows.some((x) => x > 3)) say(`scene ${n} (${type}) has a line of code that is indented too deep to fit the card. Remove some of its leading spaces.`);
+    else if (total > most) say(`scene ${n} (${type}) takes ${total} rows on screen (a line longer than ${CODE.cols} characters wraps onto a second row), and ${type === "code" ? "a code card holds" : "its two cards hold"} ${most}. Take out the lines the point does not need, or break a long line where the language allows.`);
+  }
   if (type === "stat" && typeof s.value === "string" && !/\d/.test(s.value)) say(`scene ${n} (stat) "value" must hold a number from the brief, such as "87%" or "Rp15.000".`);
   // A page address or a handle has no spaces; a street address or a phone number, given by a shop with no page, may.
   for (const k of ["address"]) if (typeof s[k] === "string") {
@@ -174,7 +181,7 @@ if (sb.music != null) {
   const words = (t) => t.toLowerCase().split(/[^\p{L}\p{N}@.%-]+/u).map((w) => w.replace(/^[.-]+|[.-]+$/g, "")).filter(Boolean);
   const strings = (o, got = []) => {
     if (typeof o === "string") got.push(o);
-    else if (o && typeof o === "object") for (const [k, v] of Object.entries(o)) if (!["type", "scene", "file", "lines", "voice"].includes(k)) strings(v, got);
+    else if (o && typeof o === "object") for (const [k, v] of Object.entries(o)) if (!["type", "scene", "file", "lines", "wrong", "right", "voice"].includes(k)) strings(v, got);
     return got;
   };
   const number = (w) => /\d/.test(w) && (w.replace(/\D/g, "").length >= 2 || /%|^rp/.test(w)) && !/^(19|20)\d\d$/.test(w);
@@ -203,7 +210,7 @@ const notes = [];
   const MONTHS = { id: ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"], en: ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"] };
   const strings = (o, got = []) => {
     if (typeof o === "string") got.push(o);
-    else if (o && typeof o === "object") for (const [k, v] of Object.entries(o)) if (!["type", "scene", "file", "lines", "voice"].includes(k)) strings(v, got);
+    else if (o && typeof o === "object") for (const [k, v] of Object.entries(o)) if (!["type", "scene", "file", "lines", "wrong", "right", "voice"].includes(k)) strings(v, got);
     return got;
   };
   const told = new Set();
@@ -252,7 +259,7 @@ const cues = [], stills = [], plan = [];
 scenes.forEach((s, i) => {
   const type = typeOf(s), first = i === 0, last = i === scenes.length - 1, a = first ? 0 : IN;
   const c = custom[type];
-  const p = c ? { need: a + c.seconds, T: { a }, cues: (c.cues || []).map((q) => ({ ...q, t: a + q.t })), stills: [{ t: a + c.still, expect: c.expect }] } : PLAN[type](s, a);
+  const p = c ? { need: a + c.seconds, T: { a }, cues: (c.cues || []).map((q) => ({ ...q, t: a + q.t })), stills: [{ t: a + c.still, expect: c.expect }] } : PLAN[type](s, a, sb.lang);
   const words = typeof s.voice === "string" ? s.voice.trim().split(/\s+/).length : 0;
   const preset = r2(p.need + (last ? 0 : OUT));
   if (s.voice != null) {
@@ -355,6 +362,7 @@ plan.forEach((p, i) => {
   const s = { ...scenes[i] };
   delete s.voice;
   if (p.type === "page") { s.src = copyPage(s.file); if (!scripts.includes("assets/kit/page.js")) scripts.push("assets/kit/page.js"); }
+  if ((p.type === "code" || p.type === "fix") && !scripts.includes("assets/kit/wrap.js")) scripts.splice(1, 0, "assets/kit/wrap.js");
   if (p.type === "image") {
     const abs = inside(s.file), size = pictureSize(abs);
     s.src = "assets/img/" + path.basename(abs);
@@ -390,8 +398,9 @@ if (soundOn) {
   fs.rmSync(mix, { force: true });
   fs.rmSync(path.join(out, "mix-report.json"), { force: true });
 }
-const sample = [...new Set(JSON.stringify(scenes))].join("");
-const config = { look: sb.look, lang: sb.lang, accent: sb.accent || null, sample };
+const words = WORDS[sb.lang];
+const sample = [...new Set(JSON.stringify(scenes) + Object.values(words).join(""))].join("");
+const config = { look: sb.look, lang: sb.lang, accent: sb.accent || null, words, sample };
 const host = (id, start, dur, track) => `      <div id="${id}" data-composition-id="${id}" data-composition-src="compositions/${id}.html" data-start="${start}" data-duration="${dur}" data-track-index="${track}" data-track-kind="graphics" data-width="1080" data-height="1920"></div>`;
 write("index.html", `<!doctype html>
 <html lang="${sb.lang}" class="look-${sb.look}" data-resolution="portrait">

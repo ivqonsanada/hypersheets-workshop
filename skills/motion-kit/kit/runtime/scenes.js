@@ -384,54 +384,102 @@
     if (at < line.length) out.push(["", line.slice(at)]);
     return out;
   };
+  // The size for some code and how each line is laid at it. Every row must fit the card's width
+  // `room` and all rows its height `tall`. A line too long for one row wraps under itself
+  // (wrap.js). Of the sizes that fit, the one that wraps the fewest rows wins, then the largest;
+  // wrapped code is set at 44 px at most, so a wrap never comes from setting the code too large.
+  const codeFit = (all, room, tall) => {
+    let best = null, last = null;
+    for (const size of [60, 54, 50, 46, 42, 38, 36, 34, 32]) {
+      const cols = Math.floor((room * 10) / MK.width("0000000000", "mono", size));
+      const rows = all.map((line) => window.MKWrap(line, cols));
+      const extra = rows.reduce((sum, r) => sum + r.length - 1, 0);
+      const high = rows.reduce((sum, r) => sum + r.length * 1.3 + 0.3, 0) * size;
+      last = { size, rows, extra, ok: high <= tall && rows.every((r) => r.length <= 3) && (!extra || size <= 44) };
+      if (last.ok && (!best || extra < best.extra)) best = last;
+    }
+    return best || last;
+  };
+  // A card of numbered code. `fit.rows[from + i]` says how line i is laid; `marks` are the lines
+  // that get a band (counted from 0). Returns the card, its lines, and `type(i, k)`, which shows
+  // the first k characters of line i.
+  const codeCard = (codeLines, fit, from, top, marks) => {
+    const lis = codeLines.map((line, i) => {
+      const code = h("code", null, fit.rows[from + i].map((r) => {
+        const row = h("span", "row");
+        if (r.pad) row.style.paddingLeft = r.pad + "ch";
+        return row;
+      }));
+      const hl = marks.includes(i);
+      return h("li", null, [hl ? h("u") : null, hl ? h("em") : null, h("b", null, String(i + 1)), code]);
+    });
+    const ol = h("ol", null, lis);
+    ol.style.fontSize = fit.size + "px";
+    const card = h("div", "card", [h("div", "top", top), ol]);
+    const toks = codeLines.map(tokens), shown = codeLines.map(() => -1);
+    const type = (i, k) => {
+      if (shown[i] === k) return;
+      shown[i] = k;
+      const rows = lis[i].lastChild.children;
+      fit.rows[from + i].forEach((r, n) => {
+        rows[n].textContent = "";
+        let at = 0;
+        for (const [cls, text] of toks[i]) {
+          const a = Math.max(at, r.from), b = Math.min(at + text.length, r.to, k);
+          if (b > a) rows[n].append(cls ? MK.plain("span", cls, text.slice(a - at, b - at)) : text.slice(a - at, b - at));
+          at += text.length;
+        }
+      });
+    };
+    return { card, lis, type };
+  };
+  const typing = (card, codeLines, at, t) => codeLines.forEach((line, i) => card.type(i, Math.round(clamp((t - at[i].t) / at[i].d) * line.length)));
+  const mark = (c, li, at) => { M.grow(c.tl, li.querySelector("u"), at, 0.3); M.pop(c.tl, li.querySelector("em"), at); };
+  const CODE_ROOM = 912 - 76 - 28 - 16; // the card's width less the line numbers and the right edge
+
   MK.define("code", (c) => {
     const s = c.s;
     const cap = MK.text("p", "cap" + (K || P ? " d" : ""), flag(c, MK.fit(s.caption, K || P ? "display" : "body", P ? [112, 100, 88, 76, 64] : K ? [84, 76, 68, 60, 52] : [72, 66, 60, 54, 48], c.W, 2), "the caption"), P ? 1.02 : 1.14);
-    // The largest size at which the widest line, indentation included, fits the card.
-    const room = c.W - 76 - 28 - 16;
-    let size = 32, fitsCard = false;
-    // A short snippet is set large enough to read on a phone; one line of forty characters still gets 32.
-    for (const sz of [60, 54, 50, 46, 42, 38, 36, 34, 32]) {
-      size = sz;
-      if (Math.max(...s.lines.map((line) => MK.width(line, "mono", sz))) <= room) { fitsCard = true; break; }
-    }
-    if (!fitsCard) MK.problem(c, "the longest line of code");
-    const lis = s.lines.map((line, i) => {
-      const hl = s.highlight === i + 1;
-      return h("li", null, [hl ? h("u") : null, hl ? h("em") : null, h("b", null, String(i + 1)), h("code")]);
-    });
-    const ol = h("ol", null, lis);
-    ol.style.fontSize = size + "px";
-    ol.style.lineHeight = "1.6";
-    const card = h("div", "card", [h("div", "top", [h("i"), h("i"), h("i"), s.lang ? MK.plain("span", null, s.lang) : null]), ol]);
-    safe(c, [cap, card]);
+    // A short snippet is set large enough to read on a phone; forty characters on a row still get 32 px.
+    const fit = codeFit(s.lines, CODE_ROOM, c.H - Number(cap.dataset.h) - 52 - 78 - 72 - 16);
+    if (!fit.ok) MK.problem(c, "the code (take lines out, or shorten the longest)");
+    const card = codeCard(s.lines, fit, 0, [h("i"), h("i"), h("i"), s.lang ? MK.plain("span", null, s.lang) : null], s.highlight ? [s.highlight - 1] : []);
+    safe(c, [cap, card.card]);
     M.lines(c.tl, lines(cap), c.T.cap);
-    M.block(c.tl, card, c.T.cap + 0.1);
-    const toks = s.lines.map(tokens), shown = s.lines.map(() => -1);
-    const paint = (i, k) => {
-      if (shown[i] === k) return;
-      shown[i] = k;
-      const code = lis[i].lastChild;
-      code.textContent = "";
-      let left = k;
-      for (const [cls, text] of toks[i]) {
-        if (left <= 0) break;
-        const part = text.slice(0, left);
-        left -= part.length;
-        code.append(cls ? MK.plain("span", cls, part) : part);
-      }
+    M.block(c.tl, card.card, c.T.cap + 0.1);
+    drive(c, (t) => typing(card, s.lines, c.T.lines, t));
+    if (s.highlight && c.T.hl != null) mark(c, card.lis[s.highlight - 1], c.T.hl);
+  });
+
+  // ---------- fix: the wrong code above, typed and then dimmed; the right code below ----------
+  MK.define("fix", (c) => {
+    const s = c.s, T = c.T, words = MK.words;
+    c.el.classList.add("mk-code");
+    const cap = MK.text("p", "cap" + (K || P ? " d" : ""), flag(c, MK.fit(s.caption, K || P ? "display" : "body", P ? [100, 88, 76, 64] : K ? [76, 68, 60, 52] : [66, 60, 54, 48], c.W, 2), "the caption"), P ? 1.02 : 1.14);
+    // Both cards share one size, so the two pieces of code compare letter for letter.
+    const fit = codeFit(s.wrong.concat(s.right), CODE_ROOM, c.H - Number(cap.dataset.h) - 44 - 2 * (70 + 56 + 16) - 84);
+    if (!fit.ok) MK.problem(c, "the two pieces of code (take lines out, or shorten the longest)");
+    const tag = (text, old) => {
+      const lb = h("p", "lb", [text, old ? h("s") : null]);
+      if (old) lb.setAttribute("data-layout-allow-occlusion", "");
+      return lb;
     };
-    drive(c, (t) => {
-      s.lines.forEach((line, i) => {
-        const at = c.T.lines[i];
-        paint(i, Math.round(clamp((t - at.t) / at.d) * line.length));
-      });
-    });
-    if (s.highlight && c.T.hl != null) {
-      const li = lis[s.highlight - 1];
-      M.grow(c.tl, li.querySelector("u"), c.T.hl, 0.3);
-      M.pop(c.tl, li.querySelector("em"), c.T.hl);
-    }
+    const a = codeCard(s.wrong, fit, 0, [tag(words.wrong, true), s.lang ? MK.plain("span", null, s.lang) : null], T.marks.wrong);
+    const b = codeCard(s.right, fit, s.wrong.length, [tag(words.right, false)], T.marks.right);
+    a.card.classList.add("a");
+    b.card.classList.add("b");
+    const arrow = h("div", "arrow", h("i"));
+    safe(c, [cap, a.card, arrow, b.card]);
+    M.lines(c.tl, lines(cap), T.cap);
+    M.block(c.tl, a.card, T.cap + 0.1);
+    if (T.markW != null) T.marks.wrong.forEach((i) => mark(c, a.lis[i], T.markW));
+    // The wrong code steps back as the right code arrives: it stays readable, but it is no longer the subject.
+    c.tl.fromTo(a.card.querySelector("ol"), { opacity: 1 }, { opacity: 0.5, duration: 0.25, ease: "none", immediateRender: false }, T.dim);
+    M.grow(c.tl, a.card.querySelector(".lb s"), T.dim, 0.3);
+    M.pop(c.tl, arrow.firstChild, T.rIn - 0.1);
+    M.block(c.tl, b.card, T.rIn);
+    if (T.hl != null) T.marks.right.forEach((i) => mark(c, b.lis[i], T.hl));
+    drive(c, (t) => { typing(a, s.wrong, T.wrong, t); typing(b, s.right, T.right, t); });
   });
 
   // ---------- image: one picture, held in a frame, with a slow push ----------
