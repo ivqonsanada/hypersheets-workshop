@@ -1,0 +1,1 @@
+Hi! Please make a promo video for my page (index.html) with the video-promo skill. The page lives at https://siti-nur-aisyah.pages.dev. Go all the way until promo.mp4 is rendered.

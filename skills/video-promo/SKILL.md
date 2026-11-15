@@ -47,7 +47,7 @@ Indonesian pages speak either as `aku` (casual) or as `saya` (polite). Use the s
 | visit.html | `address-again` | same as `address` | same | same | 34 |
 | visit.html | `button` | `Buka halamannya` | `Buka halamannya` | `Open my page` | 18 |
 
-When a line from the page is longer than its slot, keep its main idea in a short, correct sentence: drop the extra words, never glue the rest into broken grammar. "Menambah foto masakan tanpa membuat halaman lambat" becomes "Menambah foto masakan", not "Menambah foto tanpa halaman lambat".
+When a line from the page is longer than its slot, keep its main idea in a short, correct sentence: drop the extra words, never glue the rest into broken grammar. For example, "Belajar membuat formulir pendaftaran yang mudah diisi di HP" becomes "Membuat formulir pendaftaran", not "Formulir daftar mudah HP".
 
 If the page has no list of things they are learning, use three other short facts from the page and change `list-title` to fit (for example `Tentang aku`, `Tentang saya` or `About me`). If you cannot find the page address, ask the learner once. Never make one up.
 
