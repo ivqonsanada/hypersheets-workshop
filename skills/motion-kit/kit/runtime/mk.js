@@ -104,7 +104,7 @@
         let cost = all.reduce((a, x) => a + ((widest - x) / room) ** 2, 0);
         for (const e of ends) {
           const end = words[e - 1], next = words[e];
-          if (/[,.:;!?]$/.test(end)) cost -= 0.05;
+          if (/[,.:;!?]$/.test(end)) cost -= 0.1;
           else if (JOIN.test(end)) cost += 0.06;
           else if (/^\d+$/.test(end) && /^[A-Za-z]/.test(next)) cost += 0.06;
         }

@@ -201,7 +201,7 @@ Where to go: the address types itself and the button is pressed once.
 | Field | Limit | |
 |---|---|---|
 | `line` | 30 | needed. "Mampir ke halamanku", "Pesan untuk Sabtu ini", "Try it today" |
-| `address` | 34 | needed. A page address without `https://`, a handle like `@dapurmbaktini`, an email, or a phone or WhatsApp number written as the brief writes it (`0811-0000-142`). With a page scene, the same address as the page scene |
+| `address` | 34 | needed. A page address without `https://`, a handle like `@dapurmbaktini`, an email, or a phone or WhatsApp number written as the brief writes it (`0811-0000-142`). A shop with none of these may give its street address ("Jalan Mawar 3, Kartasura"). With a page scene, the same address as the page scene |
 | `button` | 20 | needed. "Buka halamannya", "Pesan sekarang", "Open the page" |
 | `name` | 26 | the name again |
 

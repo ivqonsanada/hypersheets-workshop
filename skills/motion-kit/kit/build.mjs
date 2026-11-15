@@ -129,7 +129,12 @@ scenes.forEach((s, i) => {
     if (item && typeof item.value === "string" && item.value.trim() && !/\d/.test(item.value)) say(`scene ${n} (numbers) "items" item ${k + 1} "value" must hold a number from the brief, such as "340" or "Rp8.500.000". A line without a number belongs in a list scene.`);
   });
   if (type === "stat" && typeof s.value === "string" && !/\d/.test(s.value)) say(`scene ${n} (stat) "value" must hold a number from the brief, such as "87%" or "Rp15.000".`);
-  for (const k of ["address"]) if (typeof s[k] === "string" && /^https?:|\s/.test(s[k])) say(`scene ${n} (${type}) "${k}" must be the address alone: no "https://" and no spaces.`);
+  // A page address or a handle has no spaces; a street address or a phone number, given by a shop with no page, may.
+  for (const k of ["address"]) if (typeof s[k] === "string") {
+    const v = s[k], web = /^@|[a-z0-9-]\.[a-z]{2,}(\/|$)/i.test(v.replace(/\s+/g, ""));
+    if (/^https?:/i.test(v)) say(`scene ${n} (${type}) "${k}" must be the address alone, without "https://".`);
+    else if (/\s/.test(v) && (type === "page" || (web && !/\d\s|,\s/.test(v)))) say(`scene ${n} (${type}) "${k}" is a page address or a handle, so it has no spaces. Write it as the user gave it.`);
+  }
 });
 const types = scenes.map(typeOf);
 if (scenes.length && types[0] !== "title") say(`The first scene must be a title scene.`);
