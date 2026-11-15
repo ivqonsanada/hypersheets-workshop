@@ -41,6 +41,21 @@ for (const rel of ["index.html", ...readdirSync(join(template, "compositions")).
 
 report.pageCopied = existsSync(join(videoDir, "assets/page/index.html")) &&
   !readFileSync(join(videoDir, "assets/page/index.html"), "utf8").includes("PAGE MISSING");
+// Scene 2 shows the copied page, and from v0.2 the video takes its colour from it, so every local
+// stylesheet and picture the page links must be copied next to it (the skill's step 3).
+report.pageFilesMissing = [];
+if (report.pageCopied) {
+  const page = readFileSync(join(videoDir, "assets/page/index.html"), "utf8");
+  const refs = [
+    ...[...page.matchAll(/<link\b[^>]*\brel=["']?stylesheet["']?[^>]*>/gi)].map((m) => /\bhref=["']([^"']+)["']/i.exec(m[0])?.[1]),
+    ...[...page.matchAll(/<img\b[^>]*\bsrc=["']([^"']+)["']/gi)].map((m) => m[1]),
+  ];
+  for (const ref of refs) {
+    if (!ref || /^(?:[a-z]+:|\/\/|#)/i.test(ref)) continue; // the internet, data: and anchors are not copied
+    const file = decodeURIComponent(ref.split(/[?#]/)[0]).replace(/^\.\//, "").replace(/^\//, "");
+    if (!existsSync(join(videoDir, "assets/page", file))) report.pageFilesMissing.push(file);
+  }
+}
 report.review = existsSync(join(videoDir, "REVIEW.md"));
 report.frames = existsSync(join(videoDir, "frames")) ? readdirSync(join(videoDir, "frames")).filter((f) => f.endsWith(".png")).length : 0;
 
