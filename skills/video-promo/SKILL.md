@@ -31,21 +31,25 @@ The four scenes, already timed:
 
 ## The slots
 
-| File | `data-slot` | Put in | Max |
-|---|---|---|---|
-| hello.html | `hello` | id: `Halo, aku` / en: `Hi, I am` | 24 |
-| hello.html | `name` | their name as the page shows it | 20 |
-| hello.html | `role` | the line about them under the name, shortened | 60 |
-| page.html | `page-title` | id: `Ini halamanku` / en: `This is my page` | 24 |
-| page.html | `address` | page address without `https://` | 28 |
-| learning.html | `list-title` | id: `Yang sedang kupelajari` / en: `What I am learning` | 26 |
-| learning.html | `item-1`, `item-2`, `item-3` | the three things from the page, shortened | 40 each |
-| visit.html | `visit-line` | id: `Mampir ke halamanku` / en: `Come and see my page` | 28 |
-| visit.html | `name-again` | same as `name` | 20 |
-| visit.html | `address-again` | same as `address` | 34 |
-| visit.html | `button` | id: `Buka halamannya` / en: `Open my page` | 18 |
+Indonesian pages speak either as `aku` (casual) or as `saya` (polite). Use the same one the page uses. English pages use the English column.
 
-If the page has no list of things they are learning, use three other short facts from the page and change `list-title` to fit (for example `Tentang aku` / `About me`). If you cannot find the page address, ask the learner once. Never make one up.
+| File | `data-slot` | Indonesian, `aku` page | Indonesian, `saya` page | English | Max |
+|---|---|---|---|---|---|
+| hello.html | `hello` | `Halo, aku` | `Halo, saya` | `Hi, I am` | 24 |
+| hello.html | `name` | their name as the page shows it | same | same | 20 |
+| hello.html | `role` | the line about them under the name | same | same | 60 |
+| page.html | `page-title` | `Ini halamanku` | `Ini halaman saya` | `This is my page` | 24 |
+| page.html | `address` | page address without `https://` | same | same | 28 |
+| learning.html | `list-title` | `Yang sedang kupelajari` | `Yang sedang saya pelajari` | `What I am learning` | 26 |
+| learning.html | `item-1`, `item-2`, `item-3` | the three things from the page | same | same | 40 each |
+| visit.html | `visit-line` | `Mampir ke halamanku` | `Mampir ke halaman saya` | `Come and see my page` | 28 |
+| visit.html | `name-again` | same as `name` | same | same | 20 |
+| visit.html | `address-again` | same as `address` | same | same | 34 |
+| visit.html | `button` | `Buka halamannya` | `Buka halamannya` | `Open my page` | 18 |
+
+When a line from the page is longer than its slot, keep its main idea in a short, correct sentence: drop the extra words, never glue the rest into broken grammar. "Menambah foto masakan tanpa membuat halaman lambat" becomes "Menambah foto masakan", not "Menambah foto tanpa halaman lambat".
+
+If the page has no list of things they are learning, use three other short facts from the page and change `list-title` to fit (for example `Tentang aku`, `Tentang saya` or `About me`). If you cannot find the page address, ask the learner once. Never make one up.
 
 ## Steps
 
