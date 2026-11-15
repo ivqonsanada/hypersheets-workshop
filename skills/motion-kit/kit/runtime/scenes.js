@@ -91,16 +91,18 @@
   MK.define("list", (c) => {
     const s = c.s;
     const hd = head(c, s.heading);
-    const room = c.W - (K ? 92 + 30 : 96 + 36);
+    const room = c.W - (s.numbered === false ? 28 + 34 : K ? 92 + 30 : 96 + 36);
     const avail = c.H - Number(hd.dataset.h) - 68;
     const rows = fewest([68, 62, 58, 54, 50, 46, 42], 54, (size) => {
       const fits = s.items.map((t) => MK.fit(t, "body", [size], room, 2));
-      const total = fits.reduce((a, f) => a + Math.max(96, f.lines.length * size * 1.22) + (K ? 88 : 56), 0);
+      const total = fits.reduce((a, f) => a + Math.max(s.numbered === false ? 0 : 96, f.lines.length * size * 1.22) + (K ? 88 : 56), 0);
       return { fits, ok: fits.every((f) => f.ok) && total <= avail, lines: fits.reduce((a, f) => a + f.lines.length, 0) };
     }).fits;
     rows.forEach((f, i) => flag(c, f, "list item " + (i + 1)));
-    const lis = rows.map((f, i) => h("li", null, [h("b", "chip", String(i + 1)), MK.text("p", "it", f, 1.22), i < rows.length - 1 ? h("i", "hr") : null]));
-    safe(c, [hd, h("ol", null, lis)]);
+    // A list whose items have no order and are not counted carries a small square in place of each number.
+    const plain = s.numbered === false;
+    const lis = rows.map((f, i) => h("li", null, [h("b", plain ? "chip dot" : "chip", plain ? h("i") : String(i + 1)), MK.text("p", "it", f, 1.22), i < rows.length - 1 ? h("i", "hr") : null]));
+    safe(c, [hd, h("ol", plain ? "plain" : null, lis)]);
     M.lines(c.tl, lines(hd), c.T.head);
     lis.forEach((li, i) => {
       M.pop(c.tl, li.firstChild, c.T.items[i]);
@@ -322,9 +324,11 @@
     const groupSep = digits.replace(decSep || "\u0000", "").match(/[.,]/) ? (decSep === "," ? "." : decSep === "." ? "," : digits[lastSep]) : "";
     const decimals = decSep ? tail : 0;
     const end = Number(digits.split(groupSep || "\u0000").join("").replace(",", "."));
+    // A count never shows 0: a number that reads "0%" or "Rp0" for a moment looks like the fact itself.
+    const least = decimals ? 1 / 10 ** decimals : 1;
     return (p) => {
       if (p >= 1) return value;
-      const [int, frac] = (end * MK.m.count(p)).toFixed(decimals).split(".");
+      const [int, frac] = Math.min(end, Math.max(least, end * MK.m.count(p))).toFixed(decimals).split(".");
       const grouped = groupSep ? int.replace(/\B(?=(\d{3})+(?!\d))/g, groupSep) : int;
       return pre + grouped + (frac ? decSep + frac : "") + post;
     };
@@ -390,10 +394,11 @@
     if (/[gjpqy]/.test(s.value)) num.style.paddingBottom = "0.13em";
     const bar = h("i", "bar");
     const lab = MK.text("p", "lab", flag(c, MK.fit(s.label, "body", [64, 58, 52], c.W, 2), "the label"), 1.2);
-    const note = s.note ? MK.text("p", "note", flag(c, MK.fit(s.note, "body", [42, 38], c.W, 2), "the small line"), 1.3) : null;
+    const note = s.note ? MK.text("p", "note", flag(c, MK.fit(s.note, "body", [50, 46, 42], c.W, 2), "the small line"), 1.3) : null;
     safe(c, [boxed ? h("div", "box", num) : num, bar, lab, note]);
-    if (boxed) M.block(c.tl, num.parentNode, c.T.count0 - 0.1);
-    else M.grow(c.tl, bar, c.T.count0, c.T.count1 - c.T.count0);
+    // The number is not on screen before its count begins, so no frame shows it at its first step.
+    M.block(c.tl, boxed ? num.parentNode : num, c.T.count0 - 0.1);
+    if (!boxed) M.grow(c.tl, bar, c.T.count0, c.T.count1 - c.T.count0);
     drive(c, (t) => {
       const p = clamp((t - c.T.count0) / (c.T.count1 - c.T.count0));
       const text = show(p);
@@ -408,14 +413,15 @@
     const s = c.s, card = c.v === 1;
     const room = c.W - (card ? (K ? 0 : 116) : 0);
     const qt = MK.text("blockquote", "qt", flag(c, MK.fit(s.text, K ? "display" : "body", [78, 72, 66, 60, 54, 50, 46], room, 8), "the quote"), 1.24);
-    const by = h("div", "by", [h("i"), h("div", null, [MK.plain("p", "nm", s.name), s.role ? MK.plain("p", "rl", s.role) : null])]);
+    // Who said it: the name with what they are, or only what they are ("Pelanggan sejak 2021"), or nobody.
+    const by = s.name || s.role ? h("div", "by", [h("i"), h("div", null, [MK.plain("p", "nm", s.name || s.role), s.name && s.role ? MK.plain("p", "rl", s.role) : null])]) : null;
     const qm = h("div", "qm", [h("i"), h("i")]);
     const inner = [qm, qt, by];
     safe(c, card ? h("div", "card", inner) : inner);
     if (card) M.block(c.tl, c.el.querySelector(".card"), c.T.mark);
     M.pop(c.tl, qm, c.T.mark + (card ? 0.15 : 0));
     M.lines(c.tl, lines(qt), c.T.text);
-    M.block(c.tl, by, c.T.by);
+    if (by) M.block(c.tl, by, c.T.by);
   });
 
   // ---------- compare: the old way above, the new way below ----------

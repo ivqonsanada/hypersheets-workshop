@@ -107,6 +107,8 @@ function checkFields(n, type, s, fields) {
       if (!abs) say(`${where} must be the name of a file in this folder, such as "index.html".`);
       else if (!fs.existsSync(abs)) say(`${where}: there is no file "${v}" in this folder. Use the real file's name.`);
       else if (!rule.ext.includes(path.extname(abs).slice(1).toLowerCase())) say(`${where} must be a ${list(rule.ext)} file.`);
+    } else if (rule.kind === "flag") {
+      if (v !== true && v !== false) say(`${where} must be true or false, without quote marks.`);
     } else if (rule.kind === "int") {
       if (!Number.isInteger(v) || v < 1 || v > (s[rule.of] || []).length) say(`${where} must be the number of one of the lines in "${rule.of}", counted from 1.`);
     }

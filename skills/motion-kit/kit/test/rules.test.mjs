@@ -307,6 +307,26 @@ test("swap: two pictures in one frame, a still of the halves and a still of the 
   clean(r, own, en);
 });
 
+test("a list without numbers, and a quote without a name", () => {
+  const plain = ok(build(sb({ ...LIST, numbered: false })));
+  assert.equal(plain.scene(2).s.numbered, false);
+  assert.match(plain.plan.stills.find((s) => s.scene === 2).expect, /3 items, each behind a small square mark and not a number, each whole/);
+  const counted = ok(build(sb(LIST)));
+  assert.match(counted.plan.stills.find((s) => s.scene === 2).expect, /3 items, numbered, each whole/);
+  refused(build(sb({ ...LIST, numbered: "no" })), /scene 2 \(list\) "numbered" must be true or false, without quote marks\./);
+
+  const quote = (more) => sb({ type: "quote", text: "Buburnya masih hangat waktu sampai di rumah.", ...more }, { recipe: "testimonial" });
+  const named = ok(build(quote({ name: "Bu Ratna", role: "Pelanggan sejak 2021" })));
+  assert.match(named.plan.stills.find((s) => s.scene === 2).expect, /and under it the name "Bu Ratna" with "Pelanggan sejak 2021"/);
+  assert.equal(of(named.cues, 2, "land").length, 2);
+  const role = ok(build(quote({ role: "Pelanggan sejak 2021" })));
+  assert.match(role.plan.stills.find((s) => s.scene === 2).expect, /in full, and under it "Pelanggan sejak 2021"$/);
+  const nobody = ok(build(quote({})));
+  assert.match(nobody.plan.stills.find((s) => s.scene === 2).expect, /in full, with no name under it$/);
+  assert.equal(of(nobody.cues, 2, "land").length, 1, "nothing lands where the name would be");
+  clean(plain, counted, named, role, nobody);
+});
+
 test("a code card holds one line", () => {
   const code = (lines) => ({ recipe: "coding", look: "warnet", lang: "en", scenes: [{ type: "title", headline: "True or false?" }, { type: "code", caption: "What does this print?", lang: "js", lines }, { type: "end", line: "Answer in the comments", address: "@kelassore", button: "Follow for more" }] });
   const one = ok(build(code(["console.log(0.1 + 0.2 === 0.3);"])));

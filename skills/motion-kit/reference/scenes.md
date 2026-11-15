@@ -70,6 +70,7 @@ A heading and two to four lines that land one by one.
 |---|---|---|
 | `heading` | 30 | needed |
 | `items` | 48 each, 2 to 4 lines | needed. Each line stands alone and starts the same way (all nouns, or all verbs) |
+| `numbered` | | the items carry the numbers 1, 2, 3. Write `"numbered": false` when they have no order and the title does not count them (what is included, what is for sale): each then carries a small square |
 
 ```json
 { "type": "list", "heading": "Yang bisa dipesan", "items": ["Roti tawar gandum", "Sourdough polos dan kismis", "Kue kering untuk hantaran"] }
@@ -201,12 +202,12 @@ One number, counted up, and what it means. Only for a real number from the brief
 
 ## quote
 
-What a real person said, and who. Never write a quote yourself.
+What a real person said, and who. Never write a quote yourself. When the brief gives the words but not the name, leave `name` out and say who they are in `role` ("Pelanggan sejak 2021"); never invent a name.
 
 | Field | Limit | |
 |---|---|---|
 | `text` | 150 | needed. Their words, without quote marks |
-| `name` | 28 | needed. Who said it |
+| `name` | 28 | who said it, when the brief gives the name |
 | `role` | 40 | who they are |
 
 ```json

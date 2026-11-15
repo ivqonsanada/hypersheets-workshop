@@ -57,7 +57,7 @@ export const FIELDS = {
     after: { kind: "file", req: true, ext: ["png", "jpg", "jpeg", "webp"] },
     beforeLabel: text(14), afterLabel: text(14),
   },
-  list: { heading: text(30, true), items: { kind: "texts", min: 2, most: 4, max: 48, req: true } },
+  list: { heading: text(30, true), items: { kind: "texts", min: 2, most: 4, max: 48, req: true }, numbered: { kind: "flag" } },
   steps: { heading: text(30, true), steps: { kind: "objects", min: 2, most: 4, req: true, of: { title: text(28, true), detail: text(56) } } },
   prices: {
     heading: text(30, true),
@@ -92,7 +92,7 @@ export const FIELDS = {
     } },
   },
   stat: { value: { ...text(12, true), how: "keep only the number and its unit here, as the brief writes it (\"Rp15.000\", \"87%\", \"3 days\"); the words that explain it go in \"label\"" }, label: text(44, true), note: text(48) },
-  quote: { text: text(150, true), name: text(28, true), role: text(40) },
+  quote: { text: text(150, true), name: text(28), role: text(40) },
   compare: {
     heading: text(30),
     left: { kind: "object", req: true, of: { label: text(14, true), text: text(56, true) } },
@@ -205,7 +205,7 @@ export const PLAN = {
       need: last + 1.75,
       T: { head: r2(a), items },
       cues: [{ t: r2(a), type: "land", weight: 1 }, ...items.map((t) => ({ t, type: "land", weight: 2 }))],
-      stills: [{ t: r2(last + 0.95), expect: `the heading ${q(s.heading)} and ${s.items.length} items, each whole and on at most two lines: ${s.items.map((x) => q(x, 30)).join(", ")}` }],
+      stills: [{ t: r2(last + 0.95), expect: `the heading ${q(s.heading)} and ${s.items.length} items${s.numbered === false ? ", each behind a small square mark and not a number" : ", numbered"}, each whole and on at most two lines: ${s.items.map((x) => q(x, 30)).join(", ")}` }],
     };
   },
   prices(s, a) {
@@ -301,13 +301,13 @@ export const PLAN = {
     };
   },
   quote(s, a) {
-    const by = r2(a + 0.3 + 0.9 + 0.35);
+    const by = r2(a + 0.3 + 0.9 + 0.35), said = s.name || s.role;
     const need = by + 1.5 + Math.min(2.6, s.text.length * 0.02);
     return {
       need,
       T: { mark: r2(a), text: r2(a + 0.3), by },
-      cues: [{ t: r2(a), type: "land", weight: 2 }, { t: by, type: "land", weight: 1 }],
-      stills: [{ t: r2(by + 0.9), expect: `the quote ${q(s.text, 60)} in full, and under it the name ${q(s.name)}${s.role ? ` with ${q(s.role)}` : ""}` }],
+      cues: [{ t: r2(a), type: "land", weight: 2 }, ...(said ? [{ t: by, type: "land", weight: 1 }] : [])],
+      stills: [{ t: r2(by + 0.9), expect: `the quote ${q(s.text, 60)} in full${s.name ? `, and under it the name ${q(s.name)}${s.role ? ` with ${q(s.role)}` : ""}` : s.role ? `, and under it ${q(s.role)}` : ", with no name under it"}` }],
     };
   },
   compare(s, a) {

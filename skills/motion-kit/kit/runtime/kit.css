@@ -101,6 +101,10 @@ html.look-panggung .mk-title .sub { color: var(--ink); font-weight: 600; }
 .mk-list .hr { display: none; }
 .mk-list .it { flex: 1 1 auto; padding-top: 8px; font-weight: 600; }
 .mk-list.v1 .chip { background: none; border: var(--bw) solid var(--mk-accent); color: var(--mk-accent-ink); box-shadow: none; }
+.mk-list .chip.dot, .mk-list.v1 .chip.dot { width: 28px; height: 28px; margin-top: 0.42em; background: none; border: 0; box-shadow: none; }
+.mk-list .chip.dot i { display: block; width: 28px; height: 28px; background: var(--mark); }
+.mk-list.v1 .chip.dot i { background: none; border: var(--bw) solid var(--mark); }
+.mk-list ol.plain .it { padding-top: 0; }
 html.look-kertas .mk-list li { position: relative; padding-bottom: 44px; gap: 30px; }
 html.look-kertas .mk-list .hr { display: block; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--line); transform-origin: 0 50%; }
 html.look-kertas .mk-list ol { gap: 44px; }
@@ -109,6 +113,10 @@ html.look-kertas .mk-list.v1 .chip { font-style: italic; }
 html.look-panggung .mk-list .chip { background: var(--ink); color: var(--g); box-shadow: none; font: 900 62px/1 var(--fd), sans-serif; }
 html.look-panggung .mk-list.v1 .chip { background: none; border: var(--bw) solid var(--ink); color: var(--ink); }
 html.look-panggung .mk-list .it { font-weight: 700; }
+html.look-kertas .mk-list .chip.dot { width: 22px; height: 22px; margin-top: 0.5em; }
+html.look-kertas .mk-list .chip.dot i { width: 22px; height: 22px; }
+html.look-kertas .mk-list.v1 .chip.dot i { border-radius: 50%; border-width: 3px; }
+html.look-panggung .mk-list .chip.dot, html.look-panggung .mk-list.v1 .chip.dot { background: none; border: 0; }
 
 /* ---------- prices ---------- */
 .mk-prices .head, .mk-info .head { margin-bottom: 68px; }

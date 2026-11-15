@@ -17,11 +17,11 @@ You make ONE video by writing ONE file, `storyboard.json`. The kit turns it into
    - **Too little for a video.** A video needs a title, at least one scene of content and an end card. When the brief has nothing true for the middle (one tip, one sentence), ask the user for one or two more facts: a reason, an example, the steps. Never write tips, reasons, steps or praise of your own to fill a scene.
    - **Never build an address.** A phone or WhatsApp number is written as the brief writes it (`0811-0000-142`), never turned into a `wa.me` link. An address inside a piece of code is not the user's address.
 2. **Only `storyboard.json` is yours.** Never edit anything inside `video/` or inside this skill's folder. To change the video, change the storyboard and build again.
-3. **Bash runs the commands written in the steps and nothing else**, one per call, exactly as written: the build, the stills, the render, and for a video with a voice the sound command. Never chain with `&&`, `;` or `|`. Never `init`, `preview`, `npm install`, or another HyperFrames version. You are already in the user's folder, so no `pwd`, `cd` or `ls`: to see which files are here use Glob, to open one use Read, and write `storyboard.json` and `REVIEW.md` with Write.
+3. **Bash runs the commands written in the steps and nothing else**, exactly as written: the build, the stills, the render, and for a video with a voice the sound command. One command in one Bash call, and wait for its result before the next call. Never chain with `&&`, `;` or `|`. Never `init`, `preview`, `npm install`, or another HyperFrames version. You are already in the user's folder, so no `pwd`, `cd` or `ls`: to see which files are here use Glob, to open one use Read, and write `storyboard.json` and `REVIEW.md` with Write.
 4. **Write the video's words in the language of the brief** and set `"lang"` to `"id"` or `"en"`. The brief's language decides, not the place: an English brief about a shop in Bandung gets an English video, with the names of dishes and products left as they are. Copy names and addresses letter for letter, and keep the voice of the brief or the page: where it says `aku`, write `aku`, not `saya`.
 5. **Short lines.** When a line is too long, either cut it before a joining word and keep the words before it (`yang`, `dengan`, `untuk`, `supaya`, `tanpa`; `that`, `with`, `so`, `because`, `without`), or write the whole line again, shorter. Never take single words out of the middle.
 6. No emoji. No dash as punctuation. Sentence case, no ALL CAPS.
-7. The stills, the sound command and the render each take up to a few minutes. Call Bash for them with `timeout: 600000` and wait. Never run them in the background. Ignore any line that says HyperFrames skills are missing or out of date, and the render's `blank-frame suspect` lines: the cover between two scenes is one flat colour, and that is how it should look. Do not pass either on to the user.
+7. The stills, the sound command and the render each take up to a few minutes. Call Bash for them with `timeout: 600000` and wait. Never run them in the background. Ignore any line that says HyperFrames skills are missing or out of date, and the render's `blank-frame suspect` lines: the cover between two scenes is one flat colour, and that is how it should look. When the render writes `video/video.mp4`, its warnings are about the tool, not the video: never pass one on to the user.
 8. **Never download or install anything on your own.** A voice may be installed only after the user answers yes, in this conversation, to this question, with the name, size, source and folder the sound command printed:
    `Suara <nama> belum ada di komputermu. Kalau kamu setuju, aku unduh <ukuran> dari <sumber> ke folder <folder>, dan tidak mengunduh yang lain. Boleh aku unduh sekarang?`
    (`The voice <name> is not on your computer yet. If you agree, I will download <size> from <source> into <folder>, and nothing else. May I download it now?`)
@@ -63,7 +63,7 @@ Work in the user's folder (for a page, the one with its `index.html`).
 | what a real person said | `testimonial` | title, quote, then optionally stat, page, image or list, then end |
 | a change: before and after, wrong and right | `before-after` | title, then swap for two photos, compare for two lines of words or fix for code, then optionally list, stat, quote or image, then end |
 
-Every video opens with `title` and closes with `end`, holds 3 to 6 scenes, and holds one scene of each kind at most, except `image`: up to three pictures, each in its own scene (a few products). Use a `page` scene when there is a page file, an `image` scene when there is a picture file, a `stat` only for a real number, a `quote` only for real words from a named person.
+Every video opens with `title` and closes with `end`, holds 3 to 6 scenes, and holds one scene of each kind at most, except `image`: up to three pictures, each in its own scene (a few products). Use a `page` scene when there is a page file, an `image` scene when there is a picture file, a `stat` only for a real number, a `quote` only for words a real person said.
 
 Then pick each scene by what its facts are:
 
@@ -79,7 +79,7 @@ Then pick each scene by what its facts are:
 | a question and its answer | `qa` |
 | a before photo and an after photo | `swap` |
 | before and after, wrong and right | `compare` |
-| a named person's own words | `quote` |
+| a real person's own words | `quote` |
 | code that runs | `code` |
 | code that goes wrong, and the same code put right | `fix` |
 
