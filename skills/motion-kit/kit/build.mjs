@@ -70,12 +70,21 @@ function checkText(where, v, rule) {
   const caps = v.split(/\s+/).filter((w) => w.length >= 5 && w === w.toUpperCase() && /[A-Z]/.test(w));
   if (caps.length >= 2) say(`${where} is written in capital letters. Write it in sentence case.`);
 }
+// A heading, a caption or a button is wording the writer chooses, not a fact: a missing one is written, never asked for.
+const OWN_WORDS = {
+  heading: "two to five words that say what the scene holds",
+  caption: "one short line that says what the scene shows",
+  title: "two or three words that name what is shown",
+  label: "the words that say what the number is, as the brief says it",
+  line: "one short line that gives the reason to act or the deadline",
+  button: "two or three words that start with a verb (\"Buka halamannya\", \"Chat lewat WA\", \"Open the page\")",
+};
 function checkFields(n, type, s, fields) {
   const tag = `scene ${n} (${type})`;
   for (const k of Object.keys(s)) if (!["type", "scene", "voice"].includes(k) && !fields[k]) say(`${tag} has "${k}", which this scene does not use. Remove it. It uses: ${list(Object.keys(fields))}.`);
   for (const [k, rule] of Object.entries(fields)) {
     const v = s[k], where = `${tag} "${k}"`;
-    if (v == null || v === "") { if (rule.req) say(`${tag} needs "${k}". Take it from the brief; if the brief does not have it, ask the user or use another scene. Never make one up.`); continue; }
+    if (v == null || v === "") { if (rule.req) say(OWN_WORDS[k] ? `${tag} needs "${k}": ${OWN_WORDS[k]}. These are your own words, not a fact from the brief, so write them now in the video's language and do not ask the user for them.` : `${tag} needs "${k}". Take it from the brief; if the brief does not have it, ask the user or use another scene. Never make one up.`); continue; }
     if (rule.kind === "text") checkText(where, v, rule);
     else if (rule.kind === "texts") {
       if (!Array.isArray(v)) { say(`${where} must be a list: ["…", "…"].`); continue; }
