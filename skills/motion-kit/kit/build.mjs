@@ -239,6 +239,9 @@ const DAYS = { id: ["minggu", "senin", "selasa", "rabu", "kamis", "jumat", "sabt
 const MONTHS = { id: ["januari", "februari", "maret", "april", "mei", "juni", "juli", "agustus", "september", "oktober", "november", "desember"], en: ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"] };
 // A when scene without a day's name gets it from the calendar, in the video's language: the writer
 // never has to work a weekday out, and the leaf's band is never empty when the date is whole.
+// The builder cannot see the brief, so it says which day it wrote: a brief that names another day
+// for that date has a day and a date that do not agree, and only the user knows which is right.
+const filled = [];
 scenes.forEach((sc, i) => {
   if (typeOf(sc) !== "when" || sc.day != null || typeof sc.date !== "string" || typeof sc.month !== "string" || !/^\d{1,2}$/.test(sc.date)) return;
   const m = /^(\p{L}+)\s+(\d{4})$/u.exec(sc.month.trim());
@@ -250,6 +253,7 @@ scenes.forEach((sc, i) => {
     if (date.getUTCDate() !== +sc.date) return;
     const name = DAYS[LANGS.includes(sb.lang) ? sb.lang : L][date.getUTCDay()];
     scenes[i] = { ...sc, day: name[0].toUpperCase() + name.slice(1) };
+    filled.push({ n: i + 1, said: `${scenes[i].day}, ${sc.date} ${sc.month.trim()}` });
     return;
   }
 });
@@ -514,4 +518,5 @@ if (takes.waiting.length) console.log(`\nThe "voice" ${takes.waiting.length === 
 if (sheetStays) console.log(`\nWrote the project to video/. The pictures did not change, so video/sheet.png still shows them.`);
 else console.log(`\nWrote the project to video/. Next, make the contact sheet:\n  node "${path.join(KIT, "stills.mjs")}"`);
 if (lifted.length) console.log(`\nCHECK THE ADDRESS before the sheet. ${lifted.map((x) => `Scene ${x.n} sends the viewer to "${x.said}"`).join(", and ")}, and that address is inside the code. An address the code calls is not where a viewer goes. Read the brief again: if it gives an address outside the code (often on a line of its own, at the end), that one goes on the end card; if it gives none, ask the user which address, handle or number the end card should show. Then change the storyboard and build again. Keep this address only when the brief itself names it as the place to go.`);
+if (filled.length) console.log(`\nCHECK THE DAY before the render. ${filled.map((x) => `Scene ${x.n} gives no day's name, so the leaf shows the calendar's: "${x.said}"`).join(". ")}. Read the brief again. If it names another day for this date, its day and its date do not agree, and you cannot know which one the user meant: make the sheet and write REVIEW.md as usual, then stop, tell the user what the calendar says, ask which is right, and render after they answer. If the brief names no day, or this same day, go on.`);
 if (notes.length) console.log(`\nCHECK WITH THE USER before the render. The project is built with the words as the storyboard has them, and one thing in them cannot be right:\n${notes.map((x) => `  - ${x}`).join("\n")}\nDo not change the day or the date yourself: you cannot know which one the user meant. Make the sheet and write REVIEW.md as usual, then stop: tell the user what the calendar says, ask which is right, and render after they answer.`);

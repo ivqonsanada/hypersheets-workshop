@@ -256,11 +256,15 @@ test("when: one loud date, checked against the calendar and counted as one fact"
   // Without a day's name, the kit writes the calendar's, in the video's language.
   const auto = ok(build(when({ day: undefined })));
   assert.equal(auto.scene(2).s.day, "Sabtu");
+  // The builder cannot see the brief, so it names the day it wrote and says what to do when the brief names another.
+  assert.match(auto.out, /CHECK THE DAY before the render\. Scene 2 gives no day's name, so the leaf shows the calendar's: "Sabtu, 12 Desember 2026"\. Read the brief again\. If it names another day for this date, its day and its date do not agree, and you cannot know which one the user meant: make the sheet and write REVIEW\.md as usual, then stop, tell the user what the calendar says, ask which is right, and render after they answer\. If the brief names no day, or this same day, go on\./);
+  assert.doesNotMatch(wrong.out, /CHECK THE DAY/, "a day the storyboard gives is checked the other way");
   assert.match(auto.plan.stills.find((s) => s.scene === 2).expect, /"Sabtu" on the band at its top/);
   assert.equal(ok(build(when({ day: undefined, month: "December 2026", label: "Opening day", lines: ["From 6 am"] }, { lang: "en" }))).scene(2).s.day, "Saturday");
   assert.equal(ok(build(when({ day: undefined, month: "Desember" }))).scene(2).s.day, undefined, "no year, no day");
   const span = ok(build(when({ date: "12-13", day: undefined, end: "sampai Minggu, 13 Desember 2026", lines: undefined })));
   assert.equal(span.scene(2).s.day, undefined);
+  assert.doesNotMatch(span.out, /CHECK THE DAY/);
   assert.equal(span.scene(2).T.roll, false, "a span of days does not roll");
   assert.equal(of(span.cues, 2, "count").length, 0);
 

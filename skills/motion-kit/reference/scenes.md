@@ -141,7 +141,7 @@ One date, set very large on a calendar leaf: the day's name, the number, the mon
 |---|---|---|
 | `date` | 5 | needed. The day of the month alone: "13". For two days in a row, "13-14" |
 | `month` | 20 | needed. The month and the year, as the brief writes them: "Desember 2026" |
-| `day` | 12 | the day's name, only when the brief gives it: "Sabtu". The builder checks it against the calendar. Leave it out otherwise: the kit writes the day's name from the calendar by itself |
+| `day` | 12 | the day's name when the brief names one, written as the brief has it ("Sabtu") even if you think it is the wrong day: the builder checks it against the calendar and says what to do. Leave it out only when the brief names no day: the kit then writes the calendar's |
 | `label` | 24 | what the date is, above the leaf: "Paling lambat", "Mulai", "Buka perdana" |
 | `end` | 34 | when it lasts longer, one line under the leaf: "sampai Minggu, 20 Desember 2026" |
 | `lines` | 44 each, 1 or 2 lines | the hour and the place: "Pukul 09.00 sampai selesai", "Aula Kampus 2, Semarang" |
