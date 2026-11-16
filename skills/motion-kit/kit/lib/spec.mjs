@@ -116,6 +116,48 @@ const r2 = (v) => Math.round(v * 100) / 100;
 const cut = (s, n = 36) => (String(s).length > n ? String(s).slice(0, n - 1).trimEnd() + "…" : String(s));
 const q = (s, n) => `"${cut(s, n)}"`;
 
+// The check sheet speaks the video's language (lib/sheet.mjs has its labels). PLAN below holds the
+// English sentence of each scene; this holds the same sentence in Indonesian, for a storyboard whose
+// "lang" is "id", because the learner reads the sheet as much as the model does. One word per thing,
+// everywhere: judul utama (the title's headline), judul (a scene's heading), keterangan (a caption),
+// baris (a line or a row), poin (a list item), info (a labelled fact), kartu (a card), bagian (a panel),
+// pigura (the frame a picture sits in), penanda (the marker), utuh (whole), tampil redup (dimmed),
+// ditandai (marked). The video's own words are quoted as written.
+const ID = {
+  title: (s) => [
+    `judul utama ${q(s.headline)} utuh dan ditandai dengan warna video`,
+    ...(s.kicker ? [`${q(s.kicker)} ada di atasnya`] : []),
+    ...(s.sub ? [`${q(s.sub, 48)} ada di bawahnya`] : []),
+  ].join("; "),
+  page: (s) => [
+    `sebuah jendela menampilkan halaman aslinya dari bagian atas (tidak kosong, dan bukan tulisan PAGE MISSING); ${q(s.address)} terketik di kolom alamatnya; penanda mengelilingi nama halaman; ${q(s.title)} ada di atas jendela`,
+    "jendela yang sama, sudah digulir ke bawah; penanda sekarang mengelilingi daftar pertama di halaman, kalau halamannya punya daftar; tidak ada baris halaman yang terpotong di tepi jendela",
+  ],
+  image: (s) => `gambar memenuhi piguranya, tidak gepeng atau melar, dan bagian atas maupun sisinya tidak terpotong${s.caption ? `; keterangan ${q(s.caption, 48)} utuh` : ""}${s.title ? `; ${q(s.title)} ada di atas gambar` : ""}`,
+  swap: (s, was, now) => [
+    `satu pigura terbelah dua oleh garis di tengah: gambar sebelum di kiri berlabel "${was}", gambar sesudah di kanan berlabel "${now}"; keduanya tidak gepeng atau melar${s.title ? `; ${q(s.title)} ada di atas pigura` : ""}`,
+    `gambar sesudah memenuhi seluruh pigura dan berlabel "${now}"${s.caption ? `; keterangan ${q(s.caption, 48)} utuh` : ""}`,
+  ],
+  list: (s) => `judul ${q(s.heading)} dan ${s.items.length} poin${s.numbered === false ? " yang diawali tanda persegi kecil, bukan nomor" : " bernomor"}, masing-masing utuh dan paling banyak dua baris: ${s.items.map((x) => q(x, 30)).join(", ")}`,
+  prices: (s) => `judul ${q(s.heading)} dan ${s.rows.length} baris, masing-masing nama di kiri dan harganya di kanan, utuh dan tidak saling menempel: ${s.rows.map((x) => `${q(x.name, 24)} ${x.price}`).join(", ")}${s.rows.some((x) => x.was) ? "; tiap harga lama dicoret, di sebelah kiri harga barunya" : ""}${s.note ? `; baris kecil ${q(s.note)} ada di bawah daftar harga` : ""}`,
+  info: (s) => `judul ${q(s.heading)} dan ${s.rows.length} info, masing-masing dengan label kecil di atas baris besarnya, utuh: ${s.rows.map((x) => `${x.label}: ${q(x.text, 32)}`).join(", ")}`,
+  qa: (s) => `${s.heading ? `judul ${q(s.heading)} dan ` : ""}${s.pairs.length} pertanyaan, ${s.pairs.length === 1 ? "ditandai tanda tanya, dengan jawabannya" : "masing-masing ditandai tanda tanya, dengan jawabannya"} di bawahnya, semua baris utuh: ${s.pairs.map((x) => `${q(x.q, 40)} lalu ${q(x.a, 40)}`).join("; ")}`,
+  when: (s) => [
+    `tanggal berukuran sangat besar di lembar kalender: ${s.day ? `${q(s.day)} di pita bagian atasnya, ` : ""}angka ${q(s.date)} dan di bawahnya ${q(s.month)}, semuanya utuh`,
+    ...(s.label ? [`${q(s.label)} ada di atas lembar kalender`] : []),
+    ...(s.end ? [`baris ${q(s.end)} ada di bawah lembar kalender`] : []),
+    ...((s.lines || []).length ? [`lalu ${s.lines.length === 1 ? "baris" : "dua baris"} ${s.lines.map((x) => q(x, 44)).join(" dan ")}`] : []),
+  ].join("; "),
+  steps: (s) => `judul ${q(s.heading)} dan ${s.steps.length} langkah bernomor yang dihubungkan garis, langkah ${s.steps.length} sudah menyala: ${s.steps.map((x) => q(x.title, 28)).join(", ")}`,
+  numbers: (s) => `judul ${q(s.heading)} dan ${s.items.length} angka berukuran besar, masing-masing persis seperti yang ditulis, dengan labelnya di bawahnya: ${s.items.map((x) => `${q(x.value)} ${cut(x.label, 28)}`).join(", ")}`,
+  stat: (s) => `${q(s.value)} berukuran sangat besar, persis seperti yang ditulis; di bawahnya ${q(s.label)}${s.note ? ` dan baris kecil ${q(s.note)}` : ""}`,
+  quote: (s) => `kutipan ${q(s.text, 60)} tampil utuh${s.name ? `, dan di bawahnya nama ${q(s.name)}${s.role ? ` dengan ${q(s.role)}` : ""}` : s.role ? `, dan di bawahnya ${q(s.role)}` : ", tanpa nama di bawahnya"}`,
+  compare: (s) => `dua bagian: ${q(s.left.label)} di atas, tampil redup, berisi ${q(s.left.text, 40)}; ${q(s.right.label)} di bawah, ditandai dengan warna video, berisi ${q(s.right.text, 40)}; kedua teks utuh`,
+  code: (s, from, long) => `kartu kode berisi ${s.lines.length} baris bernomor${from ? ` (${from + 1} sampai ${from + s.lines.length}, melanjutkan kartu sebelumnya)` : ""}, semuanya sudah terketik dan tidak ada yang terpotong di tepi kartu${long ? " (baris yang panjang bersambung ke baris kedua, sedikit menjorok ke dalam)" : ""}${s.highlight ? `; baris ${s.highlight + from} ditandai` : ""}; ${q(s.caption)} ada di atas kartu`,
+  fix: (s, words, marks) => `dua kartu kode, semua baris utuh dan tidak ada yang terpotong di tepi kartu: kartu atas berlabel "${words.wrong}" berisi kode yang salah (${s.wrong.length} baris) dan tampil redup; kartu bawah berlabel "${words.right}" berisi kode yang benar (${s.right.length} baris)${marks.right.length ? `, dengan baris ${marks.right.map((i) => i + 1).join(" dan ")} ditandai` : ""}; ${q(s.caption)} ada di atas keduanya`,
+  end: (s) => `kartu penutup memakai warna video: ${q(s.line)}${s.name ? `, nama ${q(s.name)}` : ""}, alamat ${q(s.address)} terketik di sebuah kolom, dan tombol ${q(s.button)}`,
+};
+
 // When each line of some code is typed, from `t` on: a line takes longer the longer it is.
 const typed = (lines, t) => {
   const at = lines.map((line) => {
@@ -136,18 +178,18 @@ export const fixMarks = (s) => {
 };
 
 // plan(scene, a, lang): `a` is when the scene's content may start (0 in the first scene, IN after a
-// cover); `lang` is the video's language, for the kit's own words. Returns the time its last move lands plus a hold (`need`), the times the browser
+// cover); `lang` is the video's language, for the kit's own words and for the sentence on the check sheet. Returns the time its last move lands plus a hold (`need`), the times the browser
 // animates at (`T`), what can be heard (`cues`), and the stills to check (`stills`).
 export const PLAN = {
-  title(s, a) {
+  title(s, a, lang) {
     const T = { band: r2(a + 0.2), rule: r2(a + 0.5), sub: r2(a + 0.45) };
     const need = a + 2.7 + Math.min(1.6, (s.sub || "").length * 0.02);
     const parts = [`the headline ${q(s.headline)} is whole and marked with the video's colour`];
     if (s.kicker) parts.push(`${q(s.kicker)} sits above it`);
     if (s.sub) parts.push(`${q(s.sub, 48)} sits below it`);
-    return { need, T, cues: [{ t: T.band, type: "land", weight: 2 }, { t: T.rule, type: "land", weight: 1 }], stills: [{ t: r2(need * 0.72), expect: parts.join("; ") }] };
+    return { need, T, cues: [{ t: T.band, type: "land", weight: 2 }, { t: T.rule, type: "land", weight: 1 }], stills: [{ t: r2(need * 0.72), expect: lang === "id" ? ID.title(s) : parts.join("; ") }] };
   },
-  page(s, a) {
+  page(s, a, lang) {
     const n = Math.max(1, s.address.length);
     const dt = Math.min(0.04, 0.9 / n);
     const type0 = r2(a + 0.06), type1 = r2(type0 + n * dt);
@@ -163,18 +205,18 @@ export const PLAN = {
         { t: r2(T.scr1 + 0.05), type: "marker", weight: 2 },
       ],
       stills: [
-        { t: r2(a + 2.3), expect: `a window shows the real page from its top (not blank, not the words PAGE MISSING); ${q(s.address)} is typed in its bar; a marker frames the page's name; ${q(s.title)} is above the window` },
-        { t: r2(a + 5.4), expect: "the same window, scrolled down; the marker now frames the page's first list, if the page has one; no line of the page is cut at the window's edge" },
+        { t: r2(a + 2.3), expect: lang === "id" ? ID.page(s)[0] : `a window shows the real page from its top (not blank, not the words PAGE MISSING); ${q(s.address)} is typed in its bar; a marker frames the page's name; ${q(s.title)} is above the window` },
+        { t: r2(a + 5.4), expect: lang === "id" ? ID.page(s)[1] : "the same window, scrolled down; the marker now frames the page's first list, if the page has one; no line of the page is cut at the window's edge" },
       ],
     };
   },
-  image(s, a) {
+  image(s, a, lang) {
     const T = { open: r2(a), cap: r2(a + 0.6) };
     return {
       need: a + 3.7,
       T,
       cues: [{ t: T.open, type: "whoosh", weight: 1 }, ...(s.caption ? [{ t: T.cap, type: "land", weight: 1 }] : [])],
-      stills: [{ t: r2(a + 2.4), expect: `the picture fills its frame, is not stretched, and neither its top nor a side is cut off${s.caption ? `; the caption ${q(s.caption, 48)} is whole` : ""}${s.title ? `; ${q(s.title)} is above the picture` : ""}` }],
+      stills: [{ t: r2(a + 2.4), expect: lang === "id" ? ID.image(s) : `the picture fills its frame, is not stretched, and neither its top nor a side is cut off${s.caption ? `; the caption ${q(s.caption, 48)} is whole` : ""}${s.title ? `; ${q(s.title)} is above the picture` : ""}` }],
     };
   },
   swap(s, a, lang) {
@@ -193,22 +235,22 @@ export const PLAN = {
         ...(s.caption ? [{ t: T.cap, type: "land", weight: 1 }] : []),
       ],
       stills: [
-        { t: r2((T.half1 + T.full0) / 2), expect: `one frame split down the middle by a line: the before picture on the left under the label "${was}", the after picture on the right under "${now}"; neither is stretched${s.title ? `; ${q(s.title)} is above the frame` : ""}` },
-        { t: r2(T.full1 + 1.3), expect: `the after picture fills the whole frame, with the label "${now}"${s.caption ? `; the caption ${q(s.caption, 48)} is whole` : ""}` },
+        { t: r2((T.half1 + T.full0) / 2), expect: lang === "id" ? ID.swap(s, was, now)[0] : `one frame split down the middle by a line: the before picture on the left under the label "${was}", the after picture on the right under "${now}"; neither is stretched${s.title ? `; ${q(s.title)} is above the frame` : ""}` },
+        { t: r2(T.full1 + 1.3), expect: lang === "id" ? ID.swap(s, was, now)[1] : `the after picture fills the whole frame, with the label "${now}"${s.caption ? `; the caption ${q(s.caption, 48)} is whole` : ""}` },
       ],
     };
   },
-  list(s, a) {
+  list(s, a, lang) {
     const items = s.items.map((_, i) => r2(a + 0.5 + i * 0.75));
     const last = items[items.length - 1];
     return {
       need: last + 1.75,
       T: { head: r2(a), items },
       cues: [{ t: r2(a), type: "land", weight: 1 }, ...items.map((t) => ({ t, type: "land", weight: 2 }))],
-      stills: [{ t: r2(last + 0.95), expect: `the heading ${q(s.heading)} and ${s.items.length} items${s.numbered === false ? ", each behind a small square mark and not a number" : ", numbered"}, each whole and on at most two lines: ${s.items.map((x) => q(x, 30)).join(", ")}` }],
+      stills: [{ t: r2(last + 0.95), expect: lang === "id" ? ID.list(s) : `the heading ${q(s.heading)} and ${s.items.length} items${s.numbered === false ? ", each behind a small square mark and not a number" : ", numbered"}, each whole and on at most two lines: ${s.items.map((x) => q(x, 30)).join(", ")}` }],
     };
   },
-  prices(s, a) {
+  prices(s, a, lang) {
     const rows = s.rows.map((_, i) => r2(a + 0.5 + i * 0.6));
     const last = rows[rows.length - 1];
     const was = s.rows.some((x) => x.was);
@@ -216,20 +258,20 @@ export const PLAN = {
       need: last + 1.9 + s.rows.length * 0.15,
       T: { head: r2(a), rows, note: r2(last + 0.45) },
       cues: [{ t: r2(a), type: "land", weight: 1 }, ...rows.map((t) => ({ t, type: "land", weight: 2 }))],
-      stills: [{ t: r2(last + 1.2), expect: `the heading ${q(s.heading)} and ${s.rows.length} rows, each a name on the left and its price on the right, whole and not touching: ${s.rows.map((x) => `${q(x.name, 24)} ${x.price}`).join(", ")}${was ? "; each old price is struck through, left of its new price" : ""}${s.note ? `; the smaller line ${q(s.note)} is under the rows` : ""}` }],
+      stills: [{ t: r2(last + 1.2), expect: lang === "id" ? ID.prices(s) : `the heading ${q(s.heading)} and ${s.rows.length} rows, each a name on the left and its price on the right, whole and not touching: ${s.rows.map((x) => `${q(x.name, 24)} ${x.price}`).join(", ")}${was ? "; each old price is struck through, left of its new price" : ""}${s.note ? `; the smaller line ${q(s.note)} is under the rows` : ""}` }],
     };
   },
-  info(s, a) {
+  info(s, a, lang) {
     const rows = s.rows.map((_, i) => r2(a + 0.45 + i * 0.8));
     const last = rows[rows.length - 1];
     return {
       need: last + 2.1 + s.rows.length * 0.15,
       T: { head: r2(a), rows },
       cues: [{ t: r2(a), type: "land", weight: 1 }, ...rows.map((t) => ({ t, type: "land", weight: 2 }))],
-      stills: [{ t: r2(last + 1.2), expect: `the heading ${q(s.heading)} and ${s.rows.length} facts, each a small label over its own large line, whole: ${s.rows.map((x) => `${x.label}: ${q(x.text, 32)}`).join(", ")}` }],
+      stills: [{ t: r2(last + 1.2), expect: lang === "id" ? ID.info(s) : `the heading ${q(s.heading)} and ${s.rows.length} facts, each a small label over its own large line, whole: ${s.rows.map((x) => `${x.label}: ${q(x.text, 32)}`).join(", ")}` }],
     };
   },
-  qa(s, a) {
+  qa(s, a, lang) {
     // A question is read before its answer arrives, and an answer before the next question.
     let t = a + (s.heading ? 0.5 : 0.1);
     const pairs = s.pairs.map((p) => {
@@ -242,10 +284,10 @@ export const PLAN = {
       need,
       T: { head: r2(a), pairs },
       cues: [...(s.heading ? [{ t: r2(a), type: "land", weight: 1 }] : []), ...pairs.flatMap((x) => [{ t: x.q, type: "land", weight: 2 }, { t: x.a, type: "land", weight: 1 }])],
-      stills: [{ t: r2(need - 0.9), expect: `${s.heading ? `the heading ${q(s.heading)} and ` : ""}${s.pairs.length} ${s.pairs.length === 1 ? "question, marked with a question mark, with its answer" : "questions, each marked with a question mark, with its answer"} under it, every line whole: ${s.pairs.map((x) => `${q(x.q, 40)} then ${q(x.a, 40)}`).join("; ")}` }],
+      stills: [{ t: r2(need - 0.9), expect: lang === "id" ? ID.qa(s) : `${s.heading ? `the heading ${q(s.heading)} and ` : ""}${s.pairs.length} ${s.pairs.length === 1 ? "question, marked with a question mark, with its answer" : "questions, each marked with a question mark, with its answer"} under it, every line whole: ${s.pairs.map((x) => `${q(x.q, 40)} then ${q(x.a, 40)}`).join("; ")}` }],
     };
   },
-  when(s, a) {
+  when(s, a, lang) {
     // A plain day of the month rolls into place like the leaves of a calendar; anything else ("13-14") just lands.
     const roll = /^\d{1,2}$/.test(s.date);
     const num0 = r2(a + 0.3), num1 = r2(num0 + (roll ? 0.8 : 0.3));
@@ -268,55 +310,55 @@ export const PLAN = {
         ...(end != null ? [{ t: end, type: "land", weight: 1 }] : []),
         ...lines.map((t) => ({ t, type: "land", weight: 2 })),
       ],
-      stills: [{ t: r2(need - 0.9), expect: parts.join("; ") }],
+      stills: [{ t: r2(need - 0.9), expect: lang === "id" ? ID.when(s) : parts.join("; ") }],
     };
   },
-  steps(s, a) {
+  steps(s, a, lang) {
     const steps = s.steps.map((_, i) => r2(a + 0.5 + i * 1.35));
     const last = steps[steps.length - 1];
     return {
       need: last + 1.9,
       T: { head: r2(a), steps },
       cues: [{ t: r2(a), type: "land", weight: 1 }, ...steps.map((t) => ({ t, type: "land", weight: 2 }))],
-      stills: [{ t: r2(last + 1.05), expect: `the heading ${q(s.heading)} and ${s.steps.length} numbered steps joined by a line, step ${s.steps.length} lit: ${s.steps.map((x) => q(x.title, 28)).join(", ")}` }],
+      stills: [{ t: r2(last + 1.05), expect: lang === "id" ? ID.steps(s) : `the heading ${q(s.heading)} and ${s.steps.length} numbered steps joined by a line, step ${s.steps.length} lit: ${s.steps.map((x) => q(x.title, 28)).join(", ")}` }],
     };
   },
-  numbers(s, a) {
+  numbers(s, a, lang) {
     const items = s.items.map((_, i) => { const t = r2(a + 0.4 + i * 0.7); return { count0: t, count1: r2(t + 0.8) }; });
     const last = items[items.length - 1].count1;
     return {
       need: last + 1.9 + s.items.length * 0.15,
       T: { head: r2(a), items },
       cues: [{ t: r2(a), type: "land", weight: 1 }, ...items.flatMap((x) => [{ t: x.count0, until: x.count1, type: "count", weight: 1 }, { t: x.count1, type: "land", weight: 2 }])],
-      stills: [{ t: r2(last + 1.0), expect: `the heading ${q(s.heading)} and ${s.items.length} numbers in large type, each exactly as written with its label under it: ${s.items.map((x) => `${q(x.value)} ${cut(x.label, 28)}`).join(", ")}` }],
+      stills: [{ t: r2(last + 1.0), expect: lang === "id" ? ID.numbers(s) : `the heading ${q(s.heading)} and ${s.items.length} numbers in large type, each exactly as written with its label under it: ${s.items.map((x) => `${q(x.value)} ${cut(x.label, 28)}`).join(", ")}` }],
     };
   },
-  stat(s, a) {
+  stat(s, a, lang) {
     const T = { count0: r2(a + 0.2), count1: r2(a + 1.25), label: r2(a + 1.05), note: r2(a + 1.6) };
     return {
       need: a + 3.8,
       T,
       cues: [{ t: T.count0, until: T.count1, type: "count", weight: 2 }, { t: T.count1, type: "land", weight: 3 }, { t: T.label, type: "land", weight: 1 }],
-      stills: [{ t: r2(a + 2.6), expect: `${q(s.value)} in very large type, exactly as written; under it ${q(s.label)}${s.note ? ` and the smaller line ${q(s.note)}` : ""}` }],
+      stills: [{ t: r2(a + 2.6), expect: lang === "id" ? ID.stat(s) : `${q(s.value)} in very large type, exactly as written; under it ${q(s.label)}${s.note ? ` and the smaller line ${q(s.note)}` : ""}` }],
     };
   },
-  quote(s, a) {
+  quote(s, a, lang) {
     const by = r2(a + 0.3 + 0.9 + 0.35), said = s.name || s.role;
     const need = by + 1.5 + Math.min(2.6, s.text.length * 0.02);
     return {
       need,
       T: { mark: r2(a), text: r2(a + 0.3), by },
       cues: [{ t: r2(a), type: "land", weight: 2 }, ...(said ? [{ t: by, type: "land", weight: 1 }] : [])],
-      stills: [{ t: r2(by + 0.9), expect: `the quote ${q(s.text, 60)} in full${s.name ? `, and under it the name ${q(s.name)}${s.role ? ` with ${q(s.role)}` : ""}` : s.role ? `, and under it ${q(s.role)}` : ", with no name under it"}` }],
+      stills: [{ t: r2(by + 0.9), expect: lang === "id" ? ID.quote(s) : `the quote ${q(s.text, 60)} in full${s.name ? `, and under it the name ${q(s.name)}${s.role ? ` with ${q(s.role)}` : ""}` : s.role ? `, and under it ${q(s.role)}` : ", with no name under it"}` }],
     };
   },
-  compare(s, a) {
+  compare(s, a, lang) {
     const T = { head: r2(a), left: r2(a + 0.4), right: r2(a + 1.9) };
     return {
       need: T.right + 2.4,
       T,
       cues: [{ t: T.left, type: "land", weight: 2 }, { t: r2(T.right - 0.12), type: "whoosh", weight: 1 }, { t: T.right, type: "land", weight: 3 }],
-      stills: [{ t: r2(T.right + 1.3), expect: `two panels: ${q(s.left.label)} above, dimmed, with ${q(s.left.text, 40)}; ${q(s.right.label)} below, marked with the video's colour, with ${q(s.right.text, 40)}; both texts whole` }],
+      stills: [{ t: r2(T.right + 1.3), expect: lang === "id" ? ID.compare(s) : `two panels: ${q(s.left.label)} above, dimmed, with ${q(s.left.text, 40)}; ${q(s.right.label)} below, marked with the video's colour, with ${q(s.right.text, 40)}; both texts whole` }],
     };
   },
   // `from`: how many lines the code card before this one holds, when this card carries the same code on.
@@ -329,7 +371,7 @@ export const PLAN = {
       need,
       T: { cap: r2(a), lines, end, hl, from },
       cues: [{ t: lines[0].t, until: end, type: "type", weight: 1 }, ...(hl ? [{ t: hl, type: "marker", weight: 2 }] : [])],
-      stills: [{ t: r2(need - 0.9), expect: `a code card with ${s.lines.length} numbered ${s.lines.length === 1 ? "line" : "lines"}${from ? ` (${from + 1} to ${from + s.lines.length}, carrying on from the card before)` : ""}, all typed out and none cut off at the card's edge${long ? " (a long line continues on a second row, set in a little)" : ""}${s.highlight ? `; line ${s.highlight + from} is marked` : ""}; ${q(s.caption)} is above the card` }],
+      stills: [{ t: r2(need - 0.9), expect: lang === "id" ? ID.code(s, from, long) : `a code card with ${s.lines.length} numbered ${s.lines.length === 1 ? "line" : "lines"}${from ? ` (${from + 1} to ${from + s.lines.length}, carrying on from the card before)` : ""}, all typed out and none cut off at the card's edge${long ? " (a long line continues on a second row, set in a little)" : ""}${s.highlight ? `; line ${s.highlight + from} is marked` : ""}; ${q(s.caption)} is above the card` }],
     };
   },
   fix(s, a, lang) {
@@ -352,10 +394,10 @@ export const PLAN = {
         { t: r.at[0].t, until: r.end, type: "type", weight: 1 },
         ...(hl != null ? [{ t: hl, type: "marker", weight: 2 }] : []),
       ],
-      stills: [{ t: r2(need - 0.9), expect: `two code cards, every line whole and none cut off at a card's edge: above, under the label "${words.wrong}", the wrong code (${s.wrong.length} ${s.wrong.length === 1 ? "line" : "lines"}), dimmed; below, under "${words.right}", the right code (${s.right.length} ${s.right.length === 1 ? "line" : "lines"})${marks.right.length ? `, with line ${marks.right.map((i) => i + 1).join(" and ")} marked` : ""}; ${q(s.caption)} is above them` }],
+      stills: [{ t: r2(need - 0.9), expect: lang === "id" ? ID.fix(s, words, marks) : `two code cards, every line whole and none cut off at a card's edge: above, under the label "${words.wrong}", the wrong code (${s.wrong.length} ${s.wrong.length === 1 ? "line" : "lines"}), dimmed; below, under "${words.right}", the right code (${s.right.length} ${s.right.length === 1 ? "line" : "lines"})${marks.right.length ? `, with line ${marks.right.map((i) => i + 1).join(" and ")} marked` : ""}; ${q(s.caption)} is above them` }],
     };
   },
-  end(s, a) {
+  end(s, a, lang) {
     const n = Math.max(1, s.address.length);
     const addr0 = r2(a + 0.6), addr1 = r2(addr0 + Math.min(0.9, n * 0.035));
     const press = r2(addr1 + 0.7);
@@ -363,7 +405,7 @@ export const PLAN = {
       need: press + 1.6, // the button stays long enough to be read
       T: { line: r2(a), name: r2(a + 0.2), addr0, addr1, press },
       cues: [{ t: addr0, until: addr1, type: "type", weight: 1 }, { t: press, type: "press", weight: 2 }],
-      stills: [{ t: r2(press + 0.55), expect: `the end card on the video's colour: ${q(s.line)}${s.name ? `, the name ${q(s.name)}` : ""}, the address ${q(s.address)} typed in a field, and the button ${q(s.button)}` }],
+      stills: [{ t: r2(press + 0.55), expect: lang === "id" ? ID.end(s) : `the end card on the video's colour: ${q(s.line)}${s.name ? `, the name ${q(s.name)}` : ""}, the address ${q(s.address)} typed in a field, and the button ${q(s.button)}` }],
     };
   },
 };
