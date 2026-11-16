@@ -26,6 +26,16 @@ Short log of the work after `v0.4.0` (the use-case campaign's patches, the repor
 
 `v0.5.0` is the commit that records the release-candidate round. The aim was no C or F in the last 12 runs. It was missed in the first 30 (`t29`) and in the follow-up of 16 (`t39`), where the kit also changed between runs. The round then froze the kit at `46e6140` and ran exactly twelve briefs, eleven of them written for it: `t47` to `t58`, A 3, B 9, no C, no F. `CHECK THE DAY` printed twice and caused no needless question; the nearest-date line printed once and Haiku offered the builder's date; `CHECK THE ADDRESS` did not print, because the one run that could have taken an address from the code asked the user for one.
 
+## 0.5.1: the sheet in the video's language
+
+`v0.5.1` is on the branch `release-0.5`, made from `v0.5.0`. It adds one thing. The full account is in `docs/MOTION-KIT.md`, "0.5.1: the check sheet in the video's language".
+
+- A storyboard with `"lang": "id"` gets an Indonesian sheet: `BINGKAI 1 · 1,94 dtk · adegan 1 (title)` and `Seharusnya tampil: ...`, for all 17 scenes and both layouts. An English storyboard gets the text 0.5.0 wrote, to the letter (806 scene plans and 184 sheet pages compared with the kit at `v0.5.0`; `kit/test/sheet.test.mjs` holds every sentence in both languages).
+- The sheet's page and labels are in `kit/lib/sheet.mjs`; the Indonesian sentences are beside the English ones in `kit/lib/spec.mjs`. `SKILL.md` step 6 names both openings of the sentence.
+- Twelve hand-built Indonesian sheets read line by line (`../.kit-v05/dev/s051-*`), then six Haiku runs on `ccb899c` (`s01` to `s06` in `../.kit-v05/runs/`): A 2, B 4, no C, no F, $0.0745. Every Indonesian sheet is Indonesian, the English one is unchanged, and Haiku still reviews frame by frame; one run of five wrote "Bingkai 1:" in `REVIEW.md` where the skill says "Frame 1:".
+- Tests: 66 on `release-0.5` (four files). Two sheets and one video are in `../docs/motion-kit-samples/v051/`.
+- Left alone: the red strip in a frame (`DOES NOT FIT: ...`) and everything the scripts print in the terminal stay English.
+
 ## Next
 
 1. A fact said in the title's sub line and again in one later scene: twelve runs of 58, the commonest reason for a B. The builder refuses at three scenes; two is the common case. A check of the title's sub line against the later scenes is the place to start.
