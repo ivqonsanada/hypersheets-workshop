@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Makes the contact sheet: one picture of the video's key frames, each with its number, its
-// time and a sentence saying what it should show.
+// time and a sentence saying what it should show, in the video's language (lib/sheet.mjs).
 //
 //   node stills.mjs [folder that holds video/]
 //
@@ -13,6 +13,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { sheetPage } from "./lib/sheet.mjs";
 
 const HF = "hyperframes@0.9.51";
 const dir = path.resolve(process.argv[2] || ".");
@@ -51,48 +52,8 @@ const sheet = path.join(video, ".sheet");
 fs.rmSync(sheet, { recursive: true, force: true });
 fs.mkdirSync(path.join(sheet, "assets"), { recursive: true });
 pngs.forEach((f, i) => fs.copyFileSync(path.join(frames, f), path.join(sheet, "assets", `f${i + 1}.png`)));
-const n = plan.stills.length;
-const cols = n <= 3 ? n : n <= 6 ? 3 : 4;
-const rows = Math.ceil(n / cols);
-// Under each frame: its number, then its sentence. The room is set by the longest sentence, so none runs into the frame below.
-const longest = Math.max(...plan.stills.map((s) => `Should show: ${s.expect}`.length));
-const FW = 420, FH = 747, GAP = 28, CAP = Math.max(214, 62 + Math.ceil(longest / 33) * 27);
-const W = cols * FW + (cols + 1) * GAP, H = rows * (FH + CAP) + (rows + 1) * GAP;
-const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-const cells = plan.stills.map((s, i) => {
-  const x = GAP + (i % cols) * (FW + GAP), y = GAP + Math.floor(i / cols) * (FH + CAP + GAP);
-  return `      <div class="cell" style="left:${x}px;top:${y}px">
-        <img src="assets/f${i + 1}.png" alt="" />
-        <p class="no">FRAME ${s.n} · ${s.t} s · scene ${s.scene} (${esc(s.type)})</p>
-        <p class="ex">Should show: ${esc(s.expect)}</p>
-      </div>`;
-}).join("\n");
-fs.writeFileSync(path.join(sheet, "index.html"), `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=${W}, height=${H}" />
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      html, body { width: ${W}px; height: ${H}px; overflow: hidden; background: #101010; }
-      .sheet { position: relative; width: ${W}px; height: ${H}px; background: #101010; font-family: sans-serif; color: #f2f2f2; }
-      .cell { position: absolute; width: ${FW}px; }
-      .cell img { display: block; width: ${FW}px; height: ${FH}px; border: 2px solid #3a3a3a; }
-      .no { margin-top: 12px; font-size: 23px; line-height: 1.2; font-weight: 700; color: #ffd166; }
-      .ex { margin-top: 8px; font-size: 21px; line-height: 1.28; color: #f2f2f2; }
-    </style>
-  </head>
-  <body>
-    <div id="root" class="sheet" data-composition-id="main" data-start="0" data-duration="1" data-width="${W}" data-height="${H}">
-${cells}
-    </div>
-    <script>
-      window.__timelines["main"] = gsap.timeline({ paused: true });
-    </script>
-  </body>
-</html>
-`);
+const { html, n } = sheetPage(plan);
+fs.writeFileSync(path.join(sheet, "index.html"), html);
 fs.writeFileSync(path.join(sheet, "hyperframes.json"), JSON.stringify({ paths: { assets: "assets" } }) + "\n");
 run([HF, "snapshot", "video/.sheet", "--at", "0", "--no-end", "-o", "video/.sheet/out"], "The contact sheet");
 const made = fs.readdirSync(path.join(sheet, "out")).find((f) => /^frame-.*\.png$/.test(f));

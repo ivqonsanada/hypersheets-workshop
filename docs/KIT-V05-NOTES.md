@@ -26,17 +26,27 @@ Short log of the work after `v0.4.0` (the use-case campaign's patches, the repor
 
 `v0.5.0` is the commit that records the release-candidate round. The aim was no C or F in the last 12 runs. It was missed in the first 30 (`t29`) and in the follow-up of 16 (`t39`), where the kit also changed between runs. The round then froze the kit at `46e6140` and ran exactly twelve briefs, eleven of them written for it: `t47` to `t58`, A 3, B 9, no C, no F. `CHECK THE DAY` printed twice and caused no needless question; the nearest-date line printed once and Haiku offered the builder's date; `CHECK THE ADDRESS` did not print, because the one run that could have taken an address from the code asked the user for one.
 
-## After the tag: a round toward 0.5.1, not tagged
+## After the tag: three wording notes on `main`, not tagged
 
 Two commits on `main` after `v0.5.0` (`7dfcc81`, `15e10c7`): three notes the builder prints after `OK`, before the sheet. None stops the build. `CHECK WHAT IS SAID TWICE` (a fact or a phrase in two scenes, with both places and the one that keeps it, and a line for an end card that says its own name twice), `CHECK THE INITIALS`, `CHECK THE HEADLINE` (a headline that is only the name the end card shows). 61 tests.
 
 - **Proof**: 24 Haiku runs, the cap. Six while shaping (`u01` to `u06`), then eighteen on the kit frozen at `15e10c7`: the release-candidate round's twelve briefs again (`t59` to `t70`) and six campaign briefs not run before (`t71` to `t76`).
 - **Result**: the twelve A 4, B 8 (on 0.5.0: A 3, B 9); up `t59`, `t68`, `t69`; down `t62`, `t70`; seven stayed. The six A 1, B 5. No C and no F in the eighteen. $0.230 for the eighteen, $0.069 for shaping.
-- **No `v0.5.1`**: the rule asked for six A among the twelve. `plugin.json` stays 0.5.0, the README's install lines stay on `#v0.5.0`.
+- **No tag for the notes**: the rule asked for six A among the twelve. The round was meant to become 0.5.1 and did not. The tag `v0.5.1` that came after it is another change (below), made from `v0.5.0`, and does not hold the notes.
 - **The commits stay.** No grade of the twelve fell because of a note: `t62` printed none, and what brought `t70` down was in its first storyboard. The said-twice note printed in nine runs and was followed in one further build each time; the headline note made `t68` an A. `git revert 15e10c7 7dfcc81` takes them out.
 - **What they made worse**, all without a change of grade: `t61`'s end line ("Tanya dulu sebelum datang", a request the brief does not make, written after the end card line of the note), `t72`'s headline (a promise replaced by "Cara pesan", now said three times), `t73`'s headline (a person's name replaced by a line about her internship).
 
 The table and what each note printed are in `docs/MOTION-KIT.md`, "After 0.5.0".
+## 0.5.1: the sheet in the video's language
+
+`v0.5.1` is on the branch `release-0.5`, made from `v0.5.0`. It adds one thing. The full account is in `docs/MOTION-KIT.md`, "0.5.1: the check sheet in the video's language".
+
+- A storyboard with `"lang": "id"` gets an Indonesian sheet: `BINGKAI 1 · 1,94 dtk · adegan 1 (title)` and `Seharusnya tampil: ...`, for all 17 scenes and both layouts. An English storyboard gets the text 0.5.0 wrote, to the letter (806 scene plans and 184 sheet pages compared with the kit at `v0.5.0`; `kit/test/sheet.test.mjs` holds every sentence in both languages).
+- The sheet's page and labels are in `kit/lib/sheet.mjs`; the Indonesian sentences are beside the English ones in `kit/lib/spec.mjs`. `SKILL.md` step 6 names both openings of the sentence.
+- Twelve hand-built Indonesian sheets read line by line (`../.kit-v05/dev/s051-*`), then six Haiku runs on `ccb899c` (`s01` to `s06` in `../.kit-v05/runs/`): A 2, B 4, no C, no F, $0.0745. Every Indonesian sheet is Indonesian, the English one is unchanged, and Haiku still reviews frame by frame; one run of five wrote "Bingkai 1:" in `REVIEW.md` where the skill says "Frame 1:".
+- Tests: 66 on `release-0.5` (four files). Two sheets and one video are in `../docs/motion-kit-samples/v051/`.
+- **On `main`**: `release-0.5` is merged in, so `main` is `v0.5.1` plus the three wording notes. `plugin.json` and the README's install lines say 0.5.1, the newest tag; what `#v0.5.1` installs is the kit without the notes. 69 tests on `main`.
+- Left alone: the red strip in a frame (`DOES NOT FIT: ...`) and everything the scripts print in the terminal stay English.
 
 ## Next
 

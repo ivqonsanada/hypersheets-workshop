@@ -19,9 +19,11 @@ skills/motion-kit/
   kit/build.mjs            checks storyboard.json, writes the HyperFrames project into video/, lays its sound
   kit/lib/spec.mjs         the rules in one place: scenes, fields, limits, timing, stills, the sound default
   kit/stills.mjs           one frame per scene on a sheet, each with what it should show
+  kit/lib/sheet.mjs        the sheet's page and its labels, in the video's language
   kit/sound.mjs            the one extra command for a video with a voice
   kit/test/kit.test.mjs    node --test for the kit and its sound together (11 tests)
   kit/test/rules.test.mjs  node --test for what the builder accepts and refuses, scene by scene, and what it hands the sound layer and the sheet
+  kit/test/sheet.test.mjs  node --test for the sheet's labels and sentences in both languages (sheet-sentences.json holds them, scene by scene)
   kit/runtime/mk.js        text fitting on a canvas, colour from one accent, motion per look, the cover between scenes
   kit/runtime/scenes.js    the scenes
   kit/runtime/page.js      the page scene (the user's real page in a window)
@@ -49,7 +51,7 @@ skills/motion-kit/
 
 1. The model reads the brief and the files it names, and writes `storyboard.json`.
 2. `node "<skill>/kit/build.mjs" storyboard.json` checks it. Wrong: it prints numbered sentences and writes nothing. Right: it writes `video/` (a HyperFrames project: `index.html`, one sub-composition per scene, the runtime, the user's page or picture copied into `video/assets/`), plus `video/mk-plan.json` (times and stills) and `video/cues.json` (what can be heard, for the sound layer).
-3. `node "<skill>/kit/stills.mjs"` turns HyperFrames' usage data off, snapshots one frame per scene (two for the page scene) and lays them on `video/sheet.png` with the frame number, the time and "Should show: ...".
+3. `node "<skill>/kit/stills.mjs"` turns HyperFrames' usage data off, snapshots one frame per scene (two for the page scene) and lays them on `video/sheet.png` with the frame number, the time and "Should show: ...", or "Seharusnya tampil: ..." when the storyboard's `lang` is `id` (since 0.5.1 the sheet is in the video's language).
 4. The model reads the sheet, fixes words in the storyboard if a frame is wrong (at most three rounds), and writes `video/REVIEW.md`.
 5. Only for a video with `voice` lines: `node "<skill>/kit/sound.mjs"` makes the spoken lines and builds again (see "Sound").
 6. `npx hyperframes@0.9.51 render video --quality standard --workers 1 -o video/video.mp4`.
@@ -370,7 +372,7 @@ The nine B's of the round, by reason: a fact said in the title and again in a la
 
 ## After 0.5.0: three wording notes on `main` (2026-11-16, not tagged)
 
-`v0.5.0` stays the release. `main` carries two commits after it (`7dfcc81`, `15e10c7`) that add three notes to the builder's last lines. Each prints after `OK` and before the sheet, and none stops the build. They come from the release-candidate round, where repetition was behind five of nine B grades.
+`v0.5.0` stayed the release after this round. `main` carries two commits after it (`7dfcc81`, `15e10c7`) that add three notes to the builder's last lines. Each prints after `OK` and before the sheet, and none stops the build. They come from the release-candidate round, where repetition was behind five of nine B grades.
 
 - **`CHECK WHAT IS SAID TWICE`** names a fact or a phrase that two scenes show, both places, and the one that keeps it: a date leaf, else the headline, else the later scene. The end card may say the name, the address and the deadline again. A name, a price in a price list, a stat's number, a customer's words and a later heading or caption that names an earlier thing are left alone. An end card that says its own name in its `line` is named too.
 - **`CHECK THE INITIALS`** names capitals that are the first letters of a name the video shows whole.
@@ -404,7 +406,7 @@ The nine B's of the round, by reason: a fact said in the title and again in a la
 
 **Count.** The twelve: A 4, B 8 (on 0.5.0: A 3, B 9). Three moved up, two moved down, seven stayed. The six: A 1, B 5. All eighteen: A 5, B 13, no C and no F. Every fact of every brief is on screen, and code and customers' words are letter for letter.
 
-**No `v0.5.1`.** The rule for the tag asked for at least six A among the twelve. There are four. `plugin.json` stays at 0.5.0 and the install lines stay on `#v0.5.0`.
+**No tag for the notes.** The rule for the tag asked for at least six A among the twelve. There are four, so the notes are in no release. The tag `v0.5.1` that came after this round is another change, the check sheet's language (the next section): it was made from `v0.5.0` and does not hold the notes.
 
 **What each note printed, and what Haiku did with it.**
 
@@ -417,6 +419,45 @@ The nine B's of the round, by reason: a fact said in the title and again in a la
 **What the notes do not reach.** A caption that says the line under the headline again (`t62`, `t64`, `t76`), a sub line that says the headline again in other words (`t66`), and the same words in two forms ("tiap Jumat", "Setiap Jumat", `t67`).
 
 **Cost.** $0.0128 a video ($0.0102 to $0.0164), $0.230 for the eighteen and $0.069 for the six shaping runs. With the 58 runs of the trial: $1.028.
+## 0.5.1: the check sheet in the video's language (2026-11-16)
+
+**What 0.5.1 changes.** One thing: the check sheet follows the storyboard's `lang`. The sheet has two readers, the model and the person who asked for the video. Workshop track 8 has the learner open `video/sheet.png` and match it against their brief, and most learners read Indonesian. Until 0.5.0 the sheet's labels and sentences were English whatever the video's language.
+
+| `lang` | The label under a frame | The sentence under it |
+| --- | --- | --- |
+| `en` | `FRAME 1 · 1.94 s · scene 1 (title)` | `Should show: the headline "..." is whole and marked with the video's colour; "..." sits above it` |
+| `id` | `BINGKAI 1 · 1,94 dtk · adegan 1 (title)` | `Seharusnya tampil: judul utama "..." utuh dan ditandai dengan warna video; "..." ada di atasnya` |
+
+- **All 17 scenes** have their Indonesian sentence, with every choice that changes it: a kicker, a sub line, a note, an old price, a list without numbers, a quote without a name, one question or several, the second code card of two, one marked line or two. The five scenes with two layouts say one sentence for both, as they do in English, so each Indonesian sentence was written to be true of both layouts (`kit/lib/spec.mjs`, `ID`).
+- **What stays as written.** The scene's type in brackets is the kit's own word, the one in `storyboard.json`. The video's own words are quoted as they are. The kit's four words on screen ("Salah", "Benar", "Sebelum", "Sesudah") already followed the language.
+- **One word per thing**, so a shop owner reads the same word for the same thing on every sheet: judul utama (the title's headline), judul (a scene's heading), keterangan (a caption), baris (a line or a row), poin (a list item), info (a labelled fact), langkah (a step), kartu (a code card, the end card), bagian (a panel of a comparison), pigura (the frame a picture sits in), penanda (the marker), utuh (whole), tampil redup (dimmed), ditandai (marked).
+- **English is the text 0.5.0 wrote.** The English sentences are still built by the lines that built them; the Indonesian ones were added beside them. Checked against the kit at `v0.5.0`: 806 scene plans (every scene of 95 storyboards, the examples and the Haiku runs' own in `../.kit-v05/runs/`, and of the test's cases, each as a first scene and as a later one) give the same output for `"lang": "en"`, the times and cues of an Indonesian storyboard did not move, and 184 `mk-plan.json` files laid out as English sheets give the page 0.5.0 laid out, byte for byte. `kit/test/sheet.test.mjs` keeps this: `sheet-sentences.json` holds 36 cases with the English sentences as the kit at `v0.5.0` wrote them and the Indonesian ones, and the English sheet page is held by its hash.
+- **The room under a frame.** The Indonesian label is longer and often takes a second row. A label of more than 38 characters now gets that row (no English label of a kit scene is that long, so an English sheet is laid out as before).
+- **Still English for an Indonesian video**: what the scripts print in the terminal for the model (the builder's sentences and its `CHECK` notes, and the frame list of `stills.mjs`, whose labels are English and whose sentences are the sheet's own), and the red strip a frame carries when a text does not fit (`DOES NOT FIT: ...`), which the skill and the Workshop guide name by those words.
+- **In the skill**: step 6 says the sentence starts with `Should show:`, or with `Seharusnya tampil:` when the video is in Indonesian. `reference/custom-scene.md` says to write a custom scene's `expect` in the video's language.
+- **A release from the tag.** `v0.5.1` is on the branch `release-0.5`, made from `v0.5.0`: 0.5.0 plus this. The three wording notes that came after 0.5.0 on `main` did not meet their own release bar and are not in it.
+- **On `main`.** `release-0.5` is merged into `main`, so `main` is `v0.5.1` plus the three notes, with 69 tests. Its `plugin.json` and the README's install lines say 0.5.1, the newest tag; what `#v0.5.1` installs is the kit without the notes. The notes print in the terminal, for the model, so they stay English for an Indonesian video too.
+
+**Seen by hand.** Four Indonesian storyboards that hold all 17 scenes between them, each built in the three looks, with both layouts of `title`, `list`, `stat`, `quote` and `end`: twelve sheets, every line read (`../.kit-v05/dev/s051-*`). Reading them changed four sentences. The end card is "memakai warna video", because in one layout the colour is the ground and in the other it is the words. A comparison is "dua bagian", because `kertas` draws no boxes. The steps are "sudah menyala", because every step stays lit once it has landed. A swap's pictures are "berlabel", because the label sits on the picture.
+
+**On Haiku.** Six runs on the kit frozen at `ccb899c`, sound on, the harness and the grading of the 0.5.0 trial: five Indonesian briefs of different kinds and one English brief. The question was only whether the Indonesian sheet changes what Haiku does.
+
+| Run | Brief | Language | Scenes | Sound in the MP4 | Grade | Why | Turns | Cost |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| s01 | a02-menu-harga | id | title, prices, info, end | -21.3 LUFS, -1.7 dBTP, cues 20/20 | B | six prices exact, the address and the handle; the line under the headline says little and the heading says the headline again | 13 | $0.0117 |
+| s02 | a12-bazar | id | title, when, stat, list, end | -21.4 LUFS, -1.6 dBTP, cues 23/23 | A | made the sheet and the review, stopped before the render to ask about a Saturday that is a Sunday, offered the builder's date, then changed the day only; the kicker says the place again | 12+8 | $0.0162 |
+| s03 | c03-salah-benar | id | title, fix, compare, end | -16.1 LUFS, -1.1 dBTP, cues 19/19 | B | wrong and right code exact, the changed line marked; the one point is said in three scenes | 13 | $0.0114 |
+| s04 | n01-narasi-laundry | id, narrated | title, prices, info, end | -16 LUFS, -2.7 dBTP, cues 16/16, 4 spoken lines | B | both prices, the hours, the pick-up and the number as given, four spoken lines with the numbers in words, the practice notice passed on; a price and the two days are each said twice | 17 | $0.0130 |
+| s05 | r10-bengkel-vague | id | title, list, info, end | -21.7 LUFS, -1.7 dBTP, cues 17/17 | B | asked four short questions and built from the answer with no price; the headline is the shop's name and the three services are said twice | 4+10 | $0.0112 |
+| s06 | c02-code-tip-en | en | title, code, compare, end | -16.1 LUFS, -1.6 dBTP, cues 15/15 | A | the three lines as given with "?." whole and its line marked, then the crash beside `undefined`; ends on the brief's address | 14 | $0.0110 |
+
+A 2, B 4, no C, no F; $0.0745 for the six, $0.0124 a video. The same briefs before: the menu A (`t01`); the bazaar A and B (`t19`, `t45`); the code fix B, A and B (`t08`, `t16`, `t36`); the narrated laundry A (`t24`); the vague workshop B (`t56`), and A with the headline note that is on `main` (`t68`); the English code tip B and A (`t23`, `t25`). The reasons for a B are the ones that trial lists, and none has to do with the sheet.
+
+- **The sheets.** Every label and every sentence on the five Indonesian sheets is Indonesian. The English run's sentences are the ones the kit at `v0.5.0` writes for the same storyboard, and its sheet page is the same page byte for byte.
+- **The review.** Every run opened the sheet with Read once for each time it was made, and wrote `video/REVIEW.md` with one line per frame, in the user's language, each with its "ok". Four of the five Indonesian runs began the lines with "Frame 1:", as the skill says; `s05` wrote "Bingkai 1:", after the sheet. `dev/score-kit.mjs` counts both.
+- **The stops.** `s02` stopped before the render and asked, `s05` asked before writing anything, `s04` passed on the voice's notice word for word. No run ran a command outside the kit's, and none was refused one.
+
+**Noticed and left alone**, because none is about the sheet's language: five of the six last messages list what each part of the video shows, which the skill says not to do (`t19`, `t56` and `t68` did the same); the red strip and the terminal are English, as said above; the same fact said twice is still the commonest reason for a B, which is what the notes on `main` are for.
 
 ## Not done, and what is weak
 

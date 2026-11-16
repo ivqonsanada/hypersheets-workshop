@@ -1,6 +1,8 @@
 // What the builder accepts and refuses, scene by scene, and what it hands the sound layer and
 // the check sheet for each scene. Run with: node --test
-// Only Node is needed: nothing is rendered, and every storyboard is written here.
+// Only Node is needed: nothing is rendered, and every storyboard is written here. The storyboards
+// are Indonesian unless they say "lang": "en", so the sheet's sentences here are Indonesian;
+// sheet.test.mjs holds every sentence in both languages.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
@@ -61,10 +63,10 @@ test("prices: a land for the heading and one for each row, and the sheet says wh
   const r = ok(build(sb({ type: "prices", heading: "Menu sarapan", rows, note: "Harga per porsi" }, { recipe: "menu" })));
   assert.equal(of(r.cues, 2, "land").length, 1 + rows.length);
   const still = r.plan.stills.find((s) => s.scene === 2);
-  assert.match(still.expect, /3 rows, each a name on the left and its price on the right/);
+  assert.match(still.expect, /3 baris, masing-masing nama di kiri dan harganya di kanan/);
   assert.match(still.expect, /"Lontong sayur" Rp12\.000/);
-  assert.match(still.expect, /each old price is struck through/);
-  assert.match(still.expect, /"Harga per porsi" is under the rows/);
+  assert.match(still.expect, /tiap harga lama dicoret/);
+  assert.match(still.expect, /baris kecil "Harga per porsi" ada di bawah daftar harga/);
   assert.ok(r.plan.sound.on && r.plan.sound.effects >= 8, "the palette plays on a menu");
 
   refused(build(sb({ type: "prices", heading: "Menu sarapan", rows: [{ name: "Bubur ayam", price: "murah" }, { name: "Teh poci", price: "Rp6.000" }] }, { recipe: "menu" })), /scene 2 \(prices\) "rows" item 1 "price" must hold a price from the brief/);
@@ -77,7 +79,7 @@ test("info: a land per fact, and the sheet names each label with its line", () =
   const rows = [{ label: "Buka", text: "Setiap hari, 06.00 sampai 11.00" }, { label: "Tempat", text: "Jalan Pandan 4, Salatiga" }];
   const r = ok(build(sb({ type: "info", heading: "Mampir ke kedai", rows })));
   assert.equal(of(r.cues, 2, "land").length, 1 + rows.length);
-  assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /2 facts, each a small label over its own large line, whole: Buka: "Setiap hari, 06\.00 sampai 11\.00", Tempat: "Jalan Pandan 4, Salatiga"/);
+  assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /2 info, masing-masing dengan label kecil di atas baris besarnya, utuh: Buka: "Setiap hari, 06\.00 sampai 11\.00", Tempat: "Jalan Pandan 4, Salatiga"/);
   refused(build(sb({ type: "info", heading: "Mampir ke kedai", rows: [{ label: "Buka" }, rows[1]] })), /"rows" item 1 needs "text"\./);
   clean(r);
 });
@@ -89,7 +91,7 @@ test("numbers: each number counts and lands, and a value without a number is ref
   assert.equal(counts.length, items.length);
   for (const q of counts) assert.ok(q.until > q.t, "a count runs for a while");
   assert.equal(of(r.cues, 2, "land").length, 1 + items.length);
-  assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /3 numbers in large type, each exactly as written with its label under it: "18" murid ikut sampai akhir, "32" pertemuan, "Rp8\.500\.000" terkumpul/);
+  assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /3 angka berukuran besar, masing-masing persis seperti yang ditulis, dengan labelnya di bawahnya: "18" murid ikut sampai akhir, "32" pertemuan, "Rp8\.500\.000" terkumpul/);
   assert.equal(r.plan.sound.palette, "pixel");
 
   refused(build(sb({ type: "numbers", heading: "Semester ini", items: [{ value: "banyak", label: "murid" }, items[1]] }, { recipe: "recap" })), /scene 2 \(numbers\) "items" item 1 "value" must hold a number from the brief/);
@@ -112,7 +114,8 @@ test("a picture: its own shape, a title or a caption, and three at most", () => 
   assert.deepEqual([r.scene(3).s.w, r.scene(3).s.h], [600, 900]);
   assert.equal(of(r.cues, 2, "land").length, 0, "no caption, so nothing lands under the picture");
   assert.equal(of(r.cues, 3, "land").length, 1);
-  assert.doesNotMatch(r.plan.stills.find((s) => s.scene === 2).expect, /caption/);
+  assert.doesNotMatch(r.plan.stills.find((s) => s.scene === 2).expect, /keterangan/);
+  assert.match(r.plan.stills.find((s) => s.scene === 3).expect, /keterangan "Sesudah dicuci, putih lagi" utuh$/);
 
   refused(build(sb(pic("a.png", {})), files), /scene 2 \(image\) needs a "title" or a "caption"/);
   refused(build(sb([pic("a.png"), pic("b.png"), pic("c.png"), pic("d.png")]), files), /There are 4 image scenes; a video holds three pictures at most\./);
@@ -195,7 +198,7 @@ test("fix: the wrong code, then the right code with the changed line marked", ()
   assert.equal(of(r.cues, 2, "type").length, 2);
   assert.equal(of(r.cues, 2, "marker").length, 2);
   assert.equal(of(r.cues, 2, "land").length, 1);
-  assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /two code cards.*under the label "Salah", the wrong code \(2 lines\), dimmed; below, under "Benar", the right code \(2 lines\), with line 1 marked/);
+  assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /dua kartu kode.*kartu atas berlabel "Salah" berisi kode yang salah \(2 baris\) dan tampil redup; kartu bawah berlabel "Benar" berisi kode yang benar \(2 baris\), dengan baris 1 ditandai/);
   assert.match(readFileSync(join(r.dir, "video", "index.html"), "utf8"), /"words":\{"wrong":"Salah","right":"Benar",/);
 
   const en = ok(build(fix({ highlight: 2 }, { lang: "en" })));
@@ -249,7 +252,7 @@ test("when: one loud date, checked against the calendar and counted as one fact"
   assert.ok(T.num0 < T.num1 && T.month < T.lines[0] && T.lines[0] < T.lines[1]);
   assert.equal(of(r.cues, 2, "count").length, 1, "the number rolls");
   assert.equal(of(r.cues, 2, "land").length, 4, "the leaf, the number and two lines land");
-  assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /a date set very large on a calendar leaf: "Sabtu" on the band at its top, the number "12" and under it "Desember 2026", all whole; "Buka perdana" is above the leaf; then the two lines "Pukul 06\.00 sampai habis" and "Jalan Pandan 4, Salatiga"/);
+  assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /tanggal berukuran sangat besar di lembar kalender: "Sabtu" di pita bagian atasnya, angka "12" dan di bawahnya "Desember 2026", semuanya utuh; "Buka perdana" ada di atas lembar kalender; lalu dua baris "Pukul 06\.00 sampai habis" dan "Jalan Pandan 4, Salatiga"/);
   assert.doesNotMatch(r.out, /CHECK WITH THE USER/);
 
   const wrong = ok(build(when({ day: "Minggu" })));
@@ -265,7 +268,7 @@ test("when: one loud date, checked against the calendar and counted as one fact"
   // The builder cannot see the brief, so it names the day it wrote and says what to do when the brief names another.
   assert.match(auto.out, /CHECK THE DAY before the render\. Scene 2 gives no day's name, so the leaf shows the calendar's: "Sabtu, 12 Desember 2026"\. Read the brief again\. If it names another day for this date, its day and its date do not agree, and you cannot know which one the user meant: make the sheet and write REVIEW\.md as usual, then stop, tell the user what the calendar says, ask which is right, and render after they answer\. If the brief names no day, or this same day, go on\./);
   assert.doesNotMatch(wrong.out, /CHECK THE DAY/, "a day the storyboard gives is checked the other way");
-  assert.match(auto.plan.stills.find((s) => s.scene === 2).expect, /"Sabtu" on the band at its top/);
+  assert.match(auto.plan.stills.find((s) => s.scene === 2).expect, /"Sabtu" di pita bagian atasnya/);
   assert.equal(ok(build(when({ day: undefined, month: "December 2026", label: "Opening day", lines: ["From 6 am"] }, { lang: "en" }))).scene(2).s.day, "Saturday");
   assert.equal(ok(build(when({ day: undefined, month: "Desember" }))).scene(2).s.day, undefined, "no year, no day");
   const span = ok(build(when({ date: "12-13", day: undefined, end: "sampai Minggu, 13 Desember 2026", lines: undefined })));
@@ -293,7 +296,7 @@ test("qa: each question lands, then its answer, and the recipe faq needs one", (
   assert.ok(T.pairs[0].q < T.pairs[0].a && T.pairs[0].a < T.pairs[1].q && T.pairs[1].q < T.pairs[1].a, "question, answer, question, answer");
   assert.ok(T.pairs[0].a - T.pairs[0].q >= 0.8, "a question is on screen a moment before its answer");
   assert.equal(of(r.cues, 2, "land").length, 1 + 2 * pairs.length);
-  assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /the heading "Yang sering ditanya" and 2 questions, each marked with a question mark, with its answer under it, every line whole: "Bisa pesan untuk hari yang sama\?" then "Bisa, selama pesan masuk sebelum pukul…"; "Ada antar ke rumah\?" then "Ada, gratis untuk Salatiga kota\."/);
+  assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /judul "Yang sering ditanya" dan 2 pertanyaan, masing-masing ditandai tanda tanya, dengan jawabannya di bawahnya, semua baris utuh: "Bisa pesan untuk hari yang sama\?" lalu "Bisa, selama pesan masuk sebelum pukul…"; "Ada antar ke rumah\?" lalu "Ada, gratis untuk Salatiga kota\."/);
   const one = ok(build(sb({ type: "qa", pairs: [pairs[0]] })));
   assert.equal(of(one.cues, 2, "land").length, 2, "no heading, one pair");
   refused(build(sb({ type: "qa", pairs: [{ q: "Ada antar ke rumah?" }] })), /"pairs" item 1 needs "a"\./);
@@ -313,8 +316,8 @@ test("swap: two pictures in one frame, a still of the halves and a still of the 
   const stills = r.plan.stills.filter((s) => s.scene === 2);
   assert.equal(stills.length, 2);
   assert.ok(stills[0].t > r.plan.scenes[1].start + d.T.half1 && stills[0].t < r.plan.scenes[1].start + d.T.full0, "the first still is taken while both halves show");
-  assert.match(stills[0].expect, /one frame split down the middle by a line: the before picture on the left under the label "Sebelum", the after picture on the right under "Sesudah"; neither is stretched; "Sepatu putih kusam" is above the frame/);
-  assert.match(stills[1].expect, /the after picture fills the whole frame, with the label "Sesudah"; the caption "Dicuci dan dijemur sehari" is whole/);
+  assert.match(stills[0].expect, /satu pigura terbelah dua oleh garis di tengah: gambar sebelum di kiri berlabel "Sebelum", gambar sesudah di kanan berlabel "Sesudah"; keduanya tidak gepeng atau melar; "Sepatu putih kusam" ada di atas pigura/);
+  assert.match(stills[1].expect, /gambar sesudah memenuhi seluruh pigura dan berlabel "Sesudah"; keterangan "Dicuci dan dijemur sehari" utuh/);
   assert.equal(of(r.cues, 2, "whoosh").length, 3 + 1, "the frame opens, two wipes, and the scene's own closing whoosh");
   assert.equal(of(r.cues, 2, "land").length, 3);
 
@@ -336,19 +339,19 @@ test("swap: two pictures in one frame, a still of the halves and a still of the 
 test("a list without numbers, and a quote without a name", () => {
   const plain = ok(build(sb({ ...LIST, numbered: false })));
   assert.equal(plain.scene(2).s.numbered, false);
-  assert.match(plain.plan.stills.find((s) => s.scene === 2).expect, /3 items, each behind a small square mark and not a number, each whole/);
+  assert.match(plain.plan.stills.find((s) => s.scene === 2).expect, /3 poin yang diawali tanda persegi kecil, bukan nomor, masing-masing utuh/);
   const counted = ok(build(sb(LIST)));
-  assert.match(counted.plan.stills.find((s) => s.scene === 2).expect, /3 items, numbered, each whole/);
+  assert.match(counted.plan.stills.find((s) => s.scene === 2).expect, /3 poin bernomor, masing-masing utuh/);
   refused(build(sb({ ...LIST, numbered: "no" })), /scene 2 \(list\) "numbered" must be true or false, without quote marks\./);
 
   const quote = (more) => sb({ type: "quote", text: "Buburnya masih hangat waktu sampai di rumah.", ...more }, { recipe: "testimonial" });
   const named = ok(build(quote({ name: "Bu Ratna", role: "Pelanggan sejak 2021" })));
-  assert.match(named.plan.stills.find((s) => s.scene === 2).expect, /and under it the name "Bu Ratna" with "Pelanggan sejak 2021"/);
+  assert.match(named.plan.stills.find((s) => s.scene === 2).expect, /dan di bawahnya nama "Bu Ratna" dengan "Pelanggan sejak 2021"/);
   assert.equal(of(named.cues, 2, "land").length, 2);
   const role = ok(build(quote({ role: "Pelanggan sejak 2021" })));
-  assert.match(role.plan.stills.find((s) => s.scene === 2).expect, /in full, and under it "Pelanggan sejak 2021"$/);
+  assert.match(role.plan.stills.find((s) => s.scene === 2).expect, /tampil utuh, dan di bawahnya "Pelanggan sejak 2021"$/);
   const nobody = ok(build(quote({})));
-  assert.match(nobody.plan.stills.find((s) => s.scene === 2).expect, /in full, with no name under it$/);
+  assert.match(nobody.plan.stills.find((s) => s.scene === 2).expect, /tampil utuh, tanpa nama di bawahnya$/);
   assert.equal(of(nobody.cues, 2, "land").length, 1, "nothing lands where the name would be");
   clean(plain, counted, named, role, nobody);
 });
@@ -390,9 +393,9 @@ test("code longer than one card goes on two cards side by side, and the numbers 
   const r = ok(build(video([card(whole.slice(0, 7), { highlight: 4 }), card(whole.slice(7), { caption: "Kalau gagal, hasilnya kosong", highlight: 5 })])));
   assert.deepEqual(r.plan.scenes.map((s) => s.type), ["title", "code", "code", "end"]);
   assert.deepEqual([r.scene(2).T.from, r.scene(3).T.from], [0, 7]);
-  assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /a code card with 7 numbered lines, all typed out .*; line 4 is marked/);
+  assert.match(r.plan.stills.find((s) => s.scene === 2).expect, /kartu kode berisi 7 baris bernomor, semuanya sudah terketik .*; baris 4 ditandai/);
   // "highlight" counts the card's own lines; the sheet names the number the card shows.
-  assert.match(r.plan.stills.find((s) => s.scene === 3).expect, /a code card with 7 numbered lines \(8 to 14, carrying on from the card before\), all typed out .*; line 12 is marked/);
+  assert.match(r.plan.stills.find((s) => s.scene === 3).expect, /kartu kode berisi 7 baris bernomor \(8 sampai 14, melanjutkan kartu sebelumnya\), semuanya sudah terketik .*; baris 12 ditandai/);
   assert.equal(of(r.cues, 3, "type").length, 1);
   assert.doesNotMatch(r.out, /CHECK THE ADDRESS/);
 

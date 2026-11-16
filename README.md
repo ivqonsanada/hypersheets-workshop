@@ -32,7 +32,7 @@ Berurutan, dan masing-masing lewat permintaan izin:
 
 1. Menulis `storyboard.json` di foldermu: isi videonya.
 2. `node "<folder skill>/kit/build.mjs" storyboard.json`: memeriksa storyboard (panjang tiap teks, isian yang wajib ada, berkas yang disebut, susunan adegan) dan menulis proyek HyperFrames ke folder `video`. Kalau ada yang salah, ia hanya mencetak daftar perbaikan, satu kalimat per masalah, dan tidak menulis apa-apa. Ia menyalin halaman atau gambarmu ke `video/assets/`, memasang efek suara video itu ke `video/assets/audio/mix.wav`, tidak memakai internet, tidak menulis di luar `video`, dan menolak menimpa folder `video` yang bukan buatannya. Satu-satunya program lain yang ia jalankan adalah FFmpeg, kalau ada, untuk mengukur kekerasan suaranya.
-3. `node "<folder skill>/kit/stills.mjs"`: menjalankan `npx hyperframes@0.9.51 telemetry disable`, lalu `npx hyperframes@0.9.51 snapshot` dua kali, dan menulis `video/frames/` serta `video/sheet.png`: satu lembar berisi satu bingkai tiap adegan, dengan kalimat di bawahnya tentang apa yang seharusnya terlihat.
+3. `node "<folder skill>/kit/stills.mjs"`: menjalankan `npx hyperframes@0.9.51 telemetry disable`, lalu `npx hyperframes@0.9.51 snapshot` dua kali, dan menulis `video/frames/` serta `video/sheet.png`: satu lembar berisi satu bingkai tiap adegan, dengan kalimat di bawahnya tentang apa yang seharusnya terlihat. Label dan kalimat itu mengikuti bahasa videonya: `BINGKAI 1 · 1,94 dtk · adegan 1 (title)` dan `Seharusnya tampil: ...` untuk video berbahasa Indonesia, `FRAME 1 · 1.94 s · scene 1 (title)` dan `Should show: ...` untuk video berbahasa Inggris.
 4. Menulis `video/REVIEW.md`.
 5. Hanya kalau kamu meminta narasi: `node "<folder skill>/kit/sound.mjs"`. Ia membuat tiap kalimat narasi, lalu menjalankan `kit/build.mjs` lagi supaya tiap adegan cukup panjang untuk kalimatnya. Ia tidak mengunduh apa-apa (lihat "Suara di `motion-kit`").
 6. `npx hyperframes@0.9.51 render video --quality standard --workers 1 -o video/video.mp4`: membuat videonya.
@@ -113,18 +113,18 @@ Skill ini menjalankan `npx hyperframes@0.9.51 telemetry disable` sebelum perinta
 Di Claude Code, ketik dua baris ini, satu per satu:
 
 ```text
-/plugin marketplace add ivqonsanada/hypersheets-workshop#v0.5.0
+/plugin marketplace add ivqonsanada/hypersheets-workshop#v0.5.1
 /plugin install hypersheets-workshop@hypersheets
 ```
 
 **(menunggu pemilik)** Nama repo `ivqonsanada/hypersheets-workshop` belum final.
 
-`#v0.5.0` mengunci plugin ke rilis itu. Claude Code menyalin repo di tag tersebut, dan plugin, yang ada di akar repo, diambil dari salinan itu. Jadi yang terpasang persis v0.5.0, juga setelah `/plugin marketplace update`. Pembaruan otomatis mati secara bawaan untuk marketplace ini.
+`#v0.5.1` mengunci plugin ke rilis itu. Claude Code menyalin repo di tag tersebut, dan plugin, yang ada di akar repo, diambil dari salinan itu. Jadi yang terpasang persis v0.5.1, juga setelah `/plugin marketplace update`. Pembaruan otomatis mati secara bawaan untuk marketplace ini.
 
-Kunci yang paling ketat: pakai hash commit lengkap (40 karakter) dari tag `v0.5.0` sebagai ganti nama tag. Butuh Claude Code 2.1.324 atau lebih baru.
+Kunci yang paling ketat: pakai hash commit lengkap (40 karakter) dari tag `v0.5.1` sebagai ganti nama tag. Butuh Claude Code 2.1.324 atau lebih baru.
 
 ```text
-/plugin marketplace add ivqonsanada/hypersheets-workshop#<hash commit lengkap dari v0.5.0>
+/plugin marketplace add ivqonsanada/hypersheets-workshop#<hash commit lengkap dari v0.5.1>
 ```
 
 Bedanya: pemegang repo bisa memindahkan sebuah tag ke commit lain, sedangkan hash commit tidak bisa berubah.
@@ -175,7 +175,7 @@ In order, each one through a permission prompt:
 
 1. Writing `storyboard.json` in your folder: what the video says.
 2. `node "<skill folder>/kit/build.mjs" storyboard.json`: checks the storyboard (the length of every text, the fields that must be there, the files it names, the order of the scenes) and writes the HyperFrames project into a `video` folder. If something is wrong it only prints what to fix, one sentence per problem, and writes nothing. It copies your page or picture into `video/assets/`, lays the video's sound effects into `video/assets/audio/mix.wav`, uses no internet, writes nowhere outside `video`, and refuses to replace a `video` folder it did not make. The only other program it starts is FFmpeg, when there is one, to measure the loudness.
-3. `node "<skill folder>/kit/stills.mjs"`: runs `npx hyperframes@0.9.51 telemetry disable`, then `npx hyperframes@0.9.51 snapshot` twice, and writes `video/frames/` and `video/sheet.png`: one sheet with a frame of every scene and, under each, a sentence that says what it should show.
+3. `node "<skill folder>/kit/stills.mjs"`: runs `npx hyperframes@0.9.51 telemetry disable`, then `npx hyperframes@0.9.51 snapshot` twice, and writes `video/frames/` and `video/sheet.png`: one sheet with a frame of every scene and, under each, a sentence that says what it should show. The label and the sentence are in the video's language: `FRAME 1 · 1.94 s · scene 1 (title)` and `Should show: ...` for an English video, `BINGKAI 1 · 1,94 dtk · adegan 1 (title)` and `Seharusnya tampil: ...` for an Indonesian one.
 4. Writing `video/REVIEW.md`.
 5. Only when you asked for a voice: `node "<skill folder>/kit/sound.mjs"`. It makes each spoken line, then runs `kit/build.mjs` again so every scene lasts as long as its line. It downloads nothing (see "Sound in `motion-kit`").
 6. `npx hyperframes@0.9.51 render video --quality standard --workers 1 -o video/video.mp4`: makes the video.
@@ -256,18 +256,18 @@ The skill runs `npx hyperframes@0.9.51 telemetry disable` before any other Hyper
 In Claude Code, type these two lines, one at a time:
 
 ```text
-/plugin marketplace add ivqonsanada/hypersheets-workshop#v0.5.0
+/plugin marketplace add ivqonsanada/hypersheets-workshop#v0.5.1
 /plugin install hypersheets-workshop@hypersheets
 ```
 
 **(owner to decide)** The repo name `ivqonsanada/hypersheets-workshop` is not final.
 
-`#v0.5.0` pins the plugin to that release. Claude Code clones the repo at that tag, and the plugin, which sits at the repo root, is taken from that clone. So what you install is exactly v0.5.0, also after `/plugin marketplace update`. Auto-update is off by default for this marketplace.
+`#v0.5.1` pins the plugin to that release. Claude Code clones the repo at that tag, and the plugin, which sits at the repo root, is taken from that clone. So what you install is exactly v0.5.1, also after `/plugin marketplace update`. Auto-update is off by default for this marketplace.
 
-The strictest pin: use the full 40-character commit hash of the `v0.5.0` tag instead of the tag's name. It needs Claude Code 2.1.324 or later.
+The strictest pin: use the full 40-character commit hash of the `v0.5.1` tag instead of the tag's name. It needs Claude Code 2.1.324 or later.
 
 ```text
-/plugin marketplace add ivqonsanada/hypersheets-workshop#<full commit hash of v0.5.0>
+/plugin marketplace add ivqonsanada/hypersheets-workshop#<full commit hash of v0.5.1>
 ```
 
 The difference: whoever controls the repo can move a tag to another commit, while a commit hash cannot change.
@@ -301,20 +301,20 @@ skills/motion-kit/SKILL.md        the text Claude reads for a video from a brief
 skills/motion-kit/reference/      scenes.md (fields and limits), writing.md (how the lines read), sound.md (a voice, read only when one is asked for), custom-scene.md (a scene of one's own, not for Haiku)
 skills/motion-kit/examples/       one finished storyboard per recipe
 skills/motion-kit/kit/build.mjs   checks storyboard.json and writes the HyperFrames project into video/, sound effects included (rules in kit/lib/spec.mjs)
-skills/motion-kit/kit/stills.mjs  one frame per scene on a sheet, with what each should show
+skills/motion-kit/kit/stills.mjs  one frame per scene on a sheet, with what each should show, in the video's language (the labels and the page in kit/lib/sheet.mjs, the sentences in kit/lib/spec.mjs)
 skills/motion-kit/kit/sound.mjs   the one extra command for a video with a voice: makes the spoken lines, then builds again
 skills/motion-kit/kit/sound/      the sound layer: voice.mjs, mix.mjs, device.mjs, install.mjs, engines.json (every download, with size, checksum and licence), sfx/ (87 sounds in four palettes)
-skills/motion-kit/kit/test/       node --test: kit.test.mjs for the kit and its sound together, rules.test.mjs for what the builder accepts and refuses, scene by scene; kit/sound/test/ for the sound layer alone
+skills/motion-kit/kit/test/       node --test: kit.test.mjs for the kit and its sound together, rules.test.mjs for what the builder accepts and refuses, scene by scene, sheet.test.mjs for the check sheet's labels and sentences in both languages; kit/sound/test/ for the sound layer alone
 skills/motion-kit/kit/runtime/    what runs inside the video: mk.js (text fitting, colour, motion), scenes.js, page.js, wrap.js (how a long line of code wraps; the builder uses it too), kit.css, fonts/
 dev/                              the Haiku trial tools (learners never run them): run-trial.sh and score.mjs for video-promo, run-kit-trial.sh and score-kit.mjs for motion-kit
 docs/TRIAL-2026-11-15.md          video-promo's trial report: rubric, runs, tokens and cost
-docs/MOTION-KIT.md                motion-kit: what the kit holds, its contracts, and its Haiku trials (pictures, sound, then the use cases of 0.5.0)
-docs/KIT-V05-NOTES.md             working notes of the 0.5.0 round: what went in, what was left out and why
+docs/MOTION-KIT.md                motion-kit: what the kit holds, its contracts, and its Haiku trials (pictures, sound, the use cases of 0.5.0, then the sheet's language in 0.5.1)
+docs/KIT-V05-NOTES.md             working notes of the 0.5.0 round and of 0.5.1: what went in, what was left out and why
 docs/SOUND.md                     the sound layer: voices and their licences read at the source, what was measured, what only ears can judge
 ```
 
 - `kit/build.mjs`, `kit/stills.mjs`, `kit/sound.mjs` and everything in `kit/sound/` use Node's built-in modules only. The builder reads `storyboard.json` and the files it names, and writes only inside `video/`; the stills script runs `npx hyperframes@0.9.51` and nothing else. `kit/sound/install.mjs` is the only script that uses the network, and the skill lets Claude run it only after the user's yes.
-- `node --test` at the repo root runs the three test files (61 tests). They need only Node; two use FFmpeg and skip without it. No voice is synthesised and nothing is downloaded.
+- `node --test` at the repo root runs the four test files (69 tests). They need only Node; two use FFmpeg and skip without it. No voice is synthesised and nothing is downloaded.
 - The kit's default for sound effects is one constant, `SOUND_DEFAULT` in `kit/lib/spec.mjs`. Set it to `"off"` and a video is silent unless its storyboard says `"sound": "on"`; `SKILL.md`'s "Sound" section then needs its first line changed to match.
 
 - The `.js` files next to each scene in `template/compositions/` are the video's timeline. They run inside HyperFrames' headless browser while it checks, snapshots and renders. From v0.2 the page scene also reads the learner's copied page in `video/assets/page/`, in an unseen second frame, to take its colour and to find where the name and the list sit; nothing leaves the computer.

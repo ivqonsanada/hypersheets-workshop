@@ -40,7 +40,7 @@ Work in the user's folder (for a page, the one with its `index.html`).
    (`<Base directory>` is the path shown at the top of this skill.) If it lists problems, fix each one in `storyboard.json` and build again, until it prints `OK`. If its last lines start with `CHECK`, do what they say.
 5. **Tell the user in one sentence** what comes next: the kit runs HyperFrames 0.9.51 through `npx`, turns HyperFrames' usage data off first, and writes only inside `video/`.
 6. **Stills:** `node "<Base directory>/kit/stills.mjs"`
-   Then open `video/sheet.png` with Read. Each frame has a number, a time and a sentence that says what it should show. Compare every frame with its own sentence.
+   Then open `video/sheet.png` with Read. Each frame has a number, a time and a sentence that says what it should show. The sentence starts with `Should show:`, or with `Seharusnya tampil:` when the video is in Indonesian: the sheet is written in the video's language. Compare every frame with its own sentence.
 7. **If a frame is wrong** (a word cut off, words on top of each other, a red strip that says DOES NOT FIT, a wrong or misspelled fact), fix the words in `storyboard.json`, then repeat steps 4 and 6. At most three rounds. The colours, the marker, the motion and the layout belong to the kit: never try to change them.
 8. **Write `video/REVIEW.md`** in the user's language, one line per frame: `Frame 1:` then what you see in the picture, in your own words, then `ok` or what you changed. For a page frame, name one thing you can read inside the page's window.
 9. **Only if the storyboard has `voice` lines, make the voice:** `node "<Base directory>/kit/sound.mjs"`
