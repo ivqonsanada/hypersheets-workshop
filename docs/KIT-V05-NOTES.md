@@ -26,15 +26,29 @@ Short log of the work after `v0.4.0` (the use-case campaign's patches, the repor
 
 `v0.5.0` is the commit that records the release-candidate round. The aim was no C or F in the last 12 runs. It was missed in the first 30 (`t29`) and in the follow-up of 16 (`t39`), where the kit also changed between runs. The round then froze the kit at `46e6140` and ran exactly twelve briefs, eleven of them written for it: `t47` to `t58`, A 3, B 9, no C, no F. `CHECK THE DAY` printed twice and caused no needless question; the nearest-date line printed once and Haiku offered the builder's date; `CHECK THE ADDRESS` did not print, because the one run that could have taken an address from the code asked the user for one.
 
+## After the tag: a round toward 0.5.1, not tagged
+
+Two commits on `main` after `v0.5.0` (`7dfcc81`, `15e10c7`): three notes the builder prints after `OK`, before the sheet. None stops the build. `CHECK WHAT IS SAID TWICE` (a fact or a phrase in two scenes, with both places and the one that keeps it, and a line for an end card that says its own name twice), `CHECK THE INITIALS`, `CHECK THE HEADLINE` (a headline that is only the name the end card shows). 61 tests.
+
+- **Proof**: 24 Haiku runs, the cap. Six while shaping (`u01` to `u06`), then eighteen on the kit frozen at `15e10c7`: the release-candidate round's twelve briefs again (`t59` to `t70`) and six campaign briefs not run before (`t71` to `t76`).
+- **Result**: the twelve A 4, B 8 (on 0.5.0: A 3, B 9); up `t59`, `t68`, `t69`; down `t62`, `t70`; seven stayed. The six A 1, B 5. No C and no F in the eighteen. $0.230 for the eighteen, $0.069 for shaping.
+- **No `v0.5.1`**: the rule asked for six A among the twelve. `plugin.json` stays 0.5.0, the README's install lines stay on `#v0.5.0`.
+- **The commits stay.** No grade of the twelve fell because of a note: `t62` printed none, and what brought `t70` down was in its first storyboard. The said-twice note printed in nine runs and was followed in one further build each time; the headline note made `t68` an A. `git revert 15e10c7 7dfcc81` takes them out.
+- **What they made worse**, all without a change of grade: `t61`'s end line ("Tanya dulu sebelum datang", a request the brief does not make, written after the end card line of the note), `t72`'s headline (a promise replaced by "Cara pesan", now said three times), `t73`'s headline (a person's name replaced by a line about her internship).
+
+The table and what each note printed are in `docs/MOTION-KIT.md`, "After 0.5.0".
+
 ## Next
 
-1. A fact said in the title's sub line and again in one later scene: twelve runs of 58, the commonest reason for a B. The builder refuses at three scenes; two is the common case. A check of the title's sub line against the later scenes is the place to start.
-2. Initials of a long name in the kicker (`t48`: "HMSI Sistem Informasi" over the whole name in the sub line; `t20` before it). The skill says never; a builder check could compare a word in capitals with the first letters of a run of words elsewhere in the video.
-3. A headline that is only the shop's name (`t22`, `t27`, `t42`, `t56`; `t37` and `t53` took it from the customer's words). A builder check is easy (title headline equal to the end card's name); try it on Haiku before keeping it, since a refusal may push it to invent a hook.
-4. A kicker that says the headline again in other words ("10 tips belajar coding" over "Sepuluh tips belajar coding", `t34`): the check compares whole words.
-5. A long function on two cards is whole but dense (`t31` to `t33`, `t51`, all B): up to thirteen rows at 32 px on the first card. A third card, or a split where the rows are even, would help.
-6. A narrated recap speaks the labels and leaves the numbers to the screen (`t54`), because a spoken number takes many words. Room for one number per spoken line would help.
-7. `CHECK THE ADDRESS` has never printed in a Haiku run.
+1. The end card line of the said-twice note says to write "the reason to act or the deadline". A brief with neither got a made-up request (`t61`). It should say to keep the action and drop the name ("Tanya lewat WA"), and never to add a condition.
+2. The said-twice note names the place to change, and Haiku sometimes changes the other one (`t60`) or moves the repeat instead of ending it (`t61`, `t72`). Say that the headline is the last thing to change, and that a headline with a number or a promise keeps it.
+3. The headline note on a person's introduction (`t73`): the name is the right headline there. A way to tell a person from a shop is needed before the note is kept for the `promo` recipe without a page.
+4. Repeats the note does not reach: a caption that says the title's sub line again (`t62`, `t64`, `t76`), a sub line that says the headline again in other words (`t66`), the same words in two forms ("tiap Jumat", "Setiap Jumat", `t67`), a headline that is only the name when the end card has no name (`t75`).
+5. `CHECK THE INITIALS` has tests and no Haiku run: no run of the 24 wrote initials. `CHECK THE ADDRESS` has never printed either.
+6. A number read from the user's picture and set as a stat (`t70`: "Rp160.000 collected this week" from the screenshot). The builder cannot see into a picture; the skill could say that a number on screen comes from the brief's words or the user's answer.
+7. A kicker that says the headline again in other words ("10 tips belajar coding" over "Sepuluh tips belajar coding", `t34`): the check compares whole words.
+8. A long function on two cards is whole but dense (`t31` to `t33`, `t51`, `t63`, all B): up to thirteen rows at 32 px on the first card. A third card, or a split where the rows are even, would help.
+9. A narrated recap speaks the labels and leaves most numbers to the screen (`t54`, `t66`), because a spoken number takes many words. Room for one number per spoken line would help.
 
 ## Left out, and why
 

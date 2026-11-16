@@ -314,7 +314,7 @@ docs/SOUND.md                     the sound layer: voices and their licences rea
 ```
 
 - `kit/build.mjs`, `kit/stills.mjs`, `kit/sound.mjs` and everything in `kit/sound/` use Node's built-in modules only. The builder reads `storyboard.json` and the files it names, and writes only inside `video/`; the stills script runs `npx hyperframes@0.9.51` and nothing else. `kit/sound/install.mjs` is the only script that uses the network, and the skill lets Claude run it only after the user's yes.
-- `node --test` at the repo root runs the three test files (58 tests). They need only Node; two use FFmpeg and skip without it. No voice is synthesised and nothing is downloaded.
+- `node --test` at the repo root runs the three test files (61 tests). They need only Node; two use FFmpeg and skip without it. No voice is synthesised and nothing is downloaded.
 - The kit's default for sound effects is one constant, `SOUND_DEFAULT` in `kit/lib/spec.mjs`. Set it to `"off"` and a video is silent unless its storyboard says `"sound": "on"`; `SKILL.md`'s "Sound" section then needs its first line changed to match.
 
 - The `.js` files next to each scene in `template/compositions/` are the video's timeline. They run inside HyperFrames' headless browser while it checks, snapshots and renders. From v0.2 the page scene also reads the learner's copied page in `video/assets/page/`, in an unseen second frame, to take its colour and to find where the name and the list sit; nothing leaves the computer.
