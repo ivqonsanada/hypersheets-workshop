@@ -27,7 +27,7 @@ custom/<name>/scene.css    optional styles
 - `fields`: the scene's text fields. Each is checked like a kit text (length, no dash as punctuation, no emoji, no placeholder). Limits of 160 or less.
 - `seconds`: how long the scene's content needs, 2 to 9. The kit adds the cover's time.
 - `still`: the moment, inside those seconds, at which everything has landed. The contact sheet shows it.
-- `expect`: one sentence saying what that still shows, concrete enough to check a picture against.
+- `expect`: one sentence saying what that still shows, concrete enough to check a picture against. Write it in the video's language: the sheet prints it after `Should show:`, or after `Seharusnya tampil:` when the video is in Indonesian.
 - `cues` (optional): what can be heard, for the sound layer: `t` in seconds from the scene's content start, `type` one of `land`, `whoosh`, `type`, `press`, `count`, `marker`, `weight` 1 to 3, `until` for a span.
 
 ## scene.js

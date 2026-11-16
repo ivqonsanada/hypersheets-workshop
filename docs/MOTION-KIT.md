@@ -19,9 +19,11 @@ skills/motion-kit/
   kit/build.mjs            checks storyboard.json, writes the HyperFrames project into video/, lays its sound
   kit/lib/spec.mjs         the rules in one place: scenes, fields, limits, timing, stills, the sound default
   kit/stills.mjs           one frame per scene on a sheet, each with what it should show
+  kit/lib/sheet.mjs        the sheet's page and its labels, in the video's language
   kit/sound.mjs            the one extra command for a video with a voice
   kit/test/kit.test.mjs    node --test for the kit and its sound together (11 tests)
   kit/test/rules.test.mjs  node --test for what the builder accepts and refuses, scene by scene, and what it hands the sound layer and the sheet
+  kit/test/sheet.test.mjs  node --test for the sheet's labels and sentences in both languages (sheet-sentences.json holds them, scene by scene)
   kit/runtime/mk.js        text fitting on a canvas, colour from one accent, motion per look, the cover between scenes
   kit/runtime/scenes.js    the scenes
   kit/runtime/page.js      the page scene (the user's real page in a window)
@@ -49,7 +51,7 @@ skills/motion-kit/
 
 1. The model reads the brief and the files it names, and writes `storyboard.json`.
 2. `node "<skill>/kit/build.mjs" storyboard.json` checks it. Wrong: it prints numbered sentences and writes nothing. Right: it writes `video/` (a HyperFrames project: `index.html`, one sub-composition per scene, the runtime, the user's page or picture copied into `video/assets/`), plus `video/mk-plan.json` (times and stills) and `video/cues.json` (what can be heard, for the sound layer).
-3. `node "<skill>/kit/stills.mjs"` turns HyperFrames' usage data off, snapshots one frame per scene (two for the page scene) and lays them on `video/sheet.png` with the frame number, the time and "Should show: ...".
+3. `node "<skill>/kit/stills.mjs"` turns HyperFrames' usage data off, snapshots one frame per scene (two for the page scene) and lays them on `video/sheet.png` with the frame number, the time and "Should show: ...", or "Seharusnya tampil: ..." when the storyboard's `lang` is `id` (since 0.5.1 the sheet is in the video's language).
 4. The model reads the sheet, fixes words in the storyboard if a frame is wrong (at most three rounds), and writes `video/REVIEW.md`.
 5. Only for a video with `voice` lines: `node "<skill>/kit/sound.mjs"` makes the spoken lines and builds again (see "Sound").
 6. `npx hyperframes@0.9.51 render video --quality standard --workers 1 -o video/video.mp4`.
