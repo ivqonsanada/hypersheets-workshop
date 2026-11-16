@@ -143,9 +143,9 @@ Menghapus marketplace juga melepas plugin yang dipasang darinya. Yang tetap ada 
 - salinan `hyperframes@0.9.51` di cache `npx`, dan pengaturannya di `~/.hyperframes` (kalau ingin menyalakan lagi data pemakaiannya: `npx hyperframes@0.9.51 telemetry enable`);
 - browser HyperFrames di `~/.cache/puppeteer`, yang juga dipakai alat lain berbasis Puppeteer. Hapus hanya kalau tidak ada alat lain yang memakainya.
 
-### Lisensi (menunggu pemilik)
+### Lisensi
 
-Usulan, menunggu keputusan pemilik: semua isi repo ini memakai Apache-2.0 (`LICENSE`), kecuali huruf di `skills/video-promo/template/assets/fonts/` dan `skills/motion-kit/kit/runtime/fonts/` (Finlandica, Fraunces, Big Shoulders Display, JetBrains Mono), yang memakai SIL Open Font License 1.1 (berkas `OFL*.txt` di tiap folder), dan bunyi efek di `skills/motion-kit/kit/sound/sfx/`, yang rekamannya CC0 dari Kenney (`SOURCES.md` di folder itu). Program dan berkas suara narasi tidak ada di repo ini; lisensinya ada di tabel "Lisensi suara dan bunyi". Teks pelajaran Workshop, yaitu panduan jalur di learnhypersheets.com, tidak ada di repo ini dan tetap milik Hyper Sheets; lisensi ini tidak mencakupnya. HyperFrames sendiri berlisensi Apache-2.0. GSAP tidak ada di repo ini; templatnya memuat GSAP saat render, dengan lisensi GSAP sendiri.
+Semua isi repo ini memakai Apache-2.0 (`LICENSE`), kecuali huruf di `skills/video-promo/template/assets/fonts/` dan `skills/motion-kit/kit/runtime/fonts/` (Finlandica, Fraunces, Big Shoulders Display, JetBrains Mono), yang memakai SIL Open Font License 1.1 (berkas `OFL*.txt` di tiap folder), dan bunyi efek di `skills/motion-kit/kit/sound/sfx/`, yang rekamannya CC0 dari Kenney (`SOURCES.md` di folder itu). Program dan berkas suara narasi tidak ada di repo ini; lisensinya ada di tabel "Lisensi suara dan bunyi". Teks pelajaran Workshop, yaitu panduan jalur di learnhypersheets.com, tidak ada di repo ini dan tetap milik Hyper Sheets; lisensi ini tidak mencakupnya. HyperFrames sendiri berlisensi Apache-2.0. GSAP tidak ada di repo ini; templatnya memuat GSAP saat render, dengan lisensi GSAP sendiri.
 
 ## English
 
@@ -286,9 +286,9 @@ Removing the marketplace also uninstalls the plugins installed from it. What sta
 - the copy of `hyperframes@0.9.51` in the `npx` cache, and its settings in `~/.hyperframes` (to turn its usage data back on: `npx hyperframes@0.9.51 telemetry enable`);
 - HyperFrames' browser in `~/.cache/puppeteer`, which other Puppeteer-based tools use too. Delete it only if nothing else needs it.
 
-### Licence (owner to decide)
+### Licence
 
-Proposed, waiting on the owner's decision: everything in this repo under Apache-2.0 (`LICENSE`), except the typefaces in `skills/video-promo/template/assets/fonts/` and `skills/motion-kit/kit/runtime/fonts/` (Finlandica, Fraunces, Big Shoulders Display, JetBrains Mono), which are under the SIL Open Font License 1.1 (the `OFL*.txt` files in each folder), and the sound effects in `skills/motion-kit/kit/sound/sfx/`, whose recordings are CC0 from Kenney (`SOURCES.md` in that folder). The speech program and the voices are not in this repo; their licences are in the table "Licences of the voices and sounds". The Workshop's lesson text, the track guides on learnhypersheets.com, is not in this repo and stays Hyper Sheets'; this licence does not cover it. HyperFrames itself is Apache-2.0. GSAP is not in this repo; the template loads it while rendering, under GSAP's own licence.
+Everything in this repo is under Apache-2.0 (`LICENSE`), except the typefaces in `skills/video-promo/template/assets/fonts/` and `skills/motion-kit/kit/runtime/fonts/` (Finlandica, Fraunces, Big Shoulders Display, JetBrains Mono), which are under the SIL Open Font License 1.1 (the `OFL*.txt` files in each folder), and the sound effects in `skills/motion-kit/kit/sound/sfx/`, whose recordings are CC0 from Kenney (`SOURCES.md` in that folder). The speech program and the voices are not in this repo; their licences are in the table "Licences of the voices and sounds". The Workshop's lesson text, the track guides on learnhypersheets.com, is not in this repo and stays Hyper Sheets'; this licence does not cover it. HyperFrames itself is Apache-2.0. GSAP is not in this repo; the template loads it while rendering, under GSAP's own licence.
 
 ## For reviewers and maintainers
 
