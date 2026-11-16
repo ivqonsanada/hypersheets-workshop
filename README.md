@@ -1,7 +1,5 @@
 # Hyper Sheets Workshop plugin
 
-> **Draf rilis / release draft.** Dua hal masih menunggu keputusan pemilik dan ditandai **(menunggu pemilik)**: nama repo di baris pasang, dan lisensinya. Two things still wait on the owner and are marked **(owner to decide)**: the repo name in the install lines, and the licence.
-
 [Bahasa Indonesia](#bahasa-indonesia) · [English](#english)
 
 ## Bahasa Indonesia
@@ -116,8 +114,6 @@ Di Claude Code, ketik dua baris ini, satu per satu:
 /plugin marketplace add ivqonsanada/hypersheets-workshop#v0.5.1
 /plugin install hypersheets-workshop@hypersheets
 ```
-
-**(menunggu pemilik)** Nama repo `ivqonsanada/hypersheets-workshop` belum final.
 
 `#v0.5.1` mengunci plugin ke rilis itu. Claude Code menyalin repo di tag tersebut, dan plugin, yang ada di akar repo, diambil dari salinan itu. Jadi yang terpasang persis v0.5.1, juga setelah `/plugin marketplace update`. Pembaruan otomatis mati secara bawaan untuk marketplace ini.
 
@@ -259,8 +255,6 @@ In Claude Code, type these two lines, one at a time:
 /plugin marketplace add ivqonsanada/hypersheets-workshop#v0.5.1
 /plugin install hypersheets-workshop@hypersheets
 ```
-
-**(owner to decide)** The repo name `ivqonsanada/hypersheets-workshop` is not final.
 
 `#v0.5.1` pins the plugin to that release. Claude Code clones the repo at that tag, and the plugin, which sits at the repo root, is taken from that clone. So what you install is exactly v0.5.1, also after `/plugin marketplace update`. Auto-update is off by default for this marketplace.
 
