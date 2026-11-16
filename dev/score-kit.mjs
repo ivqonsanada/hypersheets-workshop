@@ -75,7 +75,7 @@ if (r.storyboard) {
 }
 if (existsSync(join(video, "REVIEW.md"))) {
   const rev = readFileSync(join(video, "REVIEW.md"), "utf8");
-  r.review = { lines: rev.trim().split("\n").filter((l) => l.trim()).length, frames: (rev.match(/frame\s*\d+/gi) || []).length };
+  r.review = { lines: rev.trim().split("\n").filter((l) => l.trim()).length, frames: (rev.match(/(?:frame|bingkai)\s*\d+/gi) || []).length };
 }
 const mp4 = existsSync(video) ? readdirSync(video).find((f) => f.endsWith(".mp4")) : null;
 if (mp4) {
